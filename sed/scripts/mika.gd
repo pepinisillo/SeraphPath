@@ -4,7 +4,6 @@ extends Node2D
 
 const COLOR_CUERPO := Color("dfe8f5")
 const COLOR_CONTORNO := Color("7f93b3")
-const COLOR_SOMBRA := Color(0, 0, 0, 0.35)
 const COLOR_MIRADA := Color("9fd8ff")
 
 const ALTO_CAPSULA := 110.0 # px
@@ -32,7 +31,7 @@ func _physics_process(delta: float) -> void:
 		var dir := Iso.direccion_desde_pantalla(entrada)
 		mover(dir * Config.VELOCIDAD_MIKA * delta)
 		mirada = dir.normalized()
-		direccion = _direccion_8(entrada)
+		direccion = Formas.direccion_8(mirada)
 	position = Iso.a_pantalla(pos)
 	queue_redraw()
 
@@ -68,30 +67,6 @@ func _salir_de_muros() -> void:
 					pos = Vector2(celda) + Vector2(0.5, 0.5) + (pos - Vector2(celda) - Vector2(0.5, 0.5)).normalized() * (0.5 + r)
 
 
-func _direccion_8(entrada: Vector2) -> int:
-	return posmod(roundi(entrada.angle() / (PI / 4.0)), 8)
-
-
 func _draw() -> void:
-	# Sombra en el suelo (el origen del nodo está en los pies, que es lo que usa el Y-sort).
-	draw_set_transform(Vector2.ZERO, 0.0, Vector2(1.0, 0.5))
-	draw_circle(Vector2.ZERO, 30.0, COLOR_SOMBRA)
-	draw_set_transform(Vector2.ZERO, 0.0, Vector2.ONE)
-
-	# Indicador de mirada sobre el suelo.
-	var frente := Iso.a_pantalla(mirada) - Iso.a_pantalla(Vector2.ZERO)
-	frente = frente.normalized() * 34.0 * Vector2(1.0, 0.75)
-	draw_line(Vector2.ZERO, frente, COLOR_MIRADA, 3.0)
-	draw_circle(frente, 5.0, COLOR_MIRADA)
-
-	# Cápsula.
-	var r := ANCHO_CAPSULA / 2.0
-	var arriba := Vector2(0, -ALTO_CAPSULA + r)
-	var abajo := Vector2(0, -r)
-	draw_rect(Rect2(-r, arriba.y, ANCHO_CAPSULA, abajo.y - arriba.y), COLOR_CUERPO)
-	draw_circle(arriba, r, COLOR_CUERPO)
-	draw_circle(abajo, r, COLOR_CUERPO)
-	draw_arc(arriba, r, PI, TAU, 16, COLOR_CONTORNO, 2.0)
-	draw_arc(abajo, r, 0.0, PI, 16, COLOR_CONTORNO, 2.0)
-	draw_line(Vector2(-r, arriba.y), Vector2(-r, abajo.y), COLOR_CONTORNO, 2.0)
-	draw_line(Vector2(r, arriba.y), Vector2(r, abajo.y), COLOR_CONTORNO, 2.0)
+	Formas.mirada(self, mirada, COLOR_MIRADA)
+	Formas.capsula(self, ALTO_CAPSULA, ANCHO_CAPSULA, COLOR_CUERPO, COLOR_CONTORNO)

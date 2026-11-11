@@ -4,10 +4,10 @@
   <polygon points="64,64 128,96 64,128 0,96" fill="#262d3b" stroke="#3a4458" stroke-width="2"/>
   <!-- 1: sombra -->
   <polygon points="192,64 256,96 192,128 128,96" fill="#12151d" stroke="#232938" stroke-width="2"/>
-  <!-- 2: muro (bloque de 64 px de alto) -->
-  <polygon points="256,32 320,64 320,128 256,96" fill="#3c4456"/>
-  <polygon points="320,64 384,32 384,96 320,128" fill="#2e3544"/>
-  <polygon points="320,0 384,32 320,64 256,32" fill="#5b667c" stroke="#76829a" stroke-width="2"/>
+  <!-- 2: muro (bloque bajo, de 32 px, para que los pasillos de detrás se sigan viendo) -->
+  <polygon points="256,64 320,96 320,128 256,96" fill="#3c4456"/>
+  <polygon points="320,96 384,64 384,96 320,128" fill="#2e3544"/>
+  <polygon points="320,32 384,64 320,96 256,64" fill="#5b667c" stroke="#76829a" stroke-width="2"/>
   <!-- 3: salida -->
   <polygon points="448,64 512,96 448,128 384,96" fill="#262d3b" stroke="#3a4458" stroke-width="2"/>
   <polygon points="448,80 480,96 448,112 416,96" fill="#9fd8ff" opacity="0.8"/>

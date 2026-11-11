@@ -46,6 +46,7 @@ const HUMANIDAD_INICIAL := 3
 const VISION_ANGULO := 90.0 # grados
 const VISION_ALCANCE := 5.0
 const VISION_ALCANCE_SOMBRA := 2.5
+const VISION_RAYOS := 48 # solo para dibujar el cono
 const DETECCION_LEJOS := 1.2 # s para llenar
 const DETECCION_CERCA := 0.3 # s para llenar
 const DETECCION_DISTANCIA_CERCA := 3.0
@@ -61,6 +62,9 @@ const SOLDADO_DANO := 2
 const SOLDADO_GOLPE_INTERVALO := 1.0
 const SOLDADO_VELOCIDAD_PATRULLA := 2.8
 const SOLDADO_VELOCIDAD_ALARMA := 4.4
+const SOLDADO_PAUSA_RUTA := 0.6 # s quieto en cada punto de la ruta
+const SOLDADO_GIRO := 6.0 # rad/s al girar la mirada
+const RADIO_SOLDADO := 0.3
 
 # --- Prueba de la sed ---
 const PRUEBA_SED_INTERVALO := 1.5

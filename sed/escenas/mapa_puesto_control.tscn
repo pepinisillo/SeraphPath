@@ -3,6 +3,7 @@
 [ext_resource type="Script" path="res://scripts/mapa.gd" id="1_mapa"]
 [ext_resource type="TileSet" path="res://recursos/casillas.tres" id="2_casillas"]
 [ext_resource type="PackedScene" path="res://escenas/mika.tscn" id="3_mika"]
+[ext_resource type="PackedScene" path="res://escenas/soldado.tscn" id="4_soldado"]
 
 [node name="MapaPuestoControl" type="Node2D"]
 y_sort_enabled = true
@@ -19,7 +20,7 @@ s......##.
 Ms##s#...s"
 
 [node name="Suelo" type="TileMapLayer" parent="."]
-z_index = -1
+z_index = -2
 tile_set = ExtResource("2_casillas")
 
 [node name="Muros" type="TileMapLayer" parent="."]
@@ -27,3 +28,6 @@ y_sort_enabled = true
 tile_set = ExtResource("2_casillas")
 
 [node name="Mika" parent="." instance=ExtResource("3_mika")]
+
+[node name="S1" parent="." instance=ExtResource("4_soldado")]
+ruta = Array[Vector2i]([Vector2i(3, 5), Vector2i(6, 5), Vector2i(6, 8), Vector2i(3, 8)])

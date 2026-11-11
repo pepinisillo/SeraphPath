@@ -32,6 +32,9 @@ func _ready() -> void:
 	var mika := get_node_or_null("Mika")
 	if mika:
 		mika.iniciar(self, Vector2(inicio_mika) + Vector2(0.5, 0.5))
+	for hijo in get_children():
+		if hijo is Soldado:
+			hijo.iniciar(self)
 
 
 func _construir() -> void:
@@ -78,3 +81,42 @@ func es_muro(celda: Vector2i) -> bool:
 
 func es_sombra(celda: Vector2i) -> bool:
 	return caracter(celda) == "s"
+
+
+## Distancia en casillas desde `origen` en `direccion` hasta el primer muro, como máximo `maximo`.
+## Recorre la cuadrícula casilla a casilla (DDA), así que no se salta esquinas.
+func distancia_hasta_muro(origen: Vector2, direccion: Vector2, maximo: float) -> float:
+	var dir := direccion.normalized()
+	var celda := Vector2i(floori(origen.x), floori(origen.y))
+	if es_muro(celda):
+		return 0.0
+	var paso := Vector2i(int(signf(dir.x)), int(signf(dir.y)))
+	var t_max := Vector2(INF, INF)
+	var t_delta := Vector2(INF, INF)
+	if dir.x != 0.0:
+		t_delta.x = absf(1.0 / dir.x)
+		t_max.x = (celda.x + (1 if paso.x > 0 else 0) - origen.x) / dir.x
+	if dir.y != 0.0:
+		t_delta.y = absf(1.0 / dir.y)
+		t_max.y = (celda.y + (1 if paso.y > 0 else 0) - origen.y) / dir.y
+	while true:
+		var t: float
+		if t_max.x < t_max.y:
+			t = t_max.x
+			t_max.x += t_delta.x
+			celda.x += paso.x
+		else:
+			t = t_max.y
+			t_max.y += t_delta.y
+			celda.y += paso.y
+		if t >= maximo:
+			return maximo
+		if es_muro(celda):
+			return t
+	return maximo
+
+
+## True si ningún muro corta la recta entre a y b.
+func hay_linea_de_vision(a: Vector2, b: Vector2) -> bool:
+	var distancia := a.distance_to(b)
+	return distancia_hasta_muro(a, b - a, distancia) >= distancia
