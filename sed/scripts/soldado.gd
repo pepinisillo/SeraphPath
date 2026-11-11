@@ -1,6 +1,7 @@
 class_name Soldado
 extends Node2D
 ## Soldado humano. Patrulla su ruta y reacciona a Mika en tres estados: Oculto, Sospecha y Alarma.
+## Puede quedar derribado (por Tajo o Golpe silencioso); otro soldado puede descubrir su cuerpo.
 ## Su posición real vive en coordenadas de casilla.
 
 enum Estado { OCULTO, SOSPECHA, ALARMA }
@@ -11,6 +12,7 @@ const COLOR_MIRADA := Color("c9d6e8")
 const COLOR_CALMA := Color("9eccff")
 const COLOR_SOSPECHA := Color("f2b13c")
 const COLOR_ALARMA := Color("e0384a")
+const COLOR_MARCA_SILENCIOSO := Color("e8f1ff")
 const COLOR_FONDO_MEDIDOR := Color(0.04, 0.05, 0.08, 0.85)
 const ALTO_CAPSULA := 104.0
 const ANCHO_CAPSULA := 42.0
@@ -29,6 +31,9 @@ var mirada := Vector2(1, 0) # dirección en casillas, normalizada
 var direccion := 0 # una de 8 direcciones de pantalla
 var estado := Estado.OCULTO
 var medidor := 0.0 # detección, de 0 a 1
+var vida := Config.SOLDADO_VIDA
+var derribado := false
+var descubierto := false # otro soldado ya encontró su cuerpo
 
 var _indice := 0 # punto de la ruta hacia el que camina
 var _sentido := 1 # para el vaivén
@@ -56,9 +61,11 @@ func iniciar(p_mapa: Mapa) -> void:
 
 
 func _physics_process(delta: float) -> void:
-	if mapa == null or ruta.is_empty():
+	if mapa == null or ruta.is_empty() or derribado:
 		return
 	var ve := _ve_a_mika()
+	if estado != Estado.ALARMA:
+		_buscar_cuerpos()
 	_actualizar_medidor(ve, delta)
 	if mapa.alerta.activa and estado != Estado.ALARMA:
 		_entrar_en_alarma()
@@ -77,21 +84,64 @@ func _physics_process(delta: float) -> void:
 	queue_redraw()
 
 
+# --- Acciones de Mika sobre él ---
+
+func recibir_dano(cantidad: int) -> void:
+	if derribado:
+		return
+	vida -= cantidad
+	if vida <= 0:
+		derribar()
+	else:
+		mapa.alerta.dar_alarma(mapa.mika.pos)
+
+
+func derribar() -> void:
+	derribado = true
+	vida = 0
+	medidor = 0.0
+	estado = Estado.OCULTO
+	cono.visible = false
+	queue_redraw()
+
+
+## Por la espalda o fuera del cono, y sin alarma activa.
+func admite_golpe_silencioso() -> bool:
+	return not derribado and not mapa.alerta.activa and not _ve_a_mika()
+
+
+## Oye un ruido: va a investigar el origen. En Alarma ya persigue y no le cambia nada.
+func oir(origen: Vector2) -> void:
+	if derribado or estado == Estado.ALARMA:
+		return
+	_investigar(origen)
+
+
 # --- Percepción ---
 
-## Mika está dentro del cono, al alcance (menor si ella está en sombra) y sin muros de por medio.
 func _ve_a_mika() -> bool:
-	var mika := mapa.mika
-	if mika == null:
-		return false
-	var hacia := mika.pos - pos
+	return mapa.mika != null and _puede_ver(mapa.mika.pos)
+
+
+## El punto está dentro del cono, al alcance (menor si está en sombra) y sin muros de por medio.
+func _puede_ver(punto: Vector2) -> bool:
+	var hacia := punto - pos
 	var distancia := hacia.length()
-	var alcance := Config.VISION_ALCANCE_SOMBRA if mapa.es_sombra(mika.celda()) else Config.VISION_ALCANCE
+	var en_sombra := mapa.es_sombra(Vector2i(floori(punto.x), floori(punto.y)))
+	var alcance := Config.VISION_ALCANCE_SOMBRA if en_sombra else Config.VISION_ALCANCE
 	if distancia > alcance:
 		return false
 	if distancia > 0.001 and absf(angle_difference(mirada.angle(), hacia.angle())) > deg_to_rad(Config.VISION_ANGULO) / 2.0:
 		return false
-	return mapa.hay_linea_de_vision(pos, mika.pos)
+	return mapa.hay_linea_de_vision(pos, punto)
+
+
+## Si ve un cuerpo que nadie había encontrado, va a investigarlo.
+func _buscar_cuerpos() -> void:
+	for otro in mapa.soldados():
+		if otro.derribado and not otro.descubierto and _puede_ver(otro.pos):
+			otro.descubierto = true
+			_investigar(otro.pos)
 
 
 func _actualizar_medidor(ve: bool, delta: float) -> void:
@@ -261,8 +311,18 @@ func _color_estado() -> Color:
 
 
 func _draw() -> void:
+	if derribado:
+		Formas.caido(self, ALTO_CAPSULA * 0.8, ANCHO_CAPSULA * 0.8, COLOR_CUERPO.darkened(0.25), COLOR_CONTORNO.darkened(0.3))
+		return
 	Formas.mirada(self, mirada, COLOR_MIRADA)
 	Formas.capsula(self, ALTO_CAPSULA, ANCHO_CAPSULA, COLOR_CUERPO, COLOR_CONTORNO)
+
+	# Rombo sobre la cabeza: Mika puede derribarlo ahora con un Golpe silencioso.
+	if mapa and mapa.mika and mapa.mika.objetivo_silencioso == self:
+		var c := Vector2(0, -ALTO_CAPSULA - 46.0)
+		var rombo := PackedVector2Array([c + Vector2(0, -9), c + Vector2(9, 0), c + Vector2(0, 9), c + Vector2(-9, 0), c + Vector2(0, -9)])
+		draw_polyline(rombo, COLOR_MARCA_SILENCIOSO, 2.0, true)
+
 	if medidor <= 0.0 and estado == Estado.OCULTO:
 		return
 

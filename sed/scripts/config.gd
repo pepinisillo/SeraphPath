@@ -22,6 +22,11 @@ const IMPULSO_SED := 8
 const TAJO_DANO := 4
 const TAJO_ALCANCE := 1.25
 const TAJO_ENFRIAMIENTO := 0.4
+const ATAQUE_ANGULO := 120.0 # grados delante de Mika en los que alcanzan Tajo y Golpe silencioso
+
+# --- Golpe silencioso ---
+const GOLPE_SILENCIOSO_ALCANCE := 1.25
+const GOLPE_SILENCIOSO_ENFRIAMIENTO := 0.5
 
 # --- Sangre ---
 const BEBER_DURACION := 2.0
@@ -53,6 +58,7 @@ const DETECCION_DISTANCIA_CERCA := 3.0
 const DETECCION_SOSPECHA := 0.5 # fracción del medidor que dispara la Sospecha
 const DETECCION_VACIADO := 3.0 # s para vaciarse del todo cuando deja de verla
 const RUIDO_RADIO := 4.0
+const RUIDO_ONDA_DURACION := 0.4 # s que dura la onda dibujada
 const SOSPECHA_DURACION := 6.0
 const ALARMA_REFUERZO_INTERVALO := 10.0
 const ALARMA_REFUERZOS_MAX := 4

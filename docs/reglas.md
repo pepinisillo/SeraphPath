@@ -29,6 +29,17 @@ El pilar central es que **todo poder tiene precio**: la sangre humana hace fuert
 - **Lógica separada del dibujo:** todas las distancias se miden en casillas del mapa. Visión, ruido y movimiento se calculan en coordenadas de casilla, y la vista isométrica solo convierte a píxeles al dibujar.
 - **Controles:** las teclas siguen las diagonales isométricas, de modo que «arriba» en el teclado es «arriba» en pantalla.
 
+## Controles
+
+| Acción | Teclado y ratón | Mando |
+| --- | --- | --- |
+| Moverse | WASD o flechas | Stick izquierdo |
+| Tajo | J o clic izquierdo | X |
+| Golpe silencioso | K o clic derecho | Y |
+| Impulso | Espacio | A |
+
+Los ataques salen hacia donde mira Mika; el Impulso, hacia donde se mueve (o hacia donde mira, si está quieta).
+
 ## Reglas en tiempo real
 
 Son valores de partida; se irán ajustando al jugar.
@@ -64,6 +75,15 @@ Decisiones que las reglas de arriba no fijan; sus valores están en `scripts/con
 - **Al apagarse la Alarma,** cada soldado queda en Sospecha con el medidor a la mitad e investiga la última posición vista.
 - **Refuerzos:** aparecen en la casilla de entrada de refuerzos del mapa (en el puesto de control, la salida) y hacen guardia en ella. El máximo de 4 es por mapa.
 - **Color del cono:** azul frío en calma, ámbar en Sospecha y rojo en Alarma. La zona cercana, a menos de 3 casillas, se pinta más intensa porque allí la detección es casi inmediata.
+
+### Detalles del combate y el ruido
+
+- **Arco de ataque:** el Tajo y el Golpe silencioso alcanzan a lo que está en un arco de 120° delante de Mika. El Tajo daña a todos los que haya dentro.
+- **Golpe silencioso:** alcance de 1,25 casillas y enfriamiento de 0,5 s. Cuando hay un soldado que se puede derribar así, aparece un rombo sobre su cabeza. Sin objetivo válido no hace nada ni gasta el enfriamiento.
+- **Derribado:** tanto el Tajo (si deja al soldado sin vida) como el Golpe silencioso lo dejan derribado, no muerto. El cuerpo se queda en el suelo.
+- **Ruido:** se oye a través de los muros. Se dibuja como una onda en el suelo con el radio en que se oye. En Alarma no cambia nada, porque ya persiguen.
+- **Impulso:** el ruido sale de donde empieza el dash. Los muros lo detienen. La sed que cuesta llega en el paso 5.
+- **Cuerpos:** cada cuerpo se descubre una sola vez. Quien lo ve va a investigarlo; la sombra también reduce a 2,5 casillas la distancia a la que se ve.
 
 ### Prueba de la sed
 

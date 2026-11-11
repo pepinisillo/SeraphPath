@@ -39,9 +39,8 @@ func _ready() -> void:
 	mika = get_node_or_null("Mika")
 	if mika:
 		mika.iniciar(self, Vector2(inicio_mika) + Vector2(0.5, 0.5))
-	for hijo in get_children():
-		if hijo is Soldado:
-			hijo.iniciar(self)
+	for soldado in soldados():
+		soldado.iniciar(self)
 
 
 func _construir() -> void:
@@ -114,6 +113,24 @@ func camino(desde: Vector2, hasta: Vector2) -> PackedVector2Array:
 		else:
 			puntos[-1] = hasta
 	return puntos
+
+
+func soldados() -> Array[Soldado]:
+	var lista: Array[Soldado] = []
+	for hijo in get_children():
+		if hijo is Soldado:
+			lista.append(hijo)
+	return lista
+
+
+## Un ruido en `origen`: los soldados a menos de RUIDO_RADIO casillas lo oyen, haya muros o no.
+func hacer_ruido(origen: Vector2) -> void:
+	for soldado in soldados():
+		if soldado.pos.distance_to(origen) <= Config.RUIDO_RADIO:
+			soldado.oir(origen)
+	var onda := OndaRuido.new()
+	onda.position = Iso.a_pantalla(origen)
+	add_child(onda)
 
 
 ## Llama a un soldado de refuerzo, que aparece en la entrada de refuerzos.
