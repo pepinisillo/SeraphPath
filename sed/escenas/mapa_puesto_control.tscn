@@ -4,6 +4,7 @@
 [ext_resource type="TileSet" path="res://recursos/casillas.tres" id="2_casillas"]
 [ext_resource type="PackedScene" path="res://escenas/mika.tscn" id="3_mika"]
 [ext_resource type="PackedScene" path="res://escenas/soldado.tscn" id="4_soldado"]
+[ext_resource type="Script" path="res://scripts/alerta.gd" id="5_alerta"]
 
 [node name="MapaPuestoControl" type="Node2D"]
 y_sort_enabled = true
@@ -18,6 +19,9 @@ s##.##.##.
 s##.##....
 s......##.
 Ms##s#...s"
+
+[node name="Alerta" type="Node" parent="."]
+script = ExtResource("5_alerta")
 
 [node name="Suelo" type="TileMapLayer" parent="."]
 z_index = -2

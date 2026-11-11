@@ -53,6 +53,18 @@ Son valores de partida; se irán ajustando al jugar.
 | Cuerpos | Otra patrulla puede descubrir a un soldado derribado y entrar en Sospecha |
 | Soldado | Vida 4; 2,8 casillas/s en patrulla y 4,4 casillas/s en alarma |
 
+### Detalles de la detección
+
+Decisiones que las reglas de arriba no fijan; sus valores están en `scripts/config.gd`.
+
+- **El medidor se vacía** en 3 s cuando el soldado deja de ver a Mika. La Sospecha no termina por eso: termina al acabar de investigar.
+- **Antes de la Sospecha,** si el soldado ve a Mika se detiene y se gira hacia ella mientras el medidor sube.
+- **Al investigar,** camina hasta el punto, mira alrededor durante 6 s y vuelve a su ruta. Si vuelve a ver a Mika, el punto pasa a ser donde está ella.
+- **En Alarma** se detiene a 0,9 casillas de Mika (luego será la distancia de golpe). Al llegar a la última posición vista sin verla, mira alrededor.
+- **Al apagarse la Alarma,** cada soldado queda en Sospecha con el medidor a la mitad e investiga la última posición vista.
+- **Refuerzos:** aparecen en la casilla de entrada de refuerzos del mapa (en el puesto de control, la salida) y hacen guardia en ella. El máximo de 4 es por mapa.
+- **Color del cono:** azul frío en calma, ámbar en Sospecha y rojo en Alarma. La zona cercana, a menos de 3 casillas, se pinta más intensa porque allí la detección es casi inmediata.
+
 ### Prueba de la sed
 
 Un mapa dentro de la mente de Mika, donde no puede atacar. La sed sube 1 cada 1,5 s, y 1 más cada 1,5 s por cada eco a menos de 1,5 casillas.

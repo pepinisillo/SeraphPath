@@ -50,6 +50,8 @@ const VISION_RAYOS := 48 # solo para dibujar el cono
 const DETECCION_LEJOS := 1.2 # s para llenar
 const DETECCION_CERCA := 0.3 # s para llenar
 const DETECCION_DISTANCIA_CERCA := 3.0
+const DETECCION_SOSPECHA := 0.5 # fracción del medidor que dispara la Sospecha
+const DETECCION_VACIADO := 3.0 # s para vaciarse del todo cuando deja de verla
 const RUIDO_RADIO := 4.0
 const SOSPECHA_DURACION := 6.0
 const ALARMA_REFUERZO_INTERVALO := 10.0
@@ -65,6 +67,8 @@ const SOLDADO_VELOCIDAD_ALARMA := 4.4
 const SOLDADO_PAUSA_RUTA := 0.6 # s quieto en cada punto de la ruta
 const SOLDADO_GIRO := 6.0 # rad/s al girar la mirada
 const RADIO_SOLDADO := 0.3
+const SOLDADO_GIRO_BUSQUEDA := 1.6 # rad/s al mirar alrededor del punto investigado
+const SOLDADO_DISTANCIA_GOLPE := 0.9 # en alarma se detiene a esta distancia de Mika
 
 # --- Prueba de la sed ---
 const PRUEBA_SED_INTERVALO := 1.5
