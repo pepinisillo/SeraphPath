@@ -20,6 +20,24 @@ static func capsula(lienzo: CanvasItem, alto: float, ancho: float, relleno: Colo
 	lienzo.draw_line(Vector2(r, arriba.y), Vector2(r, abajo.y), contorno, 2.0)
 
 
+## Cuerpo tendido en el suelo (personaje derribado). El origen es el centro del cuerpo.
+static func caido(lienzo: CanvasItem, largo: float, grosor: float, relleno: Color, contorno: Color) -> void:
+	lienzo.draw_set_transform(Vector2.ZERO, 0.0, Vector2(1.0, 0.5))
+	lienzo.draw_circle(Vector2.ZERO, largo * 0.55, Color(0, 0, 0, 0.35))
+	lienzo.draw_set_transform(Vector2.ZERO, 0.0, Vector2.ONE)
+
+	var r := grosor / 2.0
+	var izquierda := Vector2(-largo / 2.0 + r, -r)
+	var derecha := Vector2(largo / 2.0 - r, -r)
+	lienzo.draw_rect(Rect2(izquierda.x, -grosor, derecha.x - izquierda.x, grosor), relleno)
+	lienzo.draw_circle(izquierda, r, relleno)
+	lienzo.draw_circle(derecha, r, relleno)
+	lienzo.draw_arc(izquierda, r, PI / 2.0, PI * 1.5, 16, contorno, 2.0)
+	lienzo.draw_arc(derecha, r, -PI / 2.0, PI / 2.0, 16, contorno, 2.0)
+	lienzo.draw_line(Vector2(izquierda.x, -grosor), Vector2(derecha.x, -grosor), contorno, 2.0)
+	lienzo.draw_line(Vector2(izquierda.x, 0.0), Vector2(derecha.x, 0.0), contorno, 2.0)
+
+
 ## Flecha sobre el suelo que indica hacia dónde mira (dirección en casillas).
 static func mirada(lienzo: CanvasItem, direccion: Vector2, color: Color) -> void:
 	var frente := Iso.a_pantalla(direccion) - Iso.a_pantalla(Vector2.ZERO)
