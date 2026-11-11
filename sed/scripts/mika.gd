@@ -36,6 +36,10 @@ func _physics_process(delta: float) -> void:
 	queue_redraw()
 
 
+func celda() -> Vector2i:
+	return Vector2i(floori(pos.x), floori(pos.y))
+
+
 ## Mueve en coordenadas de casilla, deslizando contra los muros.
 func mover(desplazamiento: Vector2) -> void:
 	var pasos := maxi(1, ceili(desplazamiento.length() / PASO_MAXIMO))

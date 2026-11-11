@@ -16,20 +16,27 @@ const ATLAS_SALIDA := Vector2i(3, 0)
 		if is_node_ready():
 			_construir()
 
+## Casilla por la que llegan los refuerzos durante la alarma.
+@export var entrada_refuerzos := Vector2i(9, 0)
+
 var filas: PackedStringArray = []
 var ancho := 0
 var alto := 0
 var inicio_mika := Vector2i.ZERO
+var mika: Mika
+
+var _rejilla := AStarGrid2D.new()
 
 @onready var suelo: TileMapLayer = $Suelo
 @onready var muros: TileMapLayer = $Muros
+@onready var alerta: Alerta = get_node_or_null("Alerta")
 
 
 func _ready() -> void:
 	_construir()
 	if Engine.is_editor_hint():
 		return
-	var mika := get_node_or_null("Mika")
+	mika = get_node_or_null("Mika")
 	if mika:
 		mika.iniciar(self, Vector2(inicio_mika) + Vector2(0.5, 0.5))
 	for hijo in get_children():
@@ -64,6 +71,13 @@ func _construir() -> void:
 				_:
 					suelo.set_cell(celda, 0, ATLAS_SUELO)
 
+	_rejilla.region = Rect2i(0, 0, ancho, alto)
+	_rejilla.diagonal_mode = AStarGrid2D.DIAGONAL_MODE_ONLY_IF_NO_OBSTACLES
+	_rejilla.update()
+	for f in alto:
+		for c in ancho:
+			_rejilla.set_point_solid(Vector2i(c, f), es_muro(Vector2i(c, f)))
+
 
 func caracter(celda: Vector2i) -> String:
 	if celda.y < 0 or celda.y >= filas.size():
@@ -81,6 +95,34 @@ func es_muro(celda: Vector2i) -> bool:
 
 func es_sombra(celda: Vector2i) -> bool:
 	return caracter(celda) == "s"
+
+
+## Puntos (en casillas) para ir de `desde` a `hasta` esquivando muros: centros de casilla
+## y, al final, el punto exacto. Vacío si no hay camino.
+func camino(desde: Vector2, hasta: Vector2) -> PackedVector2Array:
+	var inicio := Vector2i(floori(desde.x), floori(desde.y))
+	var fin := Vector2i(floori(hasta.x), floori(hasta.y))
+	var puntos := PackedVector2Array()
+	if not _rejilla.is_in_boundsv(inicio) or not _rejilla.is_in_boundsv(fin):
+		return puntos
+	var celdas := _rejilla.get_id_path(inicio, fin, true)
+	for i in range(1, celdas.size()):
+		puntos.append(Vector2(celdas[i]) + Vector2(0.5, 0.5))
+	if not celdas.is_empty() and celdas[-1] == fin:
+		if puntos.is_empty():
+			puntos.append(hasta)
+		else:
+			puntos[-1] = hasta
+	return puntos
+
+
+## Llama a un soldado de refuerzo, que aparece en la entrada de refuerzos.
+func crear_refuerzo(numero: int) -> void:
+	var soldado: Soldado = load("res://escenas/soldado.tscn").instantiate()
+	soldado.name = "Refuerzo%d" % numero
+	soldado.ruta.assign([entrada_refuerzos])
+	add_child(soldado)
+	soldado.iniciar(self)
 
 
 ## Distancia en casillas desde `origen` en `direccion` hasta el primer muro, como máximo `maximo`.
