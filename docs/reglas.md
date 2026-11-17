@@ -151,6 +151,8 @@ Patrullas, en (columna, fila):
 
 En la vista isométrica un muro tapa lo que tiene detrás, así que los muros que quedan entre la cámara y Mika se vuelven semitransparentes.
 
+Cada soldado empieza en el primer punto de su ruta, mirando hacia el segundo. La prueba automática del paso 7 busca una ruta de la `M` a la `E` en la que nadie vea nunca a Mika y la reproduce en el juego. Con las rutas actuales existe, y es muy rápida: saliendo al instante y siguiendo la espalda de las patrullas (columna 3, fila 5, columna 6, fila 3 y columna 9), Mika llega a la salida en unos 5 s, porque los cuatro soldados empiezan alejándose de ese camino. Si se quiere que el mapa exija esperar o usar las sombras, basta con cambiar dónde empieza alguna patrulla.
+
 ## Plan de construcción
 
 Cada paso queda jugable antes de empezar el siguiente, y el arte final no entra hasta el paso 9.

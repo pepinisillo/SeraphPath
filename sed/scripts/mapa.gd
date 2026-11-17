@@ -33,7 +33,7 @@ var terminado := false
 var _rejilla := AStarGrid2D.new()
 
 @onready var suelo: TileMapLayer = $Suelo
-@onready var muros: TileMapLayer = $Muros
+@onready var muros: Muros = $Muros
 @onready var alerta: Alerta = get_node_or_null("Alerta")
 
 
@@ -61,6 +61,8 @@ func _physics_process(delta: float) -> void:
 	if Engine.is_editor_hint() or terminado:
 		return
 	estadisticas.tiempo += delta
+	if mika:
+		muros.actualizar_transparencia(mika.pos, Mika.ALTO_CAPSULA, Mika.ANCHO_CAPSULA)
 
 
 func _construir() -> void:

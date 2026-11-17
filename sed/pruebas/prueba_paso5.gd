@@ -6,6 +6,8 @@ var derrotas := 0
 
 func nuevo_mapa() -> Mapa:
 	var mapa: Mapa = load("res://escenas/mapa_puesto_control.tscn").instantiate()
+	for nombre in ["S2", "S3", "S4"]: # las pruebas de este paso usan solo a S1
+		mapa.get_node(nombre).free()
 	root.add_child(mapa)
 	mapa.process_mode = Node.PROCESS_MODE_DISABLED
 	await process_frame

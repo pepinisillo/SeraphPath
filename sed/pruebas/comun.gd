@@ -6,8 +6,13 @@ var ok := true
 
 
 ## Carga el puesto de control sin que avance solo: las pruebas lo hacen avanzar con paso().
-func nuevo_mapa() -> Mapa:
+## Solo deja a los soldados nombrados (por defecto S1, con el que se escribieron las pruebas
+## de los pasos 2 a 6); con `todos` deja a los cuatro.
+func nuevo_mapa(todos := false) -> Mapa:
 	var mapa: Mapa = load("res://escenas/mapa_puesto_control.tscn").instantiate()
+	if not todos:
+		for nombre in ["S2", "S3", "S4"]:
+			mapa.get_node(nombre).free()
 	root.add_child(mapa)
 	mapa.process_mode = Node.PROCESS_MODE_DISABLED
 	await process_frame
