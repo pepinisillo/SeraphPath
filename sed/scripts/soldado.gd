@@ -6,14 +6,14 @@ extends Node2D
 
 enum Estado { OCULTO, SOSPECHA, ALARMA }
 
-const COLOR_CUERPO := Color("4a5a6e")
-const COLOR_CONTORNO := Color("8d9db3")
-const COLOR_MIRADA := Color("c9d6e8")
-const COLOR_CALMA := Color("9eccff")
-const COLOR_SOSPECHA := Color("f2b13c")
-const COLOR_ALARMA := Color("e0384a")
-const COLOR_MARCA_SILENCIOSO := Color("e8f1ff")
-const COLOR_SANGRE := Color("b3263a")
+const COLOR_CUERPO := Paleta.SOLDADOS
+const COLOR_CONTORNO := Paleta.DETALLES
+const COLOR_MIRADA := Paleta.DETALLES
+const COLOR_CALMA := Paleta.CALMA
+const COLOR_SOSPECHA := Paleta.AMBAR
+const COLOR_ALARMA := Paleta.ROJO
+const COLOR_MARCA_SILENCIOSO := Paleta.BLANCO_HUESO
+const COLOR_SANGRE := Paleta.ROJO
 const COLOR_FONDO_MEDIDOR := Color(0.04, 0.05, 0.08, 0.85)
 const ALTO_CAPSULA := 104.0
 const ANCHO_CAPSULA := 42.0
@@ -154,6 +154,7 @@ func _buscar_cuerpos() -> void:
 	for otro in mapa.soldados():
 		if otro.derribado and not otro.descubierto and _puede_ver(otro.pos):
 			otro.descubierto = true
+			mapa.estadisticas.cuerpos_descubiertos += 1
 			_investigar(otro.pos)
 
 

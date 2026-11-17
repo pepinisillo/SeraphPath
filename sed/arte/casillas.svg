@@ -10,5 +10,5 @@
   <polygon points="320,32 384,64 320,96 256,64" fill="#5b667c" stroke="#76829a" stroke-width="2"/>
   <!-- 3: salida -->
   <polygon points="448,64 512,96 448,128 384,96" fill="#262d3b" stroke="#3a4458" stroke-width="2"/>
-  <polygon points="448,80 480,96 448,112 416,96" fill="#9fd8ff" opacity="0.8"/>
+  <polygon points="448,80 480,96 448,112 416,96" fill="#4fb8a8" opacity="0.9"/>
 </svg>

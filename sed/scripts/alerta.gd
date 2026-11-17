@@ -14,6 +14,7 @@ var _hasta_refuerzo := 0.0
 func dar_alarma(posicion: Vector2) -> void:
 	if not activa:
 		activa = true
+		get_parent().estadisticas.alarmas += 1
 		_hasta_refuerzo = Config.ALARMA_REFUERZO_INTERVALO
 	vista(posicion)
 

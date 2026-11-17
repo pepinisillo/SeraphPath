@@ -8,12 +8,12 @@ extends Node2D
 signal mejora_pendiente(opciones: Array[String])
 signal derrotada
 
-const COLOR_CUERPO := Color("dfe8f5")
-const COLOR_CONTORNO := Color("7f93b3")
-const COLOR_FRENESI := Color("e0384a")
-const COLOR_MIRADA := Color("9fd8ff")
-const COLOR_TAJO := Color("eef5ff")
-const COLOR_SANGRE := Color("b3263a")
+const COLOR_CUERPO := Paleta.BLANCO_HUESO
+const COLOR_CONTORNO := Paleta.DETALLES
+const COLOR_FRENESI := Paleta.ROJO
+const COLOR_MIRADA := Paleta.CALMA
+const COLOR_TAJO := Paleta.BLANCO_HUESO
+const COLOR_SANGRE := Paleta.ROJO
 
 const ALTO_CAPSULA := 110.0 # px
 const ANCHO_CAPSULA := 40.0 # px
@@ -130,6 +130,10 @@ func _physics_process(delta: float) -> void:
 	else:
 		_control(delta)
 
+	if mapa.es_salida(celda()):
+		mapa.terminar(true)
+		return
+
 	objetivo_silencioso = null if sin_control() else _buscar_objetivo_silencioso()
 	direccion = Formas.direccion_8(mirada)
 	position = Iso.a_pantalla(pos)
@@ -233,6 +237,7 @@ func _terminar_de_beber() -> void:
 	_acumulado_sed = 0.0
 	vida = vida_max
 	humanidad = maxi(0, humanidad - 1)
+	mapa.estadisticas.sangre_bebida += 1
 	_ofrecer_mejora()
 
 
@@ -330,6 +335,8 @@ func tajo() -> bool:
 	for soldado in mapa.soldados():
 		if _al_alcance(soldado, Config.TAJO_ALCANCE):
 			soldado.recibir_dano(dano_tajo())
+			if soldado.derribado:
+				mapa.estadisticas.derribados_con_tajo += 1
 	mapa.hacer_ruido(pos)
 	return true
 
@@ -343,6 +350,7 @@ func golpe_silencioso() -> bool:
 		return false
 	_enfriamiento_golpe = Config.GOLPE_SILENCIOSO_ENFRIAMIENTO
 	objetivo.derribar()
+	mapa.estadisticas.derribados_en_silencio += 1
 	return true
 
 

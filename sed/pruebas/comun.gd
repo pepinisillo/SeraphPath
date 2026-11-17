@@ -17,6 +17,9 @@ func nuevo_mapa() -> Mapa:
 
 func paso(m: Mapa, segundos: float = DT) -> void:
 	for i in roundi(segundos / DT):
+		if m.terminado:
+			return
+		m._physics_process(DT)
 		m.alerta._physics_process(DT)
 		m.mika._physics_process(DT)
 		for s in m.soldados():

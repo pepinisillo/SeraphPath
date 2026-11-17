@@ -1,0 +1,124 @@
+class_name Resultado
+extends CanvasLayer
+## Pantalla de resultado de un mapa: si Mika salió o cayó, el objetivo opcional,
+## lo que pasó por el camino y cómo queda Mika. Se muestra con el juego en pausa.
+
+const COLOR_TENUE := Color("6c7a91")
+
+var exito := false
+var boton_repetir: Button
+var boton_salir: Button
+
+
+func mostrar(mapa: Mapa, p_exito: bool) -> void:
+	exito = p_exito
+	var e := mapa.estadisticas
+	var mika := mapa.mika
+
+	var fondo := ColorRect.new()
+	fondo.color = Color(0.03, 0.035, 0.05, 0.88)
+	fondo.set_anchors_preset(Control.PRESET_FULL_RECT)
+	add_child(fondo)
+
+	var centro := CenterContainer.new()
+	centro.set_anchors_preset(Control.PRESET_FULL_RECT)
+	add_child(centro)
+	var panel := PanelContainer.new()
+	var estilo := StyleBoxFlat.new()
+	estilo.bg_color = Color(0.05, 0.06, 0.09, 0.97)
+	estilo.border_color = Paleta.TURQUESA if exito else Paleta.ROJO
+	estilo.set_border_width_all(2)
+	estilo.set_content_margin_all(28)
+	panel.add_theme_stylebox_override("panel", estilo)
+	centro.add_child(panel)
+	var caja := VBoxContainer.new()
+	caja.add_theme_constant_override("separation", 14)
+	panel.add_child(caja)
+
+	var titulo := "%s superado" % mapa.nombre if exito else "Mika ha caído"
+	_etiqueta(caja, titulo, 32, Paleta.TURQUESA if exito else Paleta.ROJO)
+	if not exito:
+		_etiqueta(caja, mapa.nombre, 18, COLOR_TENUE)
+
+	if mapa.texto_objetivo() != "":
+		var cumplido := mapa.objetivo_cumplido()
+		var texto := "Objetivo opcional: %s · %s" % [mapa.texto_objetivo(), "conseguido" if cumplido else "no conseguido"]
+		_etiqueta(caja, texto, 16, Paleta.TURQUESA if cumplido else COLOR_TENUE)
+
+	var tabla := GridContainer.new()
+	tabla.columns = 2
+	tabla.add_theme_constant_override("h_separation", 40)
+	tabla.add_theme_constant_override("v_separation", 6)
+	var filas := [
+		["Tiempo", "%d:%02d" % [int(e.tiempo) / 60, int(e.tiempo) % 60]],
+		["Veces que sonó la alarma", str(e.alarmas)],
+		["Derribados en silencio", str(e.derribados_en_silencio)],
+		["Derribados con el Tajo", str(e.derribados_con_tajo)],
+		["Cuerpos descubiertos", str(e.cuerpos_descubiertos)],
+		["Sangre humana bebida", str(e.sangre_bebida)],
+		["Viales recogidos", str(e.viales_recogidos)],
+	]
+	for fila in filas:
+		_etiqueta(tabla, fila[0], 16, Paleta.DETALLES)
+		_etiqueta(tabla, fila[1], 16, Paleta.BLANCO_HUESO).horizontal_alignment = HORIZONTAL_ALIGNMENT_RIGHT
+	caja.add_child(tabla)
+
+	var estado := "Vida %d/%d · Sed %d · Humanidad %d/%d" % [mika.vida, mika.vida_max, mika.sed, mika.humanidad, Config.HUMANIDAD_INICIAL]
+	_etiqueta(caja, estado, 16, Paleta.BLANCO_HUESO)
+	if not mika.mejoras.is_empty():
+		var nombres := PackedStringArray()
+		for id in mika.mejoras:
+			nombres.append(Mejoras.nombre(id))
+		_etiqueta(caja, "Sangre: " + " · ".join(nombres), 16, Paleta.ROJO)
+
+	var logros := _logros(e)
+	if exito and not logros.is_empty():
+		_etiqueta(caja, " · ".join(logros), 18, Paleta.TURQUESA)
+
+	var botones := HBoxContainer.new()
+	botones.alignment = BoxContainer.ALIGNMENT_CENTER
+	botones.add_theme_constant_override("separation", 16)
+	boton_repetir = _boton(botones, "Jugar de nuevo" if exito else "Volver a intentarlo", _repetir)
+	boton_salir = _boton(botones, "Salir del juego", _salir)
+	caja.add_child(botones)
+	boton_repetir.grab_focus()
+
+
+## Menciones por jugar en sigilo y sin ceder a la sangre.
+func _logros(e: Estadisticas) -> PackedStringArray:
+	var logros := PackedStringArray()
+	if e.alarmas == 0 and e.cuerpos_descubiertos == 0:
+		logros.append("Sin dejar rastro")
+	elif e.alarmas == 0:
+		logros.append("Nadie dio la alarma")
+	if e.sangre_bebida == 0:
+		logros.append("Sin beber sangre humana")
+	return logros
+
+
+func _etiqueta(padre: Control, texto: String, tamano: int, color: Color) -> Label:
+	var etiqueta := Label.new()
+	etiqueta.text = texto
+	etiqueta.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	etiqueta.add_theme_font_size_override("font_size", tamano)
+	etiqueta.add_theme_color_override("font_color", color)
+	padre.add_child(etiqueta)
+	return etiqueta
+
+
+func _boton(padre: Control, texto: String, accion: Callable) -> Button:
+	var boton := Button.new()
+	boton.text = texto
+	boton.custom_minimum_size = Vector2(200, 44)
+	boton.pressed.connect(accion)
+	padre.add_child(boton)
+	return boton
+
+
+func _repetir() -> void:
+	get_tree().paused = false
+	get_tree().reload_current_scene()
+
+
+func _salir() -> void:
+	get_tree().quit()

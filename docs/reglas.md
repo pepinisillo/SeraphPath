@@ -91,7 +91,7 @@ Decisiones que las reglas de arriba no fijan; sus valores están en `scripts/con
 ### Detalles de la sed y la sangre
 
 - **Golpes de soldado:** en Alarma, el soldado que ve a Mika y está a 0,9 casillas o menos la golpea: 2 de vida y +3 de sed, como mucho uno por segundo.
-- **Caída:** con vida 0, Mika cae y el mapa vuelve a empezar a los 2 s. La pantalla de resultado llega en el paso 6.
+- **Caída:** con vida 0, Mika cae y a los 1,5 s aparece la pantalla de resultado.
 - **Beber:** se mantiene el botón junto a un cuerpo, a 1 casilla o menos. Soltarlo antes de los 2 s cancela sin coste. De cada cuerpo se bebe una sola vez, y se oscurece al quedar vacío.
 - **Mejora de sangre:** al terminar de beber, el juego se pausa y ofrece dos mejoras al azar entre las que Mika aún no tiene. Fuerza da +2 de daño al Tajo, Vigor +4 de vida máxima, Velocidad +1 casilla/s, Olfato muestra en rojo a todos los humanos a través de los muros y Regeneración recupera vida con cualquier sed.
 - **Humanidad 0:** Mika puede seguir bebiendo y ganando mejoras; la Humanidad no baja de 0. El poder permanente de vampiro completo y su efecto en el final quedan para más adelante.
@@ -99,6 +99,17 @@ Decisiones que las reglas de arriba no fijan; sus valores están en `scripts/con
 - **Frenesí:** Mika camina rodeando muros hacia el humano más cercano. Si está en pie lo derriba con el Tajo (que hace ruido) y después bebe; el trago también ocurre sin control. Si en 4 s no consigue empezar a beber, recupera el control 3 s y, si la sed sigue en 90 o más, el Frenesí vuelve.
 - **Sentidos** todavía no existe, así que el tramo Sediento por ahora solo la hace más lenta.
 - **Sed entre mapas:** por ahora la sed, la Humanidad y las mejoras viven en Mika y se reinician con el mapa. Pasarán a la expedición cuando se encadenen las paradas (paso 10).
+
+### Final del mapa
+
+- **Salida:** el mapa termina en cuanto Mika pisa la casilla de salida, aunque esté en Alarma o en Frenesí.
+- **Resultado:** el juego se pausa y la pantalla muestra:
+  - Si Mika superó el mapa o cayó.
+  - El objetivo opcional (en el puesto de control, recoger el vial) y si se consiguió.
+  - El tiempo, las veces que sonó la alarma, los derribados en silencio y con el Tajo, los cuerpos descubiertos, la sangre bebida y los viales recogidos.
+  - La vida, la sed, la Humanidad y las mejoras con que termina Mika.
+- **Menciones:** al superar el mapa aparecen «Sin dejar rastro» (ni alarma ni cuerpos descubiertos) o «Nadie dio la alarma», y «Sin beber sangre humana».
+- **Botones:** «Jugar de nuevo» o «Volver a intentarlo» repiten el mapa, y «Salir del juego» cierra. Cuando se encadenen las paradas (paso 10), el éxito llevará a la siguiente.
 
 ### Prueba de la sed
 
@@ -162,7 +173,7 @@ El proyecto de Godot vive en `sed/`.
 | Carpeta | Contenido |
 | --- | --- |
 | `escenas/` | Una escena por entidad: `mika.tscn`, `soldado.tscn`, `eco.tscn`, `mapa_*.tscn`, `hud.tscn` |
-| `scripts/` | Un script por entidad, más `config.gd` (todos los números) e `iso.gd` (conversión entre casillas y pantalla) |
+| `scripts/` | Un script por entidad, más `config.gd` (todos los números), `paleta.gd` (los colores de la paleta) e `iso.gd` (conversión entre casillas y pantalla) |
 | `recursos/` | TileSet y otros recursos |
 | `arte/` | Gráficos provisionales |
 | `pruebas/` | Pruebas automáticas de cada paso, sin ventana |
@@ -170,6 +181,6 @@ El proyecto de Godot vive en `sed/`.
 - **Números en un solo sitio:** todos los valores de la tabla de reglas están en `scripts/config.gd`. Para ajustar el juego basta con tocar ese archivo.
 - **Mapas desde texto:** cada mapa se dibuja a partir de su plano de caracteres, igual que el del puesto de control.
 - **Arte provisional:** hasta el paso 9 se usan formas simples: cápsulas para los personajes y rombos para las casillas.
-- **Paleta:** fría. El ámbar se reserva para la sospecha y el rojo para la sangre, la sed y la alarma.
+- **Paleta:** fría. El ámbar se reserva para la sospecha, el rojo para la sangre, la sed y la alarma, y el turquesa para los viales y la salida. Los colores salen de `scripts/paleta.gd`, con los códigos de `diseno.md`.
 - **Commits:** pequeños, uno por paso jugable.
 - **Pruebas:** desde `sed/`, `./pruebas/ejecutar.sh` ejecuta todas y dice cuáles fallan. Cada una se puede lanzar sola con `godot --headless --path . -s res://pruebas/prueba_paso5.gd`.

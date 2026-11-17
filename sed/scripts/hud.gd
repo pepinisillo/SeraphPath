@@ -3,17 +3,16 @@ extends CanvasLayer
 ## Interfaz: vida, sed con sus tramos, Humanidad, viales, mejoras de sangre y estado de alerta.
 ## También muestra la elección de mejora (con el juego en pausa), el Frenesí y la caída de Mika.
 
-const COLOR_TEXTO := Color("c9d6e8")
+const COLOR_TEXTO := Paleta.BLANCO_HUESO
 const COLOR_TENUE := Color("6c7a91")
 const COLOR_FONDO := Color(0.04, 0.05, 0.08, 0.75)
-const COLOR_VIDA := Color("9eccff")
-const COLOR_SED := Color("b3263a")
-const COLOR_SOSPECHA := Color("f2b13c")
-const COLOR_ALARMA := Color("e0384a")
+const COLOR_VIDA := Paleta.CALMA
+const COLOR_SED := Paleta.ROJO
+const COLOR_SOSPECHA := Paleta.AMBAR
+const COLOR_ALARMA := Paleta.ROJO
 const ANCHO_BARRA := 220.0
 const ALTO_BARRA := 14.0
 const MARGEN := 24.0
-const ESPERA_REINTENTO := 2.0 # s tras la caída antes de volver a empezar (la pantalla de resultado llega en el paso 6)
 
 var mapa: Mapa
 var mika: Mika
@@ -36,9 +35,6 @@ func _process(delta: float) -> void:
 	_tiempo += delta
 	if _caida >= 0.0:
 		_caida += delta
-		if _caida >= ESPERA_REINTENTO:
-			get_tree().reload_current_scene()
-			return
 	lienzo.queue_redraw()
 
 

@@ -16,6 +16,8 @@ const ATLAS_SALIDA := Vector2i(3, 0)
 		if is_node_ready():
 			_construir()
 
+## Nombre que aparece en la pantalla de resultado.
+@export var nombre := "Puesto de control"
 ## Casilla por la que llegan los refuerzos durante la alarma.
 @export var entrada_refuerzos := Vector2i(9, 0)
 
@@ -25,6 +27,8 @@ var alto := 0
 var inicio_mika := Vector2i.ZERO
 var celdas_vial: Array[Vector2i] = []
 var mika: Mika
+var estadisticas := Estadisticas.new()
+var terminado := false
 
 var _rejilla := AStarGrid2D.new()
 
@@ -49,6 +53,14 @@ func _ready() -> void:
 	var hud := get_node_or_null("HUD")
 	if hud:
 		hud.iniciar(self)
+	if mika:
+		mika.derrotada.connect(_al_caer_mika)
+
+
+func _physics_process(delta: float) -> void:
+	if Engine.is_editor_hint() or terminado:
+		return
+	estadisticas.tiempo += delta
 
 
 func _construir() -> void:
@@ -106,6 +118,38 @@ func es_muro(celda: Vector2i) -> bool:
 
 func es_sombra(celda: Vector2i) -> bool:
 	return caracter(celda) == "s"
+
+
+func es_salida(celda: Vector2i) -> bool:
+	return caracter(celda) == "E"
+
+
+# --- Final del mapa ---
+
+## Texto del objetivo opcional, o "" si el mapa no tiene.
+func texto_objetivo() -> String:
+	if celdas_vial.is_empty():
+		return ""
+	return "Recoger el vial de Krul" if celdas_vial.size() == 1 else "Recoger los viales de Krul"
+
+
+func objetivo_cumplido() -> bool:
+	return not celdas_vial.is_empty() and estadisticas.viales_recogidos >= celdas_vial.size()
+
+
+## Termina el mapa (al llegar a la salida o al caer Mika) y muestra el resultado con el juego en pausa.
+func terminar(exito: bool) -> void:
+	if terminado:
+		return
+	terminado = true
+	var resultado: Resultado = load("res://escenas/resultado.tscn").instantiate()
+	add_child(resultado)
+	resultado.mostrar(self, exito)
+	get_tree().paused = true
+
+
+func _al_caer_mika() -> void:
+	get_tree().create_timer(Config.RESULTADO_ESPERA_CAIDA, true).timeout.connect(terminar.bind(false))
 
 
 ## Puntos (en casillas) para ir de `desde` a `hasta` esquivando muros: centros de casilla

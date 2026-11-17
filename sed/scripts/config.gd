@@ -52,6 +52,9 @@ const MEJORA_FUERZA := 2 # daño extra del Tajo
 const MEJORA_VIGOR := 4 # vida máxima extra
 const MEJORA_VELOCIDAD := 1.0 # casillas/s extra
 
+# --- Resultado ---
+const RESULTADO_ESPERA_CAIDA := 1.5 # s entre la caída de Mika y la pantalla de resultado
+
 # --- Humanidad ---
 const HUMANIDAD_INICIAL := 3
 
