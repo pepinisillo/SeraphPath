@@ -48,6 +48,9 @@ func _initialize():
 	m.queue_free()
 	if not ruta.is_empty():
 		print("    ruta (casilla, segundo): ", ruta.map(func(p): return "%s@%.1f" % [p[0], p[1]]))
+		var directo := tiempo_directo(m, Vector2i(0, 9), Vector2i(9, 0))
+		print("    llega en %.1f s; yendo directo sin esperar se tarda %.1f s" % [ruta[-1][1], directo])
+		comprobar("no basta con correr: la ruta exige esperar (al menos 1,4 veces el tiempo directo)", ruta[-1][1] >= directo * 1.4, true)
 		m = await nuevo_mapa(true)
 		reproducir(m, ruta)
 		comprobar("al reproducirla llega a la salida", m.terminado, true)

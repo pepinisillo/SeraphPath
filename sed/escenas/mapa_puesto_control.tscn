@@ -40,7 +40,7 @@ script = ExtResource("7_muros")
 ruta = Array[Vector2i]([Vector2i(3, 5), Vector2i(6, 5), Vector2i(6, 8), Vector2i(3, 8)])
 
 [node name="S2" parent="." instance=ExtResource("4_soldado")]
-ruta = Array[Vector2i]([Vector2i(4, 3), Vector2i(9, 3)])
+ruta = Array[Vector2i]([Vector2i(9, 3), Vector2i(4, 3)])
 en_bucle = false
 
 [node name="S3" parent="." instance=ExtResource("4_soldado")]
@@ -48,7 +48,7 @@ ruta = Array[Vector2i]([Vector2i(9, 4), Vector2i(9, 8)])
 en_bucle = false
 
 [node name="S4" parent="." instance=ExtResource("4_soldado")]
-ruta = Array[Vector2i]([Vector2i(5, 0), Vector2i(8, 0)])
+ruta = Array[Vector2i]([Vector2i(8, 0), Vector2i(5, 0)])
 en_bucle = false
 
 [node name="HUD" parent="." instance=ExtResource("6_hud")]

@@ -214,13 +214,15 @@ Patrullas, en (columna, fila):
 | Soldado | Ruta |
 | --- | --- |
 | S1 | Bucle (3,5) → (6,5) → (6,8) → (3,8) → (3,5), alrededor del bloque central |
-| S2 | Vaivén por la fila 3, de (4,3) a (9,3) |
+| S2 | Vaivén por la fila 3, entre (9,3) y (4,3); empieza en (9,3) |
 | S3 | Vaivén por la columna 9, de (9,4) a (9,8) |
-| S4 | Vaivén por la fila 0, de (5,0) a (8,0), vigilando la salida |
+| S4 | Vaivén por la fila 0, entre (8,0) y (5,0), vigilando la salida; empieza en (8,0) |
 
 En la vista isométrica un muro tapa lo que tiene detrás, así que los muros que quedan entre la cámara y Mika se vuelven semitransparentes.
 
-Cada soldado empieza en el primer punto de su ruta, mirando hacia el segundo. La prueba automática del paso 7 busca una ruta de la `M` a la `E` en la que nadie vea nunca a Mika y la reproduce en el juego. Con las rutas actuales existe, y es muy rápida: saliendo al instante y siguiendo la espalda de las patrullas (columna 3, fila 5, columna 6, fila 3 y columna 9), Mika llega a la salida en unos 5 s, porque los cuatro soldados empiezan alejándose de ese camino. Si se quiere que el mapa exija esperar o usar las sombras, basta con cambiar dónde empieza alguna patrulla.
+Cada soldado empieza en el primer punto de su ruta, mirando hacia el segundo. La prueba automática del paso 7 busca una ruta de la `M` a la `E` en la que nadie vea nunca a Mika, la reproduce en el juego y comprueba que **no basta con correr**: la ruta debe tardar al menos 1,4 veces lo que se tarda yendo directo.
+
+Al principio S2 y S4 empezaban en (4,3) y (5,0), alejándose del camino de Mika, y se podía cruzar el mapa en unos 5 s corriendo a la espalda de las patrullas. Ahora empiezan en el otro extremo. La ruta sin ser visto tarda unos 8 s (frente a 3,5 s yendo directo) y exige esperar al principio y esconderse en el pasillo de sombra de la columna 7 hasta que S4 se dé la vuelta.
 
 ## Segundo mapa: «Túneles de abastecimiento»
 
@@ -249,7 +251,7 @@ M..#.....#....
 | T5 | Vaivén por la fila 10, de (13,10) a (3,10); no llega a la columna 0 para no ver el inicio |
 
 - **Diseño:** 14 × 11 casillas, sin cuellos de botella absolutos: a la salida se llega por la fila 0 o por la columna derecha. El vial está en un rincón junto a la ruta de T3. Los refuerzos entran por (13,10).
-- **Ruta sin ser visto:** la prueba `prueba_tuneles.gd` comprueba que existe y la reproduce en el juego. La más rápida tarda unos 7 s y obliga a esconderse en la sombra de (2,2) y (3,3) hasta que pase T1, en vez de bastar con correr a la espalda de las patrullas.
+- **Ruta sin ser visto:** la prueba `prueba_tuneles.gd` comprueba que existe, la reproduce en el juego y verifica que no basta con correr. La más rápida tarda unos 7 s (frente a 3,8 s yendo directo) y obliga a esconderse en la sombra de (2,2) y (3,3) hasta que pase T1.
 - **Cómo se ajustó:** en la primera versión bastaba con correr por la fila 10 y luego por la fila 4 detrás de T1. Por eso se añadió T5 y se invirtió la ruta de T1.
 
 ## Plan de construcción

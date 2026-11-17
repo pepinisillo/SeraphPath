@@ -202,6 +202,17 @@ func reproducir(m: Mapa, ruta: Array) -> void:
 				return
 
 
+## Lo que tarda Mika en ir de inicio a meta por el camino más corto, sin esperar a nadie,
+## con los mismos pasos que usa buscar_ruta. Sirve para ver si una ruta sin ser visto es
+## solo «correr» o exige esperar y esconderse.
+func tiempo_directo(m: Mapa, inicio: Vector2i, meta: Vector2i) -> float:
+	var celdas := m._rejilla.get_id_path(inicio, meta)
+	var t := 0.0
+	for i in range(1, celdas.size()):
+		t += ceili(Vector2(celdas[i] - celdas[i - 1]).length() / Config.VELOCIDAD_MIKA / PASO_PLAN) * PASO_PLAN
+	return t
+
+
 func terminar() -> void:
 	print("RESULTADO: ", "OK" if ok else "FALLO")
 	quit()
