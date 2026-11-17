@@ -4,8 +4,11 @@ extends Node2D
 ## Acciones: Tajo (daño y ruido), Golpe silencioso (derriba sin ruido), Impulso (dash con ruido),
 ## beber sangre de un humano derribado y tomar un vial de Krul.
 ## La sed sube sola; en Frenesí Mika pierde el control y va a beber del humano más cercano.
+## En la Prueba de la sed no puede atacar ni tomar viales, no hay Frenesí, la sed sube más rápido
+## (y más con ecos cerca) y solo puede beber de los ecos, que le cortan el paso.
 
 signal mejora_pendiente(opciones: Array[String])
+signal mejora_elegida
 signal derrotada
 
 const COLOR_CUERPO := Paleta.BLANCO_HUESO
@@ -28,6 +31,10 @@ var direccion := 0 # una de 8 direcciones de pantalla, 0 = derecha, en sentido h
 var objetivo_silencioso: Soldado = null
 ## Cuerpo del que puede beber ahora (o null). Él dibuja el aviso.
 var objetivo_beber: Soldado = null
+## En la Prueba de la sed: eco del que puede beber ahora (o null). Él dibuja el aviso.
+var objetivo_eco: Eco = null
+## Ofreció una mejora y espera a que se elija.
+var mejora_en_espera := false
 
 # Estado vital
 var vida := Config.VIDA_MIKA
@@ -47,7 +54,7 @@ var _enfriamiento_golpe := 0.0
 var _tajo_restante := 0.0
 var _acumulado_sed := 0.0
 var _acumulado_regeneracion := 0.0
-var _bebiendo: Soldado = null
+var _bebiendo = null # el Soldado derribado o el Eco del que bebe
 var _beber_forzado := false # bebe en Frenesí: no hace falta mantener el botón
 var _bebido := 0.0 # s que lleva bebiendo
 var _vial_restante := 0.0
@@ -106,7 +113,7 @@ func dano_tajo() -> int:
 
 
 func _physics_process(delta: float) -> void:
-	if mapa == null or caida:
+	if mapa == null or caida or mapa.terminado:
 		return
 	_enfriamiento_impulso -= delta
 	_enfriamiento_tajo -= delta
@@ -115,10 +122,15 @@ func _physics_process(delta: float) -> void:
 	_respiro -= delta
 	_actualizar_sed(delta)
 	_actualizar_regeneracion(delta)
-	if sed >= Config.SED_TRAMO_FRENESI and not en_frenesi() and not esta_bebiendo() and _respiro <= 0.0:
+	if mapa.prueba_de_la_sed:
+		if sed >= Config.SED_MAX:
+			mapa.terminar(false, "fallida")
+			return
+	elif sed >= Config.SED_TRAMO_FRENESI and not en_frenesi() and not esta_bebiendo() and _respiro <= 0.0:
 		_frenesi_restante = Config.FRENESI_DURACION
 
 	objetivo_beber = _buscar_cuerpo()
+	objetivo_eco = _buscar_eco()
 	if esta_bebiendo():
 		_seguir_bebiendo(delta)
 	elif en_frenesi():
@@ -148,6 +160,9 @@ func _control(delta: float) -> void:
 		mirada = dir.normalized()
 	if Input.is_action_just_pressed("impulso"):
 		impulso(entrada)
+	elif mapa.prueba_de_la_sed:
+		if Input.is_action_pressed("beber"):
+			empezar_a_beber() # en su mente no hay ataques ni viales
 	elif Input.is_action_just_pressed("tajo"):
 		tajo()
 	elif Input.is_action_just_pressed("golpe_silencioso"):
@@ -164,11 +179,24 @@ func sumar_sed(cantidad: int) -> void:
 	sed = clampi(sed + cantidad, 0, Config.SED_MAX)
 
 
+## Fuera: +1 cada SED_INTERVALO s. En la Prueba de la sed: +1 cada PRUEBA_SED_INTERVALO s,
+## y otro +1 en ese tiempo por cada eco a menos de PRUEBA_ECO_DISTANCIA casillas.
 func _actualizar_sed(delta: float) -> void:
-	_acumulado_sed += delta
-	while _acumulado_sed >= Config.SED_INTERVALO:
-		_acumulado_sed -= Config.SED_INTERVALO
+	var ritmo := 1.0 / Config.SED_INTERVALO # puntos por segundo
+	if mapa.prueba_de_la_sed:
+		ritmo = (1.0 + ecos_cerca()) / Config.PRUEBA_SED_INTERVALO
+	_acumulado_sed += delta * ritmo
+	while _acumulado_sed >= 1.0:
+		_acumulado_sed -= 1.0
 		sumar_sed(1)
+
+
+func ecos_cerca() -> int:
+	var n := 0
+	for eco in mapa.ecos():
+		if not eco.bebido and pos.distance_to(eco.pos) < Config.PRUEBA_ECO_DISTANCIA:
+			n += 1
+	return n
 
 
 func _actualizar_regeneracion(delta: float) -> void:
@@ -203,15 +231,19 @@ func elegir_mejora(id: String) -> void:
 	if id == Mejoras.VIGOR:
 		vida_max += Config.MEJORA_VIGOR
 		vida += Config.MEJORA_VIGOR
+	mejora_en_espera = false
+	mejora_elegida.emit()
 
 
 # --- Beber ---
 
-## Empieza a beber del cuerpo más cercano. Si no es forzado, hay que mantener el botón.
+## Empieza a beber del cuerpo (o, en la Prueba de la sed, del eco) más cercano.
+## Si no es forzado, hay que mantener el botón.
 func empezar_a_beber(forzado := false) -> bool:
-	if objetivo_beber == null or esta_bebiendo():
+	var fuente = objetivo_eco if mapa.prueba_de_la_sed else objetivo_beber
+	if fuente == null or esta_bebiendo():
 		return false
-	_bebiendo = objetivo_beber
+	_bebiendo = fuente
 	_beber_forzado = forzado
 	_bebido = 0.0
 	if _bebiendo.pos.distance_to(pos) > 0.01:
@@ -229,7 +261,11 @@ func _seguir_bebiendo(delta: float) -> void:
 
 
 func _terminar_de_beber() -> void:
-	_bebiendo.bebido = true
+	var fuente = _bebiendo
+	if fuente is Eco:
+		fuente.beber()
+	else:
+		fuente.bebido = true
 	_bebiendo = null
 	_beber_forzado = false
 	_frenesi_restante = 0.0
@@ -239,6 +275,8 @@ func _terminar_de_beber() -> void:
 	humanidad = maxi(0, humanidad - 1)
 	mapa.estadisticas.sangre_bebida += 1
 	_ofrecer_mejora()
+	if fuente is Eco:
+		mapa.ceder()
 
 
 ## Dos mejoras al azar entre las que aún no tiene. La interfaz muestra la elección.
@@ -249,12 +287,22 @@ func _ofrecer_mejora() -> void:
 			disponibles.append(id)
 	if disponibles.is_empty():
 		return
+	mejora_en_espera = true
 	for i in range(disponibles.size() - 1, 0, -1): # barajar con el generador propio
 		var j := rng.randi_range(0, i)
 		var tmp := disponibles[i]
 		disponibles[i] = disponibles[j]
 		disponibles[j] = tmp
 	mejora_pendiente.emit(disponibles.slice(0, 2))
+
+
+func _buscar_eco() -> Eco:
+	var mejor: Eco = null
+	for eco in mapa.ecos():
+		if not eco.bebido and pos.distance_to(eco.pos) <= Config.BEBER_DISTANCIA:
+			if mejor == null or pos.distance_to(eco.pos) < pos.distance_to(mejor.pos):
+				mejor = eco
+	return mejor
 
 
 func _buscar_cuerpo() -> Soldado:
@@ -405,7 +453,20 @@ func mover(desplazamiento: Vector2) -> void:
 	var paso := desplazamiento / pasos
 	for i in pasos:
 		pos += paso
+		_salir_de_ecos()
 		_salir_de_muros()
+
+
+## Los ecos cortan el paso: Mika no puede atravesarlos.
+func _salir_de_ecos() -> void:
+	var minimo := Config.RADIO_MIKA + Config.PRUEBA_ECO_RADIO
+	for eco in mapa.ecos():
+		if eco.bebido:
+			continue
+		var dif := pos - eco.pos
+		var dist := dif.length()
+		if dist < minimo:
+			pos = eco.pos + (dif / dist if dist > 0.0001 else Vector2.RIGHT) * minimo
 
 
 ## Empuja el círculo de Mika fuera de cualquier casilla de muro que toque.

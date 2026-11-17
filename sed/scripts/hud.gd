@@ -119,7 +119,11 @@ func _dibujar() -> void:
 	# Estado de alerta, arriba a la derecha.
 	var estado := _estado_alerta()
 	lienzo.draw_string(fuente, Vector2(tam.x - MARGEN - 300, MARGEN + 20), estado[0], HORIZONTAL_ALIGNMENT_RIGHT, 300, 24, estado[1])
-	if mapa.alerta.activa:
+	if mapa.prueba_de_la_sed:
+		var cerca := mika.ecos_cerca()
+		var texto := "Ningún eco cerca" if cerca == 0 else "Ecos cerca: %d · la sed sube ×%d" % [cerca, cerca + 1]
+		lienzo.draw_string(fuente, Vector2(tam.x - MARGEN - 300, MARGEN + 44), texto, HORIZONTAL_ALIGNMENT_RIGHT, 300, 16, COLOR_SED if cerca > 0 else COLOR_TENUE)
+	elif mapa.alerta and mapa.alerta.activa:
 		lienzo.draw_string(fuente, Vector2(tam.x - MARGEN - 300, MARGEN + 44), "Refuerzos %d/%d" % [mapa.alerta.refuerzos, Config.ALARMA_REFUERZOS_MAX], HORIZONTAL_ALIGNMENT_RIGHT, 300, 16, COLOR_TENUE)
 
 	if _caida >= 0.0:
@@ -145,7 +149,9 @@ func _tramo_sed() -> String:
 
 ## Peor estado entre los soldados en pie: [texto, color].
 func _estado_alerta() -> Array:
-	if mapa.alerta.activa:
+	if mapa.prueba_de_la_sed:
+		return ["PRUEBA DE LA SED", Paleta.DETALLES]
+	if mapa.alerta and mapa.alerta.activa:
 		return ["ALARMA", COLOR_ALARMA]
 	for soldado in mapa.soldados():
 		if not soldado.derribado and soldado.estado == Soldado.Estado.SOSPECHA:

@@ -2,7 +2,8 @@
 class_name Mapa
 extends Node2D
 ## Mapa construido a partir de un plano de texto. Cada carácter es una casilla:
-## `#` muro · `.` suelo · `s` sombra · `M` inicio de Mika · `E` salida · `V` vial de Krul.
+## `#` muro · `.` suelo · `s` sombra · `M` inicio de Mika · `E` salida · `V` vial de Krul
+## · `e` eco (solo en la Prueba de la sed, donde la salida es Yuu).
 ## La lógica consulta la cuadrícula (es_muro, es_sombra); los TileMapLayer solo dibujan.
 
 const ATLAS_SUELO := Vector2i(0, 0)
@@ -16,6 +17,10 @@ const ATLAS_SALIDA := Vector2i(3, 0)
 		if is_node_ready():
 			_construir()
 
+## Mapa dentro de la mente de Mika: sin ataques, con ecos, y la salida es Yuu.
+@export var prueba_de_la_sed := false
+## Lo que dicen los ecos, uno por eco y en orden. Si faltan, se repiten.
+@export var frases_ecos: PackedStringArray = []
 ## Nombre que aparece en la pantalla de resultado.
 @export var nombre := "Puesto de control"
 ## Casilla por la que llegan los refuerzos durante la alarma.
@@ -26,9 +31,13 @@ var ancho := 0
 var alto := 0
 var inicio_mika := Vector2i.ZERO
 var celdas_vial: Array[Vector2i] = []
+var celdas_eco: Array[Vector2i] = []
+var celda_salida := Vector2i(-1, -1)
 var mika: Mika
 var estadisticas := Estadisticas.new()
 var terminado := false
+## Cómo terminó: "" (superado o caída), "cedida" o "fallida" (Prueba de la sed).
+var motivo := ""
 
 var _rejilla := AStarGrid2D.new()
 
@@ -46,6 +55,15 @@ func _ready() -> void:
 		mika.iniciar(self, Vector2(inicio_mika) + Vector2(0.5, 0.5))
 	for soldado in soldados():
 		soldado.iniciar(self)
+	for i in celdas_eco.size():
+		var eco: Eco = load("res://escenas/eco.tscn").instantiate()
+		add_child(eco)
+		var frase := frases_ecos[i % frases_ecos.size()] if not frases_ecos.is_empty() else ""
+		eco.iniciar(self, celdas_eco[i], frase)
+	if prueba_de_la_sed and celda_salida.x >= 0:
+		var yuu: Yuu = load("res://escenas/yuu.tscn").instantiate()
+		add_child(yuu)
+		yuu.iniciar(celda_salida)
 	for celda in celdas_vial:
 		var vial: Vial = load("res://escenas/vial.tscn").instantiate()
 		add_child(vial)
@@ -77,6 +95,7 @@ func _construir() -> void:
 	suelo.clear()
 	muros.clear()
 	celdas_vial.clear()
+	celdas_eco.clear()
 	for f in alto:
 		for c in ancho:
 			var celda := Vector2i(c, f)
@@ -86,7 +105,11 @@ func _construir() -> void:
 				"s":
 					suelo.set_cell(celda, 0, ATLAS_SOMBRA)
 				"E":
+					celda_salida = celda
 					suelo.set_cell(celda, 0, ATLAS_SALIDA)
+				"e":
+					celdas_eco.append(celda)
+					suelo.set_cell(celda, 0, ATLAS_SUELO)
 				"M":
 					inicio_mika = celda
 					suelo.set_cell(celda, 0, ATLAS_SUELO)
@@ -140,14 +163,24 @@ func objetivo_cumplido() -> bool:
 
 
 ## Termina el mapa (al llegar a la salida o al caer Mika) y muestra el resultado con el juego en pausa.
-func terminar(exito: bool) -> void:
+func terminar(exito: bool, p_motivo := "") -> void:
 	if terminado:
 		return
 	terminado = true
+	motivo = p_motivo
+	if motivo == "fallida":
+		mika.sed = Config.PRUEBA_SED_FALLIDA # despierta con esta sed
 	var resultado: Resultado = load("res://escenas/resultado.tscn").instantiate()
 	add_child(resultado)
 	resultado.mostrar(self, exito)
 	get_tree().paused = true
+
+
+## Mika bebió de un eco: la prueba queda cedida en cuanto elija su mejora.
+func ceder() -> void:
+	if mika.mejora_en_espera:
+		await mika.mejora_elegida
+	terminar(false, "cedida")
 
 
 func _al_caer_mika() -> void:
@@ -177,6 +210,14 @@ func soldados() -> Array[Soldado]:
 	var lista: Array[Soldado] = []
 	for hijo in get_children():
 		if hijo is Soldado:
+			lista.append(hijo)
+	return lista
+
+
+func ecos() -> Array[Eco]:
+	var lista: Array[Eco] = []
+	for hijo in get_children():
+		if hijo is Eco:
 			lista.append(hijo)
 	return lista
 

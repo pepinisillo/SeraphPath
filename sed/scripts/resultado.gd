@@ -35,10 +35,15 @@ func mostrar(mapa: Mapa, p_exito: bool) -> void:
 	caja.add_theme_constant_override("separation", 14)
 	panel.add_child(caja)
 
-	var titulo := "%s superado" % mapa.nombre if exito else "Mika ha caído"
-	_etiqueta(caja, titulo, 32, Paleta.TURQUESA if exito else Paleta.ROJO)
-	if not exito:
-		_etiqueta(caja, mapa.nombre, 18, COLOR_TENUE)
+	if mapa.prueba_de_la_sed:
+		var textos := _textos_prueba(mapa.motivo)
+		_etiqueta(caja, textos[0], 32, Paleta.TURQUESA if exito else Paleta.ROJO)
+		_etiqueta(caja, textos[1], 16, Paleta.BLANCO_HUESO)
+	else:
+		var titulo := "%s superado" % mapa.nombre if exito else "Mika ha caído"
+		_etiqueta(caja, titulo, 32, Paleta.TURQUESA if exito else Paleta.ROJO)
+		if not exito:
+			_etiqueta(caja, mapa.nombre, 18, COLOR_TENUE)
 
 	if mapa.texto_objetivo() != "":
 		var cumplido := mapa.objetivo_cumplido()
@@ -49,8 +54,9 @@ func mostrar(mapa: Mapa, p_exito: bool) -> void:
 	tabla.columns = 2
 	tabla.add_theme_constant_override("h_separation", 40)
 	tabla.add_theme_constant_override("v_separation", 6)
-	var filas := [
-		["Tiempo", "%d:%02d" % [int(e.tiempo) / 60, int(e.tiempo) % 60]],
+	var tiempo := "%d:%02d" % [int(e.tiempo) / 60, int(e.tiempo) % 60]
+	var filas := [["Tiempo", tiempo]] if mapa.prueba_de_la_sed else [
+		["Tiempo", tiempo],
 		["Veces que sonó la alarma", str(e.alarmas)],
 		["Derribados en silencio", str(e.derribados_en_silencio)],
 		["Derribados con el Tajo", str(e.derribados_con_tajo)],
@@ -72,16 +78,29 @@ func mostrar(mapa: Mapa, p_exito: bool) -> void:
 		_etiqueta(caja, "Sangre: " + " · ".join(nombres), 16, Paleta.ROJO)
 
 	var logros := _logros(e)
-	if exito and not logros.is_empty():
+	if exito and not mapa.prueba_de_la_sed and not logros.is_empty():
 		_etiqueta(caja, " · ".join(logros), 18, Paleta.TURQUESA)
 
 	var botones := HBoxContainer.new()
 	botones.alignment = BoxContainer.ALIGNMENT_CENTER
 	botones.add_theme_constant_override("separation", 16)
-	boton_repetir = _boton(botones, "Jugar de nuevo" if exito else "Volver a intentarlo", _repetir)
+	var repetir := "Jugar de nuevo" if exito else "Volver a intentarlo"
+	if mapa.prueba_de_la_sed:
+		repetir = "Repetir la prueba"
+	boton_repetir = _boton(botones, repetir, _repetir)
 	boton_salir = _boton(botones, "Salir del juego", _salir)
 	caja.add_child(botones)
 	boton_repetir.grab_focus()
+
+
+## Título y explicación de cada final de la Prueba de la sed.
+func _textos_prueba(motivo: String) -> Array:
+	match motivo:
+		"cedida":
+			return ["Cediste a la sed", "Bebiste de un eco: sed a 0 y una mejora, a cambio de 1 de Humanidad."]
+		"fallida":
+			return ["La sed te venció", "Despiertas con la sed en %d. El siguiente mapa empezará en Alarma." % Config.PRUEBA_SED_FALLIDA]
+	return ["Prueba superada", "Llegaste hasta Yuu sin beber. Ganas un recuerdo."]
 
 
 ## Menciones por jugar en sigilo y sin ceder a la sangre.

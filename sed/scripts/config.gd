@@ -91,3 +91,6 @@ const SOLDADO_DISTANCIA_GOLPE := 0.9 # en alarma se detiene a esta distancia de 
 const PRUEBA_SED_INTERVALO := 1.5
 const PRUEBA_ECO_DISTANCIA := 1.5
 const PRUEBA_ECO_VELOCIDAD := 1.9
+const PRUEBA_ECO_RADIO := 0.35 # casillas: los ecos cortan el paso a Mika
+const PRUEBA_ECO_VOZ := 3.0 # casillas a las que se oye lo que dice un eco
+const PRUEBA_SED_FALLIDA := 90 # sed con la que despierta si la prueba falla

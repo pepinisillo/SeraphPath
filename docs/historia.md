@@ -141,6 +141,14 @@ El juego no cuenta el romance con escenas largas: lo reparte en cuatro lugares q
 
 **La palabra.** Durante todo el juego Mika llama a Yuu «familia». Solo en el final La sangre de Yuu usa otra. En los demás finales no llega a decirla, y eso es lo que el jugador vuelve a buscar.
 
+Frases de los ecos en la Prueba de la sed (provisionales, una por eco):
+
+1. «Mika, bebe. Yo no voy a mirar.»
+2. «Llevas cuatro años con sed. ¿Para qué?»
+3. «Un trago y llegas antes. ¿No quieres verme?»
+4. «Ya no eres humano. Deja de fingir.»
+5. «Si caes aquí, ¿quién me va a encontrar?»
+
 Líneas de refugio de ejemplo:
 
 | Humanidad | Línea de Mika |

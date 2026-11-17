@@ -20,12 +20,23 @@ func nuevo_mapa(todos := false) -> Mapa:
 	return mapa
 
 
+## Carga la Prueba de la sed sin que avance sola.
+func nueva_prueba_de_la_sed() -> Mapa:
+	var mapa: Mapa = load("res://escenas/mapa_prueba_sed.tscn").instantiate()
+	root.add_child(mapa)
+	mapa.process_mode = Node.PROCESS_MODE_DISABLED
+	await process_frame
+	mapa.get_node("HUD").process_mode = Node.PROCESS_MODE_DISABLED
+	return mapa
+
+
 func paso(m: Mapa, segundos: float = DT) -> void:
 	for i in roundi(segundos / DT):
 		if m.terminado:
 			return
 		m._physics_process(DT)
-		m.alerta._physics_process(DT)
+		if m.alerta:
+			m.alerta._physics_process(DT)
 		m.mika._physics_process(DT)
 		for s in m.soldados():
 			s._physics_process(DT)
@@ -33,7 +44,7 @@ func paso(m: Mapa, segundos: float = DT) -> void:
 				ok = false
 				print("FALLO: ", s.name, " dentro de muro en ", s.pos)
 		for h in m.get_children():
-			if h is Vial:
+			if h is Vial or h is Eco:
 				h._physics_process(DT)
 
 

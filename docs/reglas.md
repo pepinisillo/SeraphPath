@@ -122,6 +122,21 @@ Los ecos lo siguen a 1,9 casillas/s y le ofrecen sangre.
 | Cedida | Beber (−1 Humanidad) |
 | Fallida | Llegar a 100 de sed |
 
+Cómo está construida (escena `mapa_prueba_sed.tscn`; para jugarla sola, abrirla en Godot y pulsar F6):
+
+- **Mapa:** un plano de 12 × 12 con cinco ecos (`e`) y Yuu en la salida, al fondo. No tiene cuellos de botella: ningún eco quieto puede cerrar el paso.
+- **Lo que cambia en la mente:**
+  - Mika no puede usar el Tajo, el Golpe silencioso ni los viales, y no hay Frenesí.
+  - Sí puede usar el Impulso, que sigue costando sed.
+  - Con 60 de sed sigue yendo más lenta.
+- **Ecos:** siguen a Mika rodeando muros y **le cortan el paso**: no se pueden atravesar. Es una decisión propia para que la cercanía de los ecos importe.
+  - Solo habla el más cercano a menos de 3 casillas, con una frase en la voz de Yuu.
+  - Para beber de un eco se mantiene E a 1 casilla o menos durante 2 s.
+- **Cedida:** tras beber se elige la mejora, y después aparece el resultado.
+- **Fallida:** Mika queda con sed 90. Que el siguiente mapa empiece en Alarma se aplicará al encadenar paradas (paso 10).
+- **Superada:** ganar el recuerdo también llega con el paso 10.
+- **Dificultad:** la prueba automática la supera en unos 10 s con sed 38, yendo hacia Yuu y esquivando las casillas de los ecos. Con los valores actuales es fácil. Para endurecerla se puede subir la velocidad de los ecos, poner más ecos o hacer más largo el camino.
+
 ## Primer mapa: «Puesto de control»
 
 Cada carácter es una casilla: `#` muro · `.` suelo · `s` sombra · `M` inicio de Mika · `E` salida · `V` vial de Krul (opcional).
