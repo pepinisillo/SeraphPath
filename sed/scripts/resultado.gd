@@ -46,10 +46,8 @@ func mostrar(mapa: Mapa, p_exito: bool) -> void:
 				texto = "Recuerdo %d: %s" % [n, EstadoExpedicion.datos_recuerdos()[n - 1].titulo]
 			_etiqueta(caja, texto, 18, Paleta.TURQUESA)
 	else:
-		var titulo := "%s superado" % mapa.nombre if exito else "Mika ha caído"
-		_etiqueta(caja, titulo, 32, Paleta.TURQUESA if exito else Paleta.ROJO)
-		if not exito:
-			_etiqueta(caja, mapa.nombre, 18, COLOR_TENUE)
+		_etiqueta(caja, "Mapa superado" if exito else "Mika ha caído", 32, Paleta.TURQUESA if exito else Paleta.ROJO)
+		_etiqueta(caja, mapa.nombre, 18, COLOR_TENUE)
 
 	if mapa.texto_objetivo() != "":
 		var cumplido := mapa.objetivo_cumplido()

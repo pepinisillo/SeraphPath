@@ -17,6 +17,7 @@ const ESCENA_REFUGIO := "res://escenas/refugio.tscn"
 const ESCENA_RECUERDO := "res://escenas/recuerdo.tscn"
 const ESCENA_FINAL := "res://escenas/final.tscn"
 const ESCENA_INFILTRACION := "res://escenas/mapa_puesto_control.tscn"
+const ESCENA_TUNELES := "res://escenas/mapa_tuneles.tscn"
 const ESCENA_PRUEBA := "res://escenas/mapa_prueba_sed.tscn"
 
 ## Zona 1: infiltración, dos rutas de dos paradas, Prueba de la sed y jefe.
@@ -126,7 +127,7 @@ func ir_a_ruta() -> void:
 func entrar() -> void:
 	match parada_actual():
 		"infiltracion":
-			_cambiar(ESCENA_INFILTRACION)
+			_cambiar(escena_infiltracion())
 		"emboscada":
 			siguiente_empieza = "alarma" # una emboscada empieza en Alarma
 			_cambiar(ESCENA_INFILTRACION)
@@ -139,6 +140,11 @@ func entrar() -> void:
 			_cambiar(ESCENA_PRUEBA)
 		"jefe":
 			_cambiar(ESCENA_FINAL)
+
+
+## La primera infiltración de la zona es el puesto de control; la de la ruta arriesgada, los túneles.
+func escena_infiltracion() -> String:
+	return ESCENA_INFILTRACION if indice == 0 else ESCENA_TUNELES
 
 
 ## Pasa a la siguiente parada y vuelve al mapa de paradas (o enseña antes el recuerdo ganado).

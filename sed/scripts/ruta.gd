@@ -38,7 +38,10 @@ func construir() -> void:
 		boton("Ruta arriesgada: %s" % _contenido("arriesgada"), _elegir.bind("arriesgada"))
 	else:
 		var actual := e.parada_actual()
-		texto(DESCRIPCIONES[actual], Paleta.DETALLES, 16)
+		var descripcion: String = DESCRIPCIONES[actual]
+		if actual == "infiltracion" and e.indice > 0:
+			descripcion = "Cruza los túneles de abastecimiento hasta la salida."
+		texto(descripcion, Paleta.DETALLES, 16)
 		boton("Entrar: %s" % e.NOMBRES[actual], e.entrar)
 	espacio()
 	boton("Abandonar la expedición", e.volver_al_titulo)

@@ -1,0 +1,61 @@
+[gd_scene format=3]
+
+[ext_resource type="Script" path="res://scripts/mapa.gd" id="1_mapa"]
+[ext_resource type="TileSet" path="res://recursos/casillas.tres" id="2_casillas"]
+[ext_resource type="PackedScene" path="res://escenas/mika.tscn" id="3_mika"]
+[ext_resource type="PackedScene" path="res://escenas/soldado.tscn" id="4_soldado"]
+[ext_resource type="Script" path="res://scripts/alerta.gd" id="5_alerta"]
+[ext_resource type="PackedScene" path="res://escenas/hud.tscn" id="6_hud"]
+[ext_resource type="Script" path="res://scripts/muros.gd" id="7_muros"]
+
+[node name="MapaTuneles" type="Node2D"]
+y_sort_enabled = true
+script = ExtResource("1_mapa")
+plano = "......#.....sE
+.####.#.###.s.
+.#ss#...#.#...
+.#..#.###.#...
+...........#..
+##.###s###.#.#
+M..#.....#....
+.#.#.###.#.##.
+.#.......#.V#.
+.#####.#####..
+......s......."
+nombre = "Túneles de abastecimiento"
+entrada_refuerzos = Vector2i(13, 10)
+
+[node name="Alerta" type="Node" parent="."]
+script = ExtResource("5_alerta")
+
+[node name="Suelo" type="TileMapLayer" parent="."]
+z_index = -2
+tile_set = ExtResource("2_casillas")
+
+[node name="Muros" type="TileMapLayer" parent="."]
+y_sort_enabled = true
+tile_set = ExtResource("2_casillas")
+script = ExtResource("7_muros")
+
+[node name="Mika" parent="." instance=ExtResource("3_mika")]
+
+[node name="T1" parent="." instance=ExtResource("4_soldado")]
+ruta = Array[Vector2i]([Vector2i(10, 4), Vector2i(0, 4)])
+en_bucle = false
+
+[node name="T2" parent="." instance=ExtResource("4_soldado")]
+ruta = Array[Vector2i]([Vector2i(4, 6), Vector2i(8, 6), Vector2i(8, 8), Vector2i(4, 8)])
+
+[node name="T3" parent="." instance=ExtResource("4_soldado")]
+ruta = Array[Vector2i]([Vector2i(12, 3), Vector2i(12, 6)])
+en_bucle = false
+
+[node name="T4" parent="." instance=ExtResource("4_soldado")]
+ruta = Array[Vector2i]([Vector2i(7, 0), Vector2i(11, 0)])
+en_bucle = false
+
+[node name="T5" parent="." instance=ExtResource("4_soldado")]
+ruta = Array[Vector2i]([Vector2i(13, 10), Vector2i(3, 10)])
+en_bucle = false
+
+[node name="HUD" parent="." instance=ExtResource("6_hud")]

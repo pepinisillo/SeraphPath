@@ -222,6 +222,36 @@ En la vista isométrica un muro tapa lo que tiene detrás, así que los muros qu
 
 Cada soldado empieza en el primer punto de su ruta, mirando hacia el segundo. La prueba automática del paso 7 busca una ruta de la `M` a la `E` en la que nadie vea nunca a Mika y la reproduce en el juego. Con las rutas actuales existe, y es muy rápida: saliendo al instante y siguiendo la espalda de las patrullas (columna 3, fila 5, columna 6, fila 3 y columna 9), Mika llega a la salida en unos 5 s, porque los cuatro soldados empiezan alejándose de ese camino. Si se quiere que el mapa exija esperar o usar las sombras, basta con cambiar dónde empieza alguna patrulla.
 
+## Segundo mapa: «Túneles de abastecimiento»
+
+La infiltración de la ruta arriesgada de la zona 1 (la primera sigue siendo el puesto de control). Escena `mapa_tuneles.tscn`; se juega solo con F6.
+
+```
+......#.....sE
+.####.#.###.s.
+.#ss#...#.#...
+.#..#.###.#...
+...........#..
+##.###s###.#.#
+M..#.....#....
+.#.#.###.#.##.
+.#.......#.V#.
+.#####.#####..
+......s.......
+```
+
+| Soldado | Ruta |
+| --- | --- |
+| T1 | Vaivén por el pasillo de la fila 4, de (10,4) a (0,4): empieza en el extremo lejano y viene hacia Mika |
+| T2 | Bucle por el salón central: (4,6) → (8,6) → (8,8) → (4,8) |
+| T3 | Vaivén por la columna 12, de (12,3) a (12,6), vigilando el acceso derecho a la salida |
+| T4 | Vaivén por la fila 0, de (7,0) a (11,0), junto a la salida |
+| T5 | Vaivén por la fila 10, de (13,10) a (3,10); no llega a la columna 0 para no ver el inicio |
+
+- **Diseño:** 14 × 11 casillas, sin cuellos de botella absolutos: a la salida se llega por la fila 0 o por la columna derecha. El vial está en un rincón junto a la ruta de T3. Los refuerzos entran por (13,10).
+- **Ruta sin ser visto:** la prueba `prueba_tuneles.gd` comprueba que existe y la reproduce en el juego. La más rápida tarda unos 7 s y obliga a esconderse en la sombra de (2,2) y (3,3) hasta que pase T1, en vez de bastar con correr a la espalda de las patrullas.
+- **Cómo se ajustó:** en la primera versión bastaba con correr por la fila 10 y luego por la fila 4 detrás de T1. Por eso se añadió T5 y se invirtió la ruta de T1.
+
 ## Plan de construcción
 
 Cada paso queda jugable antes de empezar el siguiente, y el arte final no entra hasta el paso 9.
@@ -256,4 +286,4 @@ El proyecto de Godot vive en `sed/`.
 - **Arte provisional:** hasta el paso 9 se usan formas simples: cápsulas para los personajes y rombos para las casillas.
 - **Paleta:** fría. El ámbar se reserva para la sospecha, el rojo para la sangre, la sed y la alarma, y el turquesa para los viales y la salida. Los colores salen de `scripts/paleta.gd`, con los códigos de `diseno.md`.
 - **Commits:** pequeños, uno por paso jugable.
-- **Pruebas:** desde `sed/`, `./pruebas/ejecutar.sh` ejecuta todas y dice cuáles fallan. Cada una se puede lanzar sola con `godot --headless --path . -s res://pruebas/prueba_paso5.gd`.
+- **Pruebas:** desde `sed/`, `./pruebas/ejecutar.sh` ejecuta todas y dice cuáles fallan. Cada una se puede lanzar sola con `godot --headless --path . -s res://pruebas/prueba_paso5.gd`. `pruebas/comun.gd` incluye la búsqueda de una ruta sin ser visto, que sirve para comprobar cualquier mapa nuevo.

@@ -52,7 +52,7 @@ func _initialize():
 	comprobar("sin menciones de sigilo (hubo alarma)", r._logros(e), PackedStringArray(["Sin beber sangre humana"]))
 	var textos := []
 	for l in r.find_children("*", "Label", true, false): textos.append(l.text)
-	comprobar("título", "Puesto de control superado" in textos, true)
+	comprobar("título", "Mapa superado" in textos and "Puesto de control" in textos, true)
 	comprobar("línea del objetivo", "Objetivo opcional: Recoger el vial de Krul · conseguido" in textos, true)
 	paused = false
 	m.queue_free()
