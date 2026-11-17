@@ -17,6 +17,7 @@ func nuevo_mapa() -> Mapa:
 	mapa.mika.mejora_pendiente.connect(func(o): ofrecidas = o)
 	mapa.mika.derrotada.connect(func(): derrotas += 1)
 	mapa.mika.rng.seed = 7
+	mapa.efectos.permitir_paradas = false
 	return mapa
 
 func paso(m: Mapa, segundos: float) -> void:

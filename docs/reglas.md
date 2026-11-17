@@ -137,6 +137,24 @@ Cómo está construida (escena `mapa_prueba_sed.tscn`; para jugarla sola, abrirl
 - **Superada:** ganar el recuerdo también llega con el paso 10.
 - **Dificultad:** la prueba automática la supera en unos 10 s con sed 38, yendo hacia Yuu y esquivando las casillas de los ecos. Con los valores actuales es fácil. Para endurecerla se puede subir la velocidad de los ecos, poner más ecos o hacer más largo el camino.
 
+### Sensación al jugar
+
+Todo esto es dibujo y ritmo del tiempo; no cambia ninguna regla. Los valores están en `scripts/config.gd` y el código en `scripts/efectos.gd`.
+
+| Momento | Qué se siente |
+| --- | --- |
+| Tajo que conecta | Parada de 3 cuadros, sacudida leve, salpicadura de sangre y destello rojo en el soldado |
+| Golpe silencioso | Parada de 2 cuadros y unas pocas gotas, sin sacudida |
+| Golpe recibido | Parada de 4 cuadros, sacudida mayor, sangre y destello rojo en Mika |
+| Caída de Mika | Sacudida fuerte |
+| Impulso | Una silueta de Mika cada 0,03 s que se desvanece en 0,25 s |
+| Beber sangre o un vial | Estallido de gotas rojas o turquesa |
+| Sed | La pantalla pierde color desde sed 30 hasta un 80 % justo antes del Frenesí. En Frenesí todo queda gris rojizo salvo lo rojo |
+
+- **Los colores cálidos no se apagan con la sed.** El ámbar de la sospecha y el rojo de la sangre y la alarma se conservan, así que las señales de peligro siguen leyéndose aunque el mundo se vuelva gris. Es una decisión propia: sin ella, el cono ámbar se perdía justo cuando Mika está más débil.
+- **Las paradas** congelan el juego unos cuadros. Si se pisan, manda la más larga, y salir del mapa nunca deja el juego congelado.
+- **El arte final** (sprites de 8 direcciones, escenarios pintados) no está hecho: el proyecto pide arte propio. Lo que hay son formas provisionales con estos efectos encima.
+
 ## Primer mapa: «Puesto de control»
 
 Cada carácter es una casilla: `#` muro · `.` suelo · `s` sombra · `M` inicio de Mika · `E` salida · `V` vial de Krul (opcional).

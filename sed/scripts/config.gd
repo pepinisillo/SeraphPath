@@ -52,6 +52,21 @@ const MEJORA_FUERZA := 2 # daño extra del Tajo
 const MEJORA_VIGOR := 4 # vida máxima extra
 const MEJORA_VELOCIDAD := 1.0 # casillas/s extra
 
+# --- Sensación (paso 9): solo dibujo y tiempo, no cambian reglas ---
+const PARADA_TAJO := 0.05 # s congelado al conectar un Tajo (3 cuadros a 60 fps)
+const PARADA_SILENCIOSO := 0.033 # s al derribar en silencio (2 cuadros)
+const PARADA_RECIBIDO := 0.066 # s al recibir un golpe (4 cuadros)
+const SACUDIDA_TAJO := 0.35 # trauma de cámara, de 0 a 1
+const SACUDIDA_RECIBIDO := 0.5
+const SACUDIDA_CAIDA := 0.9
+const SACUDIDA_MAXIMA := 18.0 # px de desplazamiento con trauma 1
+const SACUDIDA_CALMA := 1.6 # trauma que se pierde por segundo
+const DESTELLO_DURACION := 0.15 # s que dura el destello rojo de quien recibe un golpe
+const RASTRO_INTERVALO := 0.03 # s entre siluetas del dash
+const RASTRO_DURACION := 0.25 # s que tarda en desvanecerse cada silueta
+const SED_COLOR_INICIO := 30 # sed desde la que la pantalla empieza a perder color
+const SED_COLOR_PERDIDO := 0.8 # color perdido justo antes del Frenesí (0 a 1)
+
 # --- Resultado ---
 const RESULTADO_ESPERA_CAIDA := 1.5 # s entre la caída de Mika y la pantalla de resultado
 

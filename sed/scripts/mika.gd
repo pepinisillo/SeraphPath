@@ -60,6 +60,8 @@ var _bebido := 0.0 # s que lleva bebiendo
 var _vial_restante := 0.0
 var _frenesi_restante := 0.0
 var _respiro := 0.0
+var _destello := 0.0 # s que quedan de destello rojo al recibir un golpe
+var _hasta_silueta := 0.0 # s hasta la próxima silueta del rastro del dash
 
 
 func iniciar(p_mapa: Mapa, p_pos: Vector2) -> void:
@@ -120,6 +122,7 @@ func _physics_process(delta: float) -> void:
 	_enfriamiento_golpe -= delta
 	_tajo_restante -= delta
 	_respiro -= delta
+	_destello -= delta
 	_actualizar_sed(delta)
 	_actualizar_regeneracion(delta)
 	if mapa.prueba_de_la_sed:
@@ -215,9 +218,12 @@ func recibir_golpe(dano: int) -> void:
 		return
 	vida -= dano
 	sumar_sed(Config.SED_POR_GOLPE)
+	_destello = Config.DESTELLO_DURACION
+	mapa.efectos.golpe_recibido(pos)
 	if vida <= 0:
 		vida = 0
 		caida = true
+		mapa.efectos.caida()
 		_bebiendo = null
 		_frenesi_restante = 0.0
 		queue_redraw()
@@ -274,6 +280,7 @@ func _terminar_de_beber() -> void:
 	vida = vida_max
 	humanidad = maxi(0, humanidad - 1)
 	mapa.estadisticas.sangre_bebida += 1
+	mapa.efectos.trago(pos, Paleta.ROJO)
 	_ofrecer_mejora()
 	if fuente is Eco:
 		mapa.ceder()
@@ -329,6 +336,7 @@ func _seguir_con_vial(delta: float) -> void:
 		_vial_restante = 0.0
 		viales -= 1
 		sumar_sed(Config.VIAL_SED)
+		mapa.efectos.trago(pos, Paleta.TURQUESA)
 
 
 # --- Frenesí ---
@@ -380,11 +388,17 @@ func tajo() -> bool:
 		return false
 	_enfriamiento_tajo = Config.TAJO_ENFRIAMIENTO
 	_tajo_restante = TAJO_VISIBLE
+	var conecto := false
 	for soldado in mapa.soldados():
 		if _al_alcance(soldado, Config.TAJO_ALCANCE):
 			soldado.recibir_dano(dano_tajo())
 			if soldado.derribado:
 				mapa.estadisticas.derribados_con_tajo += 1
+			if conecto:
+				mapa.efectos.salpicar(soldado.pos, Paleta.ROJO, 18)
+			else:
+				mapa.efectos.tajo_conectado(soldado.pos) # una sola parada por Tajo
+			conecto = true
 	mapa.hacer_ruido(pos)
 	return true
 
@@ -399,6 +413,7 @@ func golpe_silencioso() -> bool:
 	_enfriamiento_golpe = Config.GOLPE_SILENCIOSO_ENFRIAMIENTO
 	objetivo.derribar()
 	mapa.estadisticas.derribados_en_silencio += 1
+	mapa.efectos.derribo_silencioso(objetivo.pos)
 	return true
 
 
@@ -411,12 +426,17 @@ func impulso(entrada: Vector2) -> bool:
 	mirada = _impulso_dir
 	_impulso_restante = Config.IMPULSO_DURACION
 	_enfriamiento_impulso = Config.IMPULSO_ENFRIAMIENTO
+	_hasta_silueta = 0.0
 	sumar_sed(Config.IMPULSO_SED)
 	mapa.hacer_ruido(pos)
 	return true
 
 
 func _impulsar(delta: float) -> void:
+	_hasta_silueta -= delta
+	if _hasta_silueta <= 0.0:
+		mapa.efectos.silueta(pos)
+		_hasta_silueta += Config.RASTRO_INTERVALO
 	var tramo := minf(delta, _impulso_restante)
 	mover(_impulso_dir * (Config.IMPULSO_DISTANCIA / Config.IMPULSO_DURACION) * tramo)
 	_impulso_restante -= tramo
@@ -501,6 +521,8 @@ func _draw() -> void:
 		_dibujar_tajo()
 	Formas.mirada(self, mirada, COLOR_MIRADA)
 	var cuerpo := COLOR_CUERPO
+	if _destello > 0.0:
+		cuerpo = cuerpo.lerp(Paleta.ROJO, _destello / Config.DESTELLO_DURACION)
 	if esta_impulsando():
 		cuerpo.a = 0.6
 	var contorno := COLOR_FRENESI if sin_control() else COLOR_CONTORNO

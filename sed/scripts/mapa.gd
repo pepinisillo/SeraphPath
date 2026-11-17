@@ -35,6 +35,7 @@ var celdas_eco: Array[Vector2i] = []
 var celda_salida := Vector2i(-1, -1)
 var mika: Mika
 var estadisticas := Estadisticas.new()
+var efectos: Efectos
 var terminado := false
 ## Cómo terminó: "" (superado o caída), "cedida" o "fallida" (Prueba de la sed).
 var motivo := ""
@@ -51,6 +52,10 @@ func _ready() -> void:
 	if Engine.is_editor_hint():
 		return
 	mika = get_node_or_null("Mika")
+	efectos = Efectos.new()
+	efectos.name = "Efectos"
+	add_child(efectos)
+	efectos.iniciar(self)
 	if mika:
 		mika.iniciar(self, Vector2(inicio_mika) + Vector2(0.5, 0.5))
 	for soldado in soldados():

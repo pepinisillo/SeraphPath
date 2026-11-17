@@ -17,6 +17,7 @@ func nuevo_mapa(todos := false) -> Mapa:
 	mapa.process_mode = Node.PROCESS_MODE_DISABLED
 	await process_frame
 	mapa.get_node("HUD").process_mode = Node.PROCESS_MODE_DISABLED
+	mapa.efectos.permitir_paradas = false
 	return mapa
 
 
@@ -27,6 +28,7 @@ func nueva_prueba_de_la_sed() -> Mapa:
 	mapa.process_mode = Node.PROCESS_MODE_DISABLED
 	await process_frame
 	mapa.get_node("HUD").process_mode = Node.PROCESS_MODE_DISABLED
+	mapa.efectos.permitir_paradas = false
 	return mapa
 
 

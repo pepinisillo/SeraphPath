@@ -47,6 +47,7 @@ var _busqueda := 0.0 # s que lleva buscando
 var _camino := PackedVector2Array()
 var _celda_destino := Vector2i(-1, -1)
 var _enfriamiento_ataque := 0.0
+var _destello := 0.0 # s que quedan de destello rojo al recibir un Tajo
 
 @onready var cono: ConoVision = $Cono
 @onready var silueta: Node2D = $Silueta
@@ -72,6 +73,7 @@ func _physics_process(delta: float) -> void:
 	if mapa == null or ruta.is_empty():
 		return
 	_actualizar_silueta()
+	_destello -= delta
 	if derribado:
 		position = Iso.a_pantalla(pos)
 		queue_redraw() # el aviso de «Beber» depende de dónde esté Mika
@@ -102,6 +104,7 @@ func _physics_process(delta: float) -> void:
 func recibir_dano(cantidad: int) -> void:
 	if derribado:
 		return
+	_destello = Config.DESTELLO_DURACION
 	vida -= cantidad
 	if vida <= 0:
 		derribar()
@@ -331,6 +334,8 @@ func _color_estado() -> Color:
 func _draw() -> void:
 	if derribado:
 		var color := COLOR_CUERPO.darkened(0.55) if bebido else COLOR_CUERPO.darkened(0.25)
+		if _destello > 0.0:
+			color = color.lerp(Paleta.ROJO, _destello / Config.DESTELLO_DURACION)
 		Formas.caido(self, ALTO_CAPSULA * 0.8, ANCHO_CAPSULA * 0.8, color, COLOR_CONTORNO.darkened(0.3))
 		if mapa and mapa.mika and mapa.mika.objetivo_beber == self and not mapa.mika.esta_bebiendo():
 			draw_string(ThemeDB.fallback_font, Vector2(-60.0, -46.0), "Beber (E)", HORIZONTAL_ALIGNMENT_CENTER, 120.0, 18, COLOR_SANGRE)
