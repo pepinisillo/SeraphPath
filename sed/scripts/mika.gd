@@ -46,6 +46,13 @@ var mejoras: Array[String] = []
 var caida := false
 var rng := RandomNumberGenerator.new()
 
+# Modificadores que ponen la expedición y los recuerdos (por defecto, las reglas de Config).
+var sed_por_golpe := Config.SED_POR_GOLPE
+var sed_impulso := Config.IMPULSO_SED
+var tramo_lento := Config.SED_TRAMO_LENTO
+var salvacion_disponible := false # recuerdo 4: sobrevive una vez con 1 de vida
+var sed_congelada := false # evento «La carta sin enviar»: la sed no sube en este mapa
+
 var _impulso_restante := 0.0 # s que quedan de dash; > 0 mientras dura
 var _impulso_dir := Vector2.ZERO
 var _enfriamiento_impulso := 0.0
@@ -106,7 +113,7 @@ func tiene_mejora(id: String) -> bool:
 
 
 func velocidad() -> float:
-	var base := Config.VELOCIDAD_MIKA_SEDIENTO if sed >= Config.SED_TRAMO_LENTO else Config.VELOCIDAD_MIKA
+	var base := Config.VELOCIDAD_MIKA_SEDIENTO if sed >= tramo_lento else Config.VELOCIDAD_MIKA
 	return base + (Config.MEJORA_VELOCIDAD if tiene_mejora(Mejoras.VELOCIDAD) else 0.0)
 
 
@@ -179,6 +186,8 @@ func _control(delta: float) -> void:
 # --- Sed, vida y Humanidad ---
 
 func sumar_sed(cantidad: int) -> void:
+	if sed_congelada and cantidad > 0:
+		return
 	sed = clampi(sed + cantidad, 0, Config.SED_MAX)
 
 
@@ -217,7 +226,10 @@ func recibir_golpe(dano: int) -> void:
 	if caida:
 		return
 	vida -= dano
-	sumar_sed(Config.SED_POR_GOLPE)
+	sumar_sed(sed_por_golpe)
+	if vida <= 0 and salvacion_disponible:
+		vida = 1 # recuerdo 4, «La puerta»: una vez por expedición
+		salvacion_disponible = false
 	_destello = Config.DESTELLO_DURACION
 	mapa.efectos.golpe_recibido(pos)
 	if vida <= 0:
@@ -427,7 +439,7 @@ func impulso(entrada: Vector2) -> bool:
 	_impulso_restante = Config.IMPULSO_DURACION
 	_enfriamiento_impulso = Config.IMPULSO_ENFRIAMIENTO
 	_hasta_silueta = 0.0
-	sumar_sed(Config.IMPULSO_SED)
+	sumar_sed(sed_impulso)
 	mapa.hacer_ruido(pos)
 	return true
 

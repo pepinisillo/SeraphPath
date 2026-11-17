@@ -100,7 +100,7 @@ func _dibujar() -> void:
 	y += ALTO_BARRA + 12
 	_texto(fuente, Vector2(MARGEN, y + 12), "Sed %d · %s" % [mika.sed, _tramo_sed()], COLOR_TEXTO)
 	y += 18
-	var marcas := [Config.SED_TRAMO_REGENERA + 1, Config.SED_TRAMO_LENTO, Config.SED_TRAMO_FRENESI]
+	var marcas := [Config.SED_TRAMO_REGENERA + 1, mika.tramo_lento, Config.SED_TRAMO_FRENESI]
 	_barra(Vector2(MARGEN, y), float(mika.sed) / Config.SED_MAX, COLOR_SED, marcas)
 	y += ALTO_BARRA + 12
 	_texto(fuente, Vector2(MARGEN, y + 14), "Humanidad", COLOR_TEXTO)
@@ -140,7 +140,7 @@ func _dibujar_frenesi(fuente: Font, tam: Vector2) -> void:
 func _tramo_sed() -> String:
 	if mika.sed >= Config.SED_TRAMO_FRENESI:
 		return "Frenesí"
-	if mika.sed >= Config.SED_TRAMO_LENTO:
+	if mika.sed >= mika.tramo_lento:
 		return "Sediento"
 	if mika.sed > Config.SED_TRAMO_REGENERA:
 		return "Estable"

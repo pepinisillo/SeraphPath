@@ -1,0 +1,103 @@
+[
+	{
+		"numero": 1,
+		"titulo": "El recién llegado",
+		"cuando": "Orfanato Hyakuya, a los 8 años",
+		"mejora": "Empieza con 2 viales",
+		"lineas": [
+			"*Patio del orfanato Hyakuya. Nieva. Un niño nuevo espera solo junto a la reja.*",
+			"**MIKA:** Tú eres el nuevo. Yo soy Mikaela. Aquí todos nos apellidamos Hyakuya, así que desde hoy eres mi familia.",
+			"**YUU:** No necesito familia.",
+			"**MIKA:** Qué pena, porque ya la tienes.",
+			"*Mika le pone su bufanda sin pedir permiso.*",
+			"**Mika, ahora:** «Ese día decidí yo por los dos. Nunca me arrepentí.»"
+		]
+	},
+	{
+		"numero": 2,
+		"titulo": "La cena",
+		"cuando": "Sanguinem",
+		"mejora": "La sed sube 2 por golpe recibido, no 3",
+		"lineas": [
+			"*Sanguinem. Mika entra tarde con una bolsa de comida y los pequeños corren hacia él. Yuu se queda en la puerta, mirando la venda que Mika lleva en el cuello.*",
+			"**YUU:** ¿Otra vez fuiste a esa mansión?",
+			"**MIKA:** Hoy hay carne. Sonríe, que te están viendo.",
+			"**YUU:** No te lo pedí.",
+			"**MIKA:** Ya lo sé. Por eso lo hago yo.",
+			"**Mika, ahora:** «Fue el único que miró la venda antes que la comida.»"
+		]
+	},
+	{
+		"numero": 3,
+		"titulo": "El mapa",
+		"cuando": "Sanguinem, a los 12 años",
+		"mejora": "El mapa de paradas muestra qué hay en las dos rutas",
+		"lineas": [
+			"*De noche, bajo una manta, con una linterna.*",
+			"**MIKA:** Mira. La salida. La saqué de su escritorio.",
+			"**YUU:** ¿Estás loco? Si se entera...",
+			"**MIKA:** Arriba hay un cielo, Yuu-chan. Quiero verlo contigo y con todos.",
+			"**YUU:** Cuando salgamos, yo voy delante. Tú ya hiciste bastante.",
+			"**Mika, ahora:** «Prometió ir delante y cumplió. Yo fui el que se quedó.»"
+		]
+	},
+	{
+		"numero": 4,
+		"titulo": "La puerta",
+		"cuando": "La noche de la fuga",
+		"mejora": "Una vez por expedición, sobrevive con 1 de vida a un golpe mortal",
+		"lineas": [
+			"*El túnel de salida. Ferid los espera. La pantalla se queda en negro y solo se oyen pasos que se detienen, uno por uno.*",
+			"*Vuelve la luz. Mika, en el suelo, empuja a Yuu hacia la puerta.*",
+			"**MIKA:** Corre.",
+			"**YUU:** ¡No te voy a dejar!",
+			"**MIKA:** Si te quedas, no sirvió de nada. Corre, Yuu-chan. Por favor.",
+			"*Yuu corre. La puerta se cierra.*",
+			"**Mika, ahora:** «Fue lo último que le pedí. Me lo concedió llorando.»"
+		]
+	},
+	{
+		"numero": 5,
+		"titulo": "Cuatro años",
+		"cuando": "Sanguinem, ya como vampiro",
+		"mejora": "El tramo Sediento empieza en 70, no en 60",
+		"lineas": [
+			"*Una sala de Sanguinem. Krul deja un vial sobre la mesa. Al lado hay una copa de sangre humana que dejó otro.*",
+			"**KRUL:** Bebe la mía o bebe la de ellos. Me da igual, pero bebe.",
+			"*Mika toma el vial y aparta la copa sin mirarla.*",
+			"**KRUL:** ¿Para quién te guardas?",
+			"**MIKA:** Para alguien que salió.",
+			"**KRUL:** Entonces no está aquí para verlo.",
+			"**MIKA:** Por eso.",
+			"**Mika, ahora:** «Cuatro años diciendo que no a una copa. Era lo único que podía darle sin tenerlo delante.»"
+		]
+	},
+	{
+		"numero": 6,
+		"titulo": "Shinjuku",
+		"cuando": "El presente, a los 16 años",
+		"mejora": "El Impulso sube la sed 5, no 8",
+		"lineas": [
+			"*Batalla. Humo. Mika cruza las líneas humanas, un soldado se le atraviesa y las espadas chocan. Se miran.*",
+			"**YUU:** ¿Mika?",
+			"*La espada de Mika se detiene sola.*",
+			"**MIKA:** Yuu-chan. Estás vivo. Estás... con ellos.",
+			"**YUU:** ¡Creí que habías muerto!",
+			"*Los separan. Mika lo ve alejarse, rodeado de su escuadrón.*",
+			"**Mika, ahora:** «Cuando lo vi no pensé \"mi hermano\". Tampoco \"mi familia\". Todavía no tengo la palabra para lo que pensé.»"
+		]
+	},
+	{
+		"numero": 7,
+		"titulo": "Lo que nunca dije",
+		"cuando": "El presente",
+		"mejora": "Abre el final La sangre de Yuu",
+		"lineas": [
+			"*Una azotea, de noche. Mika, solo, ensaya en voz baja.*",
+			"**MIKA:** Yuu-chan, vine a sacarte de aquí. No. Yuu-chan, eres lo único que... No.",
+			"*Se sienta en el borde.*",
+			"**MIKA:** Te quiero. Qué fácil es cuando no estás.",
+			"**Mika, ahora:** «La próxima vez que lo diga, vas a estar delante.»"
+		]
+	}
+]

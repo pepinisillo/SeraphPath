@@ -36,6 +36,8 @@ var celda_salida := Vector2i(-1, -1)
 var mika: Mika
 var estadisticas := Estadisticas.new()
 var efectos: Efectos
+## Evento «La copa de Ferid»: se ven todas las patrullas a través de los muros.
+var patrullas_visibles := false
 var terminado := false
 ## Cómo terminó: "" (superado o caída), "cedida" o "fallida" (Prueba de la sed).
 var motivo := ""
@@ -78,6 +80,8 @@ func _ready() -> void:
 		hud.iniciar(self)
 	if mika:
 		mika.derrotada.connect(_al_caer_mika)
+		if EstadoExpedicion.en_curso():
+			EstadoExpedicion.actual().aplicar_a_mapa(self)
 
 
 func _physics_process(delta: float) -> void:
@@ -175,6 +179,8 @@ func terminar(exito: bool, p_motivo := "") -> void:
 	motivo = p_motivo
 	if motivo == "fallida":
 		mika.sed = Config.PRUEBA_SED_FALLIDA # despierta con esta sed
+	if EstadoExpedicion.en_curso():
+		EstadoExpedicion.actual().al_terminar_mapa(self, exito, motivo)
 	var resultado: Resultado = load("res://escenas/resultado.tscn").instantiate()
 	add_child(resultado)
 	resultado.mostrar(self, exito)

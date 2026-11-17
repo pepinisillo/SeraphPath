@@ -155,6 +155,42 @@ Todo esto es dibujo y ritmo del tiempo; no cambia ninguna regla. Los valores est
 - **Las paradas** congelan el juego unos cuadros. Si se pisan, manda la más larga, y salir del mapa nunca deja el juego congelado.
 - **El arte final** (sprites de 8 direcciones, escenarios pintados) no está hecho: el proyecto pide arte propio. Lo que hay son formas provisionales con estos efectos encima.
 
+### Expedición
+
+El juego empieza en la pantalla de título. Una expedición recorre hoy la **zona 1** completa:
+
+```
+                ┌─ Refugio ──── Evento ─────────┐
+Infiltración ───┤                               ├── Prueba de la sed ── Jefe
+                └─ Emboscada ── Infiltración ───┘
+```
+
+- **Estado entre paradas:** Mika arrastra vida, sed, Humanidad, viales y mejoras de una parada a la siguiente. Si cae, la expedición termina y solo se conservan los recuerdos.
+- **Mapa de paradas:** muestra lo hecho, la parada actual y los avisos para el siguiente mapa (empieza en Sospecha o Alarma, la sed no sube, patrullas visibles). Sin el recuerdo 3, «El mapa», las dos rutas se ven como «? → ?».
+- **Infiltración:** el puesto de control.
+- **Emboscada:** el mismo puesto, empezando en Alarma. Su recompensa, un filo, llegará con los filos.
+- **Refugio:**
+  - Muestra la línea de Mika según su Humanidad (de `historia.md`).
+  - Permite curar toda la vida.
+  - «Mejorar la espada» aparece desactivado hasta que existan los filos.
+- **Evento:** sale uno al azar de los de la zona 1 que no hayan salido en la expedición: «La doncella de Krul», «Lacus y René», «La copa de Ferid» y «La carta sin enviar».
+  - «El filo exigente» queda fuera hasta que existan los filos.
+  - Los efectos que dependen de vampiros aún no existen y la opción lo dice: «aún sin efecto».
+  - Los datos de los diez eventos están en `scripts/eventos.gd`.
+- **Prueba de la sed:**
+  - Superada: desbloquea el siguiente recuerdo y lo enseña.
+  - Fallida: el siguiente mapa empieza en Alarma.
+- **Jefe:** Ferid Bathory aún no existe. Llegar a él termina, por ahora, la expedición.
+- **Recuerdos:** se guardan en disco (`user://recuerdos.cfg`) y se pueden releer desde el título. Los guiones se copiaron de `historia.md` a `sed/datos/recuerdos.json`; si cambias un guion, actualiza los dos.
+- **Mejoras permanentes de los recuerdos:**
+  1. Empieza con 2 viales.
+  2. La sed sube 2 por golpe, no 3.
+  3. Ves qué hay en cada ruta.
+  4. Una vez por expedición sobrevive con 1 de vida.
+  5. Sediento empieza en 70.
+  6. El Impulso cuesta 5 de sed.
+  7. Abre el final «La sangre de Yuu», que llegará con los finales.
+
 ## Primer mapa: «Puesto de control»
 
 Cada carácter es una casilla: `#` muro · `.` suelo · `s` sombra · `M` inicio de Mika · `E` salida · `V` vial de Krul (opcional).
@@ -212,7 +248,9 @@ El proyecto de Godot vive en `sed/`.
 | `recursos/` | TileSet y otros recursos |
 | `arte/` | Gráficos provisionales |
 | `pruebas/` | Pruebas automáticas de cada paso, sin ventana |
+| `datos/` | Textos del juego copiados de `docs/` (guiones de los recuerdos) |
 
+- **Expedición:** vive en el autoload `Expedicion` (`scripts/expedicion.gd`). Los scripts la piden con `EstadoExpedicion.actual()`. Si se abre un mapa suelto con F6, no hay expedición y el mapa funciona solo.
 - **Números en un solo sitio:** todos los valores de la tabla de reglas están en `scripts/config.gd`. Para ajustar el juego basta con tocar ese archivo.
 - **Mapas desde texto:** cada mapa se dibuja a partir de su plano de caracteres, igual que el del puesto de control.
 - **Arte provisional:** hasta el paso 9 se usan formas simples: cápsulas para los personajes y rombos para las casillas.

@@ -11,9 +11,13 @@ config_version=5
 [application]
 
 config/name="Sed"
-run/main_scene="res://escenas/mapa_puesto_control.tscn"
+run/main_scene="res://escenas/titulo.tscn"
 config/features=PackedStringArray("4.7", "Forward Plus")
 config/icon="res://icon.svg"
+
+[autoload]
+
+Expedicion="*res://scripts/expedicion.gd"
 
 [display]
 

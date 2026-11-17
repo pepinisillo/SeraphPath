@@ -369,7 +369,8 @@ func _draw() -> void:
 
 ## Con la mejora Olfato, Mika ve a los humanos a través de las paredes.
 func _actualizar_silueta() -> void:
-	silueta.visible = mapa.mika != null and mapa.mika.tiene_mejora(Mejoras.OLFATO) and not bebido
+	var olfato := mapa.mika != null and mapa.mika.tiene_mejora(Mejoras.OLFATO)
+	silueta.visible = (olfato or mapa.patrullas_visibles) and not bebido
 	if silueta.visible:
 		silueta.queue_redraw()
 

@@ -39,6 +39,12 @@ func mostrar(mapa: Mapa, p_exito: bool) -> void:
 		var textos := _textos_prueba(mapa.motivo)
 		_etiqueta(caja, textos[0], 32, Paleta.TURQUESA if exito else Paleta.ROJO)
 		_etiqueta(caja, textos[1], 16, Paleta.BLANCO_HUESO)
+		if exito and EstadoExpedicion.en_curso():
+			var n := EstadoExpedicion.actual().recuerdo_nuevo
+			var texto := "Ya tenías todos los recuerdos."
+			if n > 0:
+				texto = "Recuerdo %d: %s" % [n, EstadoExpedicion.datos_recuerdos()[n - 1].titulo]
+			_etiqueta(caja, texto, 18, Paleta.TURQUESA)
 	else:
 		var titulo := "%s superado" % mapa.nombre if exito else "Mika ha caído"
 		_etiqueta(caja, titulo, 32, Paleta.TURQUESA if exito else Paleta.ROJO)
@@ -84,11 +90,18 @@ func mostrar(mapa: Mapa, p_exito: bool) -> void:
 	var botones := HBoxContainer.new()
 	botones.alignment = BoxContainer.ALIGNMENT_CENTER
 	botones.add_theme_constant_override("separation", 16)
-	var repetir := "Jugar de nuevo" if exito else "Volver a intentarlo"
-	if mapa.prueba_de_la_sed:
-		repetir = "Repetir la prueba"
-	boton_repetir = _boton(botones, repetir, _repetir)
-	boton_salir = _boton(botones, "Salir del juego", _salir)
+	if EstadoExpedicion.en_curso():
+		# En una expedición no se repite: se sigue adelante, o se acaba si Mika cayó.
+		var expedicion := EstadoExpedicion.actual()
+		var sigue := exito or mapa.prueba_de_la_sed
+		boton_repetir = _boton(botones, "Continuar" if sigue else "Fin de la expedición", expedicion.completar_parada if sigue else expedicion.caer)
+		boton_salir = _boton(botones, "Abandonar la expedición", expedicion.volver_al_titulo)
+	else:
+		var repetir := "Jugar de nuevo" if exito else "Volver a intentarlo"
+		if mapa.prueba_de_la_sed:
+			repetir = "Repetir la prueba"
+		boton_repetir = _boton(botones, repetir, _repetir)
+		boton_salir = _boton(botones, "Salir del juego", _salir)
 	caja.add_child(botones)
 	boton_repetir.grab_focus()
 
