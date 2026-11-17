@@ -32,6 +32,8 @@ const GOLPE_SILENCIOSO_ENFRIAMIENTO := 0.5
 const BEBER_DURACION := 2.0
 const VIAL_SED := -40
 const VIAL_DURACION := 0.5
+const BEBER_DISTANCIA := 1.0 # casillas hasta el cuerpo
+const VIAL_RADIO_RECOGER := 0.5 # casillas para recoger un vial del suelo
 
 # --- Sed ---
 const SED_MAX := 100
@@ -43,6 +45,12 @@ const SED_TRAMO_LENTO := 60 # 60–89 más lento y sin Sentidos
 const SED_TRAMO_FRENESI := 90
 const REGENERACION_INTERVALO := 6.0 # +1 de vida
 const FRENESI_DURACION := 4.0
+const FRENESI_RESPIRO := 3.0 # s de control si el Frenesí acaba sin beber, antes de que vuelva
+
+# --- Mejoras de sangre ---
+const MEJORA_FUERZA := 2 # daño extra del Tajo
+const MEJORA_VIGOR := 4 # vida máxima extra
+const MEJORA_VELOCIDAD := 1.0 # casillas/s extra
 
 # --- Humanidad ---
 const HUMANIDAD_INICIAL := 3

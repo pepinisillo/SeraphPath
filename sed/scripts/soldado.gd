@@ -13,6 +13,7 @@ const COLOR_CALMA := Color("9eccff")
 const COLOR_SOSPECHA := Color("f2b13c")
 const COLOR_ALARMA := Color("e0384a")
 const COLOR_MARCA_SILENCIOSO := Color("e8f1ff")
+const COLOR_SANGRE := Color("b3263a")
 const COLOR_FONDO_MEDIDOR := Color(0.04, 0.05, 0.08, 0.85)
 const ALTO_CAPSULA := 104.0
 const ANCHO_CAPSULA := 42.0
@@ -34,6 +35,7 @@ var medidor := 0.0 # detección, de 0 a 1
 var vida := Config.SOLDADO_VIDA
 var derribado := false
 var descubierto := false # otro soldado ya encontró su cuerpo
+var bebido := false # Mika ya bebió de él
 
 var _indice := 0 # punto de la ruta hacia el que camina
 var _sentido := 1 # para el vaivén
@@ -44,8 +46,14 @@ var _buscando := false # ya llegó al punto y mira alrededor
 var _busqueda := 0.0 # s que lleva buscando
 var _camino := PackedVector2Array()
 var _celda_destino := Vector2i(-1, -1)
+var _enfriamiento_ataque := 0.0
 
 @onready var cono: ConoVision = $Cono
+@onready var silueta: Node2D = $Silueta
+
+
+func _ready() -> void:
+	silueta.draw.connect(_dibujar_silueta)
 
 
 func iniciar(p_mapa: Mapa) -> void:
@@ -61,7 +69,12 @@ func iniciar(p_mapa: Mapa) -> void:
 
 
 func _physics_process(delta: float) -> void:
-	if mapa == null or ruta.is_empty() or derribado:
+	if mapa == null or ruta.is_empty():
+		return
+	_actualizar_silueta()
+	if derribado:
+		position = Iso.a_pantalla(pos)
+		queue_redraw() # el aviso de «Beber» depende de dónde esté Mika
 		return
 	var ve := _ve_a_mika()
 	if estado != Estado.ALARMA:
@@ -199,9 +212,13 @@ func _alarma(ve: bool, delta: float) -> void:
 		return
 	if ve:
 		mapa.alerta.vista(mapa.mika.pos)
+	_enfriamiento_ataque -= delta
 	var objetivo := mapa.alerta.ultima_posicion
 	if ve and pos.distance_to(objetivo) <= Config.SOLDADO_DISTANCIA_GOLPE:
 		_girar_hacia(objetivo - pos, delta)
+		if _enfriamiento_ataque <= 0.0:
+			mapa.mika.recibir_golpe(Config.SOLDADO_DANO)
+			_enfriamiento_ataque = Config.SOLDADO_GOLPE_INTERVALO
 		return
 	if _ir_hacia(objetivo, Config.SOLDADO_VELOCIDAD_ALARMA, delta):
 		_mirar_alrededor(delta)
@@ -312,7 +329,10 @@ func _color_estado() -> Color:
 
 func _draw() -> void:
 	if derribado:
-		Formas.caido(self, ALTO_CAPSULA * 0.8, ANCHO_CAPSULA * 0.8, COLOR_CUERPO.darkened(0.25), COLOR_CONTORNO.darkened(0.3))
+		var color := COLOR_CUERPO.darkened(0.55) if bebido else COLOR_CUERPO.darkened(0.25)
+		Formas.caido(self, ALTO_CAPSULA * 0.8, ANCHO_CAPSULA * 0.8, color, COLOR_CONTORNO.darkened(0.3))
+		if mapa and mapa.mika and mapa.mika.objetivo_beber == self and not mapa.mika.esta_bebiendo():
+			draw_string(ThemeDB.fallback_font, Vector2(-60.0, -46.0), "Beber (E)", HORIZONTAL_ALIGNMENT_CENTER, 120.0, 18, COLOR_SANGRE)
 		return
 	Formas.mirada(self, mirada, COLOR_MIRADA)
 	Formas.capsula(self, ALTO_CAPSULA, ANCHO_CAPSULA, COLOR_CUERPO, COLOR_CONTORNO)
@@ -337,3 +357,20 @@ func _draw() -> void:
 	if estado != Estado.OCULTO:
 		var signo := "!" if estado == Estado.ALARMA else "?"
 		draw_string(ThemeDB.fallback_font, Vector2(-20.0, esquina.y - 6.0), signo, HORIZONTAL_ALIGNMENT_CENTER, 40.0, 28, color)
+
+
+# --- Olfato ---
+
+## Con la mejora Olfato, Mika ve a los humanos a través de las paredes.
+func _actualizar_silueta() -> void:
+	silueta.visible = mapa.mika != null and mapa.mika.tiene_mejora(Mejoras.OLFATO) and not bebido
+	if silueta.visible:
+		silueta.queue_redraw()
+
+
+func _dibujar_silueta() -> void:
+	var color := Color(COLOR_SANGRE, 0.55)
+	if derribado:
+		Formas.caido(silueta, ALTO_CAPSULA * 0.8, ANCHO_CAPSULA * 0.8, Color(color, 0.15), color)
+	else:
+		Formas.capsula(silueta, ALTO_CAPSULA, ANCHO_CAPSULA, Color(color, 0.15), color)

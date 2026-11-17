@@ -23,6 +23,7 @@ var filas: PackedStringArray = []
 var ancho := 0
 var alto := 0
 var inicio_mika := Vector2i.ZERO
+var celdas_vial: Array[Vector2i] = []
 var mika: Mika
 
 var _rejilla := AStarGrid2D.new()
@@ -41,6 +42,13 @@ func _ready() -> void:
 		mika.iniciar(self, Vector2(inicio_mika) + Vector2(0.5, 0.5))
 	for soldado in soldados():
 		soldado.iniciar(self)
+	for celda in celdas_vial:
+		var vial: Vial = load("res://escenas/vial.tscn").instantiate()
+		add_child(vial)
+		vial.iniciar(self, celda)
+	var hud := get_node_or_null("HUD")
+	if hud:
+		hud.iniciar(self)
 
 
 func _construir() -> void:
@@ -54,6 +62,7 @@ func _construir() -> void:
 
 	suelo.clear()
 	muros.clear()
+	celdas_vial.clear()
 	for f in alto:
 		for c in ancho:
 			var celda := Vector2i(c, f)
@@ -66,6 +75,9 @@ func _construir() -> void:
 					suelo.set_cell(celda, 0, ATLAS_SALIDA)
 				"M":
 					inicio_mika = celda
+					suelo.set_cell(celda, 0, ATLAS_SUELO)
+				"V":
+					celdas_vial.append(celda)
 					suelo.set_cell(celda, 0, ATLAS_SUELO)
 				_:
 					suelo.set_cell(celda, 0, ATLAS_SUELO)

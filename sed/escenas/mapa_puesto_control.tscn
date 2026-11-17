@@ -5,6 +5,7 @@
 [ext_resource type="PackedScene" path="res://escenas/mika.tscn" id="3_mika"]
 [ext_resource type="PackedScene" path="res://escenas/soldado.tscn" id="4_soldado"]
 [ext_resource type="Script" path="res://scripts/alerta.gd" id="5_alerta"]
+[ext_resource type="PackedScene" path="res://escenas/hud.tscn" id="6_hud"]
 
 [node name="MapaPuestoControl" type="Node2D"]
 y_sort_enabled = true
@@ -35,3 +36,5 @@ tile_set = ExtResource("2_casillas")
 
 [node name="S1" parent="." instance=ExtResource("4_soldado")]
 ruta = Array[Vector2i]([Vector2i(3, 5), Vector2i(6, 5), Vector2i(6, 8), Vector2i(3, 8)])
+
+[node name="HUD" parent="." instance=ExtResource("6_hud")]
