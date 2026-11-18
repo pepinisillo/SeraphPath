@@ -26,14 +26,20 @@ func _initialize():
 		"",
 		"Con patrullas al azar (semillas %s) y los grupos saliendo al pisar su zona. «Ruta» es lo que tarda la ruta sin ser visto más corta que encuentra la planificación (prudente); «directo», lo que se tarda corriendo sin esperar; «¿corriendo te ven?», si ir directo te delata." % ", ".join(SEMILLAS.map(func(x): return str(x))),
 		"",
-		"| Mapa | Ruta sin ser visto (s) | Directo (s) | Veces más | ¿Corriendo te ven? |",
-		"| --- | --- | --- | --- | --- |",
+		"«Menos exacto» repite cada ruta 5 veces llegando a cada casilla hasta 0,15 s tarde (sin acumularlo), como alguien que reacciona algo tarde: cuántas veces sigue sin ser visto.",
+		"",
+		"| Mapa | Ruta sin ser visto (s) | Directo (s) | Veces más | ¿Corriendo te ven? | Menos exacto |",
+		"| --- | --- | --- | --- | --- | --- |",
 	])
 	Soldado.patrullas_al_azar = true
 	for datos in INFILTRACIONES:
 		var tiempos := []
 		var te_ven := 0
 		var directo := 0.0
+		var exactos := 0
+		var intentos := 0
+		var rng := RandomNumberGenerator.new()
+		rng.seed = 11
 		for semilla in SEMILLAS:
 			Soldado.semilla_fija = semilla
 			var ruta: Array = await buscar_ruta_con_apariciones(datos[1], datos[2], datos[3])
@@ -44,10 +50,18 @@ func _initialize():
 				te_ven += 1
 			m.queue_free()
 			paused = false
+			if not ruta.is_empty():
+				for intento in 5:
+					var otra: Mapa = await cargar_mapa(datos[1])
+					intentos += 1
+					if reproducir(otra, ruta_con_retrasos(ruta, 0.15, rng), false):
+						exactos += 1
+					otra.queue_free()
+					paused = false
 		var validos := tiempos.filter(func(t): return t >= 0.0)
 		var media: float = validos.reduce(func(a, b): return a + b, 0.0) / maxf(1.0, validos.size())
 		var texto_rutas := ", ".join(tiempos.map(func(t): return "%.1f" % t if t >= 0.0 else "sin ruta"))
-		lineas.append("| %s | %s | %.1f | %.1f | %d de %d |" % [datos[0], texto_rutas, directo, media / maxf(directo, 0.1), te_ven, SEMILLAS.size()])
+		lineas.append("| %s | %s | %.1f | %.1f | %d de %d | %d de %d |" % [datos[0], texto_rutas, directo, media / maxf(directo, 0.1), te_ven, SEMILLAS.size(), exactos, intentos])
 		print("    %s: %s" % [datos[0], texto_rutas])
 	Soldado.patrullas_al_azar = false
 	Soldado.semilla_fija = -1

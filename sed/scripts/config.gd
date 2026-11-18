@@ -231,6 +231,7 @@ const GUREN_POCA_VIDA := 0.25
 const DIALOGO_LETRAS_POR_S := 55.0 # velocidad del texto que aparece poco a poco
 const DIALOGO_NEGRO := 2.5 # s de pantalla en negro (sin contar los fundidos)
 const DIALOGO_FUNDIDO := 0.6 # s de cada fundido a negro
+const AVISOS_DURACION := 25.0 # s que se ven los controles en el primer mapa de la primera partida
 const VOZ_FRENESI_DURACION := 3.0 # s que se ve cada frase de la voz en el Frenesí
 const DIALOGO_GRIS := 0.9 # cuánto color quita «la pantalla casi no tiene color»
 const DIALOGO_COLOR_VUELVE := 3.0 # s que tarda en volver el color

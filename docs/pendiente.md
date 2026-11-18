@@ -4,7 +4,7 @@ Lo que falta por construir, de lo más difícil a lo más sencillo. Lo que ya ex
 
 ## Muy difícil
 
-1. **Generar mapas automáticamente.** Ya existe (generador con grupos y talismanes, y herramienta que valida; los usa la emboscada). Ya hay salas en L y atajos; falta que no todos vayan de izquierda a derecha y usarlos en más paradas.
+1. **Generar mapas automáticamente.** Ya existe (generador con grupos y talismanes, y herramienta que valida; los usa la emboscada). Ya hay salas en L, atajos y mapas volteados; se usan en la emboscada y en la mitad de las infiltraciones arriesgadas.
 2. **Jefes con fases.** Ya existen los tres (Ferid, Crowley, Guren). Falta ajustarlos jugando.
 3. **Enemigos con reglas sociales.** Ya existen todos (vampiro, Jinete, hechicero, portador). Ya pelean todos; falta ajustarlos jugando.
 4. **El final «La sangre de Yuu».** Ya existe la escena dirigida (botón Beber obligatorio, el color que vuelve). Falta la música: no hay hasta que Mika muerde.
@@ -14,7 +14,7 @@ Lo que falta por construir, de lo más difícil a lo más sencillo. Lo que ya ex
 5. **Zonas.** Las tres existen, cada una con su mapa de la Prueba de la sed.
 6. **Romance repartido por la partida.** Que la palabra «familia» cambie solo en el final con Humanidad 3, y que los eventos de Yuu conecten con las Pruebas de la sed. Es delicado sobre todo por el tono.
 7. **Filos y habilidades.** Ya existen los diez filos, Sentidos y «Espada, bebe mi sangre». Falta probar el equilibrio jugando.
-8. **Ajustar la dificultad con jugadores automáticos.** Ya hay informe (`docs/dificultad.md`). Falta medir con más semillas y con bots menos perfectos.
+8. **Ajustar la dificultad con jugadores automáticos.** Ya hay informe (`docs/dificultad.md`). Ya mide también un jugador menos exacto. Falta medir con más semillas.
 9. **Controles táctiles para Android.** Ya hay joystick y botones en pantalla. Falta exportar para Android, probarlo en un teléfono y medir el rendimiento.
 
 ## Medio

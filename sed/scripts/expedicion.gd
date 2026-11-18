@@ -85,7 +85,7 @@ var archivo_generados := "res://datos/mapas_generados.json"
 const GUARDADO := ["zona", "ruta", "indice", "vida", "vida_max", "sed", "humanidad", "viales", "mejoras",
 	"filos", "salvacion_usada", "siguiente_empieza", "sed_congelada", "patrullas_visibles", "eventos_vistos",
 	"filo_pendiente", "saltar_siguiente", "siguiente_vampiro_extra", "siguiente_vampiros_callados",
-	"siguiente_jinete_suelto", "siguiente_prueba_cerca"]
+	"siguiente_jinete_suelto", "siguiente_prueba_cerca", "mapa_arriesgado"]
 
 var activa := false
 var zona := 1
@@ -127,6 +127,7 @@ var finales_vistos: Array[String] = []
 var filos: Array[String] = [] # filos de la espada que lleva Mika en esta expedición
 var filo_pendiente := false # superó una emboscada: al salir, elige un filo
 var filos_ofrecidos: Array[String] = []
+var mapa_arriesgado := "" # el mapa de la infiltración arriesgada de esta zona (se sortea una vez)
 var _tras_filo: Callable
 var _tras_escena: Callable
 var rng := RandomNumberGenerator.new()
@@ -150,7 +151,14 @@ func _ready() -> void:
 	if bucle != null and bucle.get_script() != null:
 		archivo_recuerdos = "user://prueba_recuerdos_auto.cfg"
 		archivo_partida = "user://prueba_expedicion.cfg"
+	else:
+		Opciones.cargar()
 	cargar_recuerdos()
+
+
+## Nunca se ha jugado: ni recuerdos, ni caídas, ni finales (para los avisos de controles).
+func primera_vez() -> bool:
+	return recuerdos.is_empty() and caidas == 0 and finales_vistos.is_empty()
 
 
 # --- Inicio y paradas ---
@@ -181,6 +189,7 @@ func nueva() -> void:
 	siguiente_prueba_cerca = false
 	filos = []
 	filo_pendiente = false
+	mapa_arriesgado = ""
 	rng.randomize()
 
 
@@ -245,6 +254,7 @@ func pasar_de_zona() -> void:
 	zona += 1
 	ruta = ""
 	indice = 0
+	mapa_arriesgado = ""
 	patrullas_visibles = false
 
 
@@ -306,8 +316,17 @@ func mapas_generados(de_zona: int) -> Array:
 
 ## La primera infiltración de la zona y la de la ruta arriesgada (en la zona 1, el puesto de
 ## control y los túneles).
+## En la ruta arriesgada, la mitad de las veces sale uno de los mapas generados de la zona.
 func escena_infiltracion() -> String:
-	return datos_zona().infiltracion if indice == 0 else datos_zona().arriesgada
+	if indice == 0:
+		return datos_zona().infiltracion
+	if not mapa_arriesgado.is_empty():
+		return mapa_arriesgado
+	mapa_arriesgado = datos_zona().arriesgada
+	var generados := mapas_generados(zona)
+	if not generados.is_empty() and rng.randf() < 0.5:
+		mapa_arriesgado = generados[rng.randi_range(0, generados.size() - 1)]
+	return mapa_arriesgado
 
 
 ## Pasa a la siguiente parada y vuelve al mapa de paradas (o enseña antes el recuerdo ganado).

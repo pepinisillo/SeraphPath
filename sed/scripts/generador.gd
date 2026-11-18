@@ -108,12 +108,46 @@ static func generar(semilla: int, zona: int) -> Dictionary:
 	for fila in g:
 		plano.append("".join(fila))
 	var sala_media: Rect2i = salas[salas.size() / 2]
-	return {
+	var datos := {
 		"plano": "\n".join(plano), "inicio": inicio, "salida": salida, "entidades": entidades, "grupos": grupos, "atajo": atajo,
 		"ruta_vampiro_extra": _ruta_en_sala(g, sala_media, rng, true),
 		"ruta_jinete_suelto": _ruta_en_sala(g, sala_media, rng, true),
 		"entrada_refuerzos": salida,
 	}
+	# Para que no vayan todos de abajo a la izquierda a arriba a la derecha: a veces volteado.
+	return voltear(datos, rng.randf() < 0.5, rng.randf() < 0.5)
+
+
+## El mismo mapa volteado en horizontal y/o en vertical (plano, puntos, rutas y zonas).
+static func voltear(datos: Dictionary, en_x: bool, en_y: bool) -> Dictionary:
+	if not en_x and not en_y:
+		datos.volteado = [false, false]
+		return datos
+	var punto := func(p: Vector2i) -> Vector2i:
+		return Vector2i(ANCHO - 1 - p.x if en_x else p.x, ALTO - 1 - p.y if en_y else p.y)
+	var filas: PackedStringArray = datos.plano.split("\n")
+	var nuevas := PackedStringArray()
+	for y in ALTO:
+		var fila: String = filas[ALTO - 1 - y if en_y else y]
+		nuevas.append(fila.reverse() if en_x else fila)
+	var resultado := datos.duplicate(true)
+	resultado.plano = "\n".join(nuevas)
+	resultado.inicio = punto.call(datos.inicio)
+	resultado.salida = punto.call(datos.salida)
+	resultado.entrada_refuerzos = punto.call(datos.entrada_refuerzos)
+	resultado.ruta_vampiro_extra = datos.ruta_vampiro_extra.map(func(p): return punto.call(p))
+	resultado.ruta_jinete_suelto = datos.ruta_jinete_suelto.map(func(p): return punto.call(p))
+	for e in resultado.entidades:
+		e.ruta = e.ruta.map(func(p): return punto.call(p))
+		if e.has("talismanes"):
+			e.talismanes = e.talismanes.map(func(p): return punto.call(p))
+	for grupo in resultado.grupos:
+		grupo.zonas = grupo.zonas.map(func(z: Rect2i) -> Rect2i:
+			var a: Vector2i = punto.call(z.position)
+			var b: Vector2i = punto.call(z.end - Vector2i.ONE)
+			return Rect2i(Vector2i(mini(a.x, b.x), mini(a.y, b.y)), z.size))
+	resultado.volteado = [en_x, en_y]
+	return resultado
 
 
 ## Entre 4 y 6 salas sin solaparse, repartidas de izquierda a derecha.

@@ -98,6 +98,7 @@ func _dibujar() -> void:
 		_dibujar_frenesi(fuente, tam)
 	_dibujar_voz(fuente, tam)
 	_dibujar_vida_del_jefe(fuente, tam)
+	_dibujar_avisos(fuente, tam)
 
 	# Panel de estado, arriba a la izquierda.
 	var con_habilidades := not mapa.prueba_de_la_sed
@@ -185,6 +186,25 @@ func decir(frase: String) -> void:
 func _decir(frase: String) -> void:
 	voz_frenesi = frase
 	_voz_restante = Config.VOZ_FRENESI_DURACION
+
+
+## La primera vez que se juega, en el primer mapa: los controles básicos un rato.
+func _dibujar_avisos(fuente: Font, tam: Vector2) -> void:
+	if not EstadoExpedicion.en_curso() or not EstadoExpedicion.actual().primera_vez() or EstadoExpedicion.actual().indice != 0:
+		return
+	if mapa.estadisticas.tiempo > Config.AVISOS_DURACION or mapa.prueba_de_la_sed:
+		return
+	var lineas := [
+		"Moverse: WASD o flechas · Impulso: Espacio",
+		"Por la espalda, sin que te vean: K (Golpe silencioso) · Tajo: J (hace ruido)",
+		"Junto a un humano derribado, mantén E para beber (cuesta Humanidad) · Vial: Q",
+		"Sentidos: R · Esc: pausa y controles · Llega a la salida (turquesa)",
+	]
+	var ancho := 640.0
+	var caja := Rect2((tam.x - ancho) / 2.0, tam.y - MARGEN - 24 * lineas.size() - 20, ancho, 24 * lineas.size() + 12)
+	lienzo.draw_rect(caja, COLOR_FONDO)
+	for i in lineas.size():
+		lienzo.draw_string(fuente, Vector2(caja.position.x, caja.position.y + 24 + 24 * i), lineas[i], HORIZONTAL_ALIGNMENT_CENTER, ancho, 16, COLOR_TEXTO)
 
 
 ## Barra de vida del jefe de combate (Crowley, Guren), abajo en el centro.

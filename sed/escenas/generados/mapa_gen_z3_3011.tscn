@@ -34,7 +34,7 @@ s...######.s##################
 .......s....##################
 s........s.s##################
 M.s.##########################"
-nombre = "Barracones de Shibuya 4"
+nombre = "Barracones de Shibuya 3"
 entrada_refuerzos = Vector2i(25, 0)
 ruta_vampiro_extra = Array[Vector2i]([Vector2i(16, 4), Vector2i(14, 4)])
 ruta_jinete_suelto = Array[Vector2i]([Vector2i(16, 6), Vector2i(14, 6)])

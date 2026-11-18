@@ -54,6 +54,21 @@ func _initialize():
 		con_atajo += int(not dc.is_empty() and dc.atajo)
 	comprobar("hay mapas con atajo (dos caminos que elegir)", con_atajo > 5, true)
 
+	print("A2) Volteados")
+	var base := Generador.generar(101, 3)
+	var v := Generador.voltear(base, true, true)
+	var filas_b: PackedStringArray = base.plano.split("\n")
+	var filas_v: PackedStringArray = v.plano.split("\n")
+	comprobar("el plano se voltea", filas_v[0], filas_b[-1].reverse())
+	comprobar("inicio y salida van con él", [v.inicio, v.salida], [Vector2i(Generador.ANCHO - 1, Generador.ALTO - 1) - base.inicio, Vector2i(Generador.ANCHO - 1, Generador.ALTO - 1) - base.salida])
+	comprobar("la M y la E siguen en su sitio", [filas_v[v.inicio.y][v.inicio.x], filas_v[v.salida.y][v.salida.x]], ["M", "E"])
+	var direcciones := {}
+	for semilla in range(600, 640):
+		var dv := Generador.generar(semilla, 1)
+		if not dv.is_empty():
+			direcciones[str(dv.volteado)] = true
+	comprobar("salen en las cuatro direcciones", direcciones.size(), 4)
+
 	print("B) La escena se carga")
 	var ruta := "user://mapa_gen_prueba.tscn"
 	var d := Generador.generar(101, 1)
@@ -69,13 +84,22 @@ func _initialize():
 	var e := EstadoExpedicion.actual()
 	var indice := "user://generados_prueba.json"
 	var f2 := FileAccess.open(indice, FileAccess.WRITE)
-	f2.store_string(JSON.stringify({"1": [{"escena": "res://escenas/mapa_tuneles.tscn"}], "2": []}))
+	f2.store_string(JSON.stringify({"1": [{"escena": "res://escenas/mapa_shinjuku.tscn"}], "2": []}))
 	f2.close()
 	e.archivo_generados = indice
 	e.nueva()
-	comprobar("zona 1: el generado", e.escena_emboscada(), "res://escenas/mapa_tuneles.tscn")
+	comprobar("zona 1: el generado", e.escena_emboscada(), "res://escenas/mapa_shinjuku.tscn")
 	e.zona = 2
 	comprobar("sin generados, la primera infiltración", e.escena_emboscada(), e.datos_zona().infiltracion)
+	e.zona = 1
+	var arriesgados := {}
+	for i in 30:
+		e.mapa_arriesgado = ""
+		e.indice = 2
+		arriesgados[e.escena_infiltracion()] = true
+	comprobar("la infiltración arriesgada: a veces la hecha a mano, a veces una generada", arriesgados.keys().size(), 2)
+	var elegido := e.escena_infiltracion()
+	comprobar("y no cambia al volver a preguntar en la misma zona", e.escena_infiltracion(), elegido)
 	e.archivo_generados = "res://datos/mapas_generados.json"
 	DirAccess.remove_absolute(ProjectSettings.globalize_path(indice))
 	e.activa = false

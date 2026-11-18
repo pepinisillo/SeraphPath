@@ -34,7 +34,7 @@ plano = "#######################...E###
 #................#..##########
 #s....s...........#x##########
 #M...s#########...xV##########"
-nombre = "Pasillos de Sanguinem 4"
+nombre = "Pasillos de Sanguinem 2"
 entrada_refuerzos = Vector2i(26, 0)
 ruta_vampiro_extra = Array[Vector2i]([Vector2i(19, 12), Vector2i(19, 14)])
 ruta_jinete_suelto = Array[Vector2i]([Vector2i(15, 14), Vector2i(15, 12)])

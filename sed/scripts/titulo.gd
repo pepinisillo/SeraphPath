@@ -1,5 +1,6 @@
 extends Pantalla
-## Pantalla de título: seguir la expedición guardada, empezar otra, releer los recuerdos o salir.
+## Pantalla de título: seguir la expedición guardada, empezar otra, releer los recuerdos, ver
+## los finales vistos, las opciones o salir.
 
 
 func construir() -> void:
@@ -13,6 +14,9 @@ func construir() -> void:
 	boton("Nueva expedición", _empezar)
 	var n := expedicion.recuerdos.size()
 	boton("Recuerdos (%d/%d)" % [n, EstadoExpedicion.TOTAL_RECUERDOS], _recuerdos, n > 0)
+	var f := expedicion.finales_vistos.size()
+	boton("Finales (%d/3)" % f, get_tree().change_scene_to_file.bind("res://escenas/galeria_finales.tscn"), f > 0)
+	boton("Opciones", get_tree().change_scene_to_file.bind("res://escenas/menu_opciones.tscn"))
 	boton("Salir", get_tree().quit)
 
 

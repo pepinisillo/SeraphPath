@@ -173,6 +173,8 @@ Infiltración ───┤                               ├── Prueba de la 
 ```
 
 - **Viales:** cada expedición empieza con 2, los de la caja de Krul (4 con el recuerdo 1).
+- **Título:** continuar, nueva expedición, recuerdos, **finales** (galería de los vistos, que se pueden volver a ver; los demás, «???») y **opciones** (volumen y pantalla completa, guardados en `user://opciones.cfg`).
+- **Primera partida:** mientras no haya recuerdos, caídas ni finales, en el primer mapa se ven los controles básicos durante 25 s.
 - **Pausa** (`menu_pausa.gd`, en todos los mapas): seguir, ver los controles o abandonar. En una expedición, abandonar en mitad de una parada cuenta como caída, igual que cerrar el juego. No se abre sobre el resultado ni sobre una escena.
 - **Guardar:** la expedición se guarda sola en `user://expedicion.cfg` al llegar al mapa de paradas y al terminar cada parada. En el título aparece «Continuar la expedición». Si el juego se cerró dentro de una parada (un mapa, un evento…), al continuar la expedición cuenta como caída: así no se puede deshacer un mal mapa cerrando el juego. Abandonar, caer o terminar borra la partida. Las pruebas automáticas usan sus propios archivos.
 - **Estado entre paradas:** Mika arrastra vida, sed, Humanidad, viales y mejoras de una parada a la siguiente. Si cae, la expedición termina y solo se conservan los recuerdos.
@@ -685,16 +687,16 @@ Los retratos de las escenas con diálogo se dibujan en `Dialogo._dibujar_retrato
 
 ## Mapas generados
 
-Además de los mapas hechos a mano, hay mapas de infiltración generados al azar y validados. Se usan en la **emboscada** de cada zona: cada vez sale uno al azar entre los de esa zona (si no hay ninguno, la primera infiltración de la zona).
+Además de los mapas hechos a mano, hay mapas de infiltración generados al azar y validados. Se usan en la **emboscada** de cada zona (siempre uno generado, al azar) y en la **infiltración de la ruta arriesgada** (la mitad de las veces, en lugar del mapa hecho a mano; se sortea una vez por zona). La primera infiltración de cada zona es siempre la hecha a mano. Sin mapas generados, se usan los hechos a mano.
 
-- **Generador** (`scripts/generador.gd`): de 4 a 5 salas (algunas en L) de izquierda a derecha (la de inicio abajo, la de la salida arriba), unidas por pasillos en L de dos casillas y, la mitad de las veces, un atajo que se salta una sala (dos caminos que elegir); pilares y cajas dentro de las salas; sombra en algunas casillas junto a las paredes; una patrulla que va y viene por cada sala menos la de inicio, y el enemigo de la zona: un vampiro con su rincón prohibido y un vial (Sanguinem), un Jinete (Shinjuku) o un portador de arma maldita (Shibuya). En la mitad de los mapas, un grupo aparece en la sala final al entrar Mika en la anterior. En Shibuya, además, un hechicero deja dos talismanes en los pasillos, siempre en una de las dos casillas de ancho para que quede paso.
+- **Generador** (`scripts/generador.gd`): de 4 a 5 salas (algunas en L) de izquierda a derecha (la de inicio abajo, la de la salida arriba), unidas por pasillos en L de dos casillas y, la mitad de las veces, un atajo que se salta una sala (dos caminos que elegir); pilares y cajas dentro de las salas; sombra en algunas casillas junto a las paredes; una patrulla que va y viene por cada sala menos la de inicio, y el enemigo de la zona: un vampiro con su rincón prohibido y un vial (Sanguinem), un Jinete (Shinjuku) o un portador de arma maldita (Shibuya). En la mitad de los mapas, un grupo aparece en la sala final al entrar Mika en la anterior. Para que no vayan todos en la misma dirección, el mapa sale volteado en horizontal y/o en vertical al azar. En Shibuya, además, un hechicero deja dos talismanes en los pasillos, siempre en una de las dos casillas de ancho para que quede paso.
 - **Validación** (`pruebas/generar_mapas.gd`, a mano, tarda varios minutos): genera candidatos y solo guarda los que tienen camino, un inicio seguro, ruta sin ser visto que tarda al menos 1,4 veces lo directo y se reproduce en el juego, ruta también con dos semillas de patrullas al azar, y en los que correr directo te delata; y descarta los que obligan a esperar más de 40 s. Los buenos van a `escenas/generados/` y su lista a `datos/mapas_generados.json`.
 - **Para tener más:** subir `POR_ZONA` en la herramienta y volver a lanzarla. Los mapas generados son escenas normales: se pueden abrir y retocar a mano.
 - **Prueba:** `prueba_generador.gd` (mapas bien formados con muchas semillas y que la emboscada los use).
 
 ## Informe de dificultad
 
-`sed/pruebas/informe_dificultad.gd` juega con bots todos los mapas de infiltración (con patrullas al azar), los tres jefes y la Prueba de la sed, y escribe los números en `docs/dificultad.md`. No forma parte de las pruebas (tarda varios minutos): se lanza a mano con `godot --headless --path . -s res://pruebas/informe_dificultad.gd`.
+`sed/pruebas/informe_dificultad.gd` juega con bots todos los mapas de infiltración (con patrullas al azar), los tres jefes y las tres Pruebas de la sed, y escribe los números en `docs/dificultad.md`. También mide un **jugador menos exacto**, que repite cada ruta llegando a cada casilla hasta 0,15 s tarde: si así casi nunca sale, la ruta es demasiado ajustada para una persona. No forma parte de las pruebas (tarda varios minutos): se lanza a mano con `godot --headless --path . -s res://pruebas/informe_dificultad.gd`.
 
 ## Plan de construcción
 

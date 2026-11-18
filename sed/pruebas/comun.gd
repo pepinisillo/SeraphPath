@@ -594,3 +594,18 @@ func prueba_de_la_sed_con_bot(escena: String, sed_inicial: int) -> Array:
 	m.queue_free()
 	paused = false
 	return final
+
+
+
+## La misma ruta, jugada por alguien menos exacto: a cada casilla llega un poco tarde (hasta
+## `retraso` s, al azar), sin arrastrar el retraso a las siguientes. Sirve para ver si una
+## ruta solo sale perfecta.
+func ruta_con_retrasos(ruta: Array, retraso: float, rng: RandomNumberGenerator) -> Array:
+	var nueva := []
+	var anterior := -1.0
+	for i in ruta.size():
+		var t: float = ruta[i][1] + (rng.randf_range(0.0, retraso) if i > 0 else 0.0)
+		t = maxf(t, anterior + 0.01)
+		nueva.append([ruta[i][0], t])
+		anterior = t
+	return nueva

@@ -16,28 +16,28 @@
 [node name="MapaGenerado" type="Node2D"]
 y_sort_enabled = true
 script = ExtResource("1_mapa")
-plano = "#######...s#.....#######...E##
-#######..s.#s##..#######....##
-#######.s#...#s.....s...s#.s##
-##......#..s...........s....##
-##......#s.#.s..s###..##.s..##
-##..###ss..###.s##.....#######
-##s.####s.s###..##.#...#######
-##..####..s###..##.....#######
-##s.####.s.###..s.s#...#######
-##..##########.........#######
-##s.##############.s...#######
-##..##########################
-##..##########################
-s....#########################
-....s#########################
-.....#########################
-.....#########################
-M....#########################"
+plano = "##E...#######.....#s...#######
+##....#######..##s#.s..#######
+##s.#s...s.....s#...#s.#######
+##....s...........s..#......##
+##..s.##..###s..s.#.s#......##
+#######.....##s.###..ss###..##
+#######...#.##..###s.s####.s##
+#######.....##..###s..####..##
+#######...#s.s..###.s.####.s##
+#######.........##########..##
+#######...s.##############.s##
+##########################..##
+##########################..##
+#########################....s
+#########################s....
+#########################.....
+#########################.....
+#########################....M"
 nombre = "Barracones de Shibuya 1"
-entrada_refuerzos = Vector2i(27, 0)
-ruta_vampiro_extra = Array[Vector2i]([Vector2i(14, 0), Vector2i(12, 0)])
-ruta_jinete_suelto = Array[Vector2i]([Vector2i(14, 0), Vector2i(12, 0)])
+entrada_refuerzos = Vector2i(2, 0)
+ruta_vampiro_extra = Array[Vector2i]([Vector2i(15, 0), Vector2i(17, 0)])
+ruta_jinete_suelto = Array[Vector2i]([Vector2i(15, 0), Vector2i(17, 0)])
 
 [node name="Alerta" type="Node" parent="."]
 script = ExtResource("5_alerta")
@@ -54,28 +54,28 @@ script = ExtResource("7_muros")
 [node name="Mika" parent="." instance=ExtResource("3_mika")]
 
 [node name="G1" parent="." instance=ExtResource("4_soldado")]
-ruta = Array[Vector2i]([Vector2i(10, 0), Vector2i(10, 5)])
+ruta = Array[Vector2i]([Vector2i(19, 0), Vector2i(19, 5)])
 en_bucle = false
 
 [node name="G2" parent="." instance=ExtResource("4_soldado")]
-ruta = Array[Vector2i]([Vector2i(16, 0), Vector2i(12, 0)])
+ruta = Array[Vector2i]([Vector2i(13, 0), Vector2i(17, 0)])
 en_bucle = false
 
 [node name="G3" parent="." instance=ExtResource("4_soldado")]
-ruta = Array[Vector2i]([Vector2i(20, 10), Vector2i(20, 5)])
+ruta = Array[Vector2i]([Vector2i(9, 10), Vector2i(9, 5)])
 en_bucle = false
 
 [node name="G4" parent="." instance=ExtResource("4_soldado")]
-ruta = Array[Vector2i]([Vector2i(26, 4), Vector2i(26, 0)])
+ruta = Array[Vector2i]([Vector2i(3, 4), Vector2i(3, 0)])
 en_bucle = false
 
 [node name="P1" parent="." instance=ExtResource("11_portador")]
-ruta = Array[Vector2i]([Vector2i(10, 0), Vector2i(10, 2)])
+ruta = Array[Vector2i]([Vector2i(19, 0), Vector2i(19, 2)])
 en_bucle = false
 
 [node name="H1" parent="." instance=ExtResource("12_hechicero")]
-ruta = Array[Vector2i]([Vector2i(10, 0), Vector2i(10, 2)])
+ruta = Array[Vector2i]([Vector2i(19, 0), Vector2i(19, 2)])
 en_bucle = false
-talismanes = Array[Vector2i]([Vector2i(2, 12), Vector2i(3, 9)])
+talismanes = Array[Vector2i]([Vector2i(27, 12), Vector2i(26, 9)])
 
 [node name="HUD" parent="." instance=ExtResource("6_hud")]
