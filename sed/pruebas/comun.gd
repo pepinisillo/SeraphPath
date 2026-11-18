@@ -529,3 +529,39 @@ func _salida(m: Mapa, c: Crowley, p: Vector2) -> Vector2:
 	if m.es_muro(Vector2i((p + fuera * 0.6).floor())):
 		fuera = Vector2(-fuera.y, fuera.x)
 	return fuera
+
+
+## Un jugador automático: corre hacia la rampa por el camino más corto; con `esquivar`, cuando
+## Ferid marca una embestida que lo va a alcanzar, se aparta de la línea. Devuelve
+## [llegó, veces atrapado, vida, segundos].
+func huir_de_ferid(escena: String, rampa: Vector2, esquivar: bool) -> Array:
+	var m: Mapa = await cargar_mapa(escena)
+	var f: Ferid = m.ferid
+	var t := 0.0
+	while t < 60.0 and not m.terminado and not m.mika.caida:
+		var mika := m.mika
+		var paso_mika := Vector2.ZERO
+		var linea := f.linea_de_embestida()
+		if esquivar and not linea.is_empty():
+			var cerca := Geometry2D.get_closest_point_to_segment(mika.pos, linea[0], linea[1])
+			if mika.pos.distance_to(cerca) < 1.3:
+				var fuera := mika.pos - cerca
+				if fuera.length() < 0.01:
+					fuera = Vector2(-(linea[1] - linea[0]).y, (linea[1] - linea[0]).x)
+				paso_mika = fuera.normalized()
+				if m.es_muro(Vector2i((mika.pos + paso_mika * 0.6).floor())):
+					paso_mika = -paso_mika
+		if paso_mika == Vector2.ZERO:
+			var camino := m.camino(mika.pos, rampa)
+			if not camino.is_empty():
+				paso_mika = (camino[0] - mika.pos).normalized()
+		var nueva := mika.pos + paso_mika * Config.VELOCIDAD_MIKA * DT
+		if not m.es_muro(Vector2i(nueva.floor())):
+			mika.pos = nueva
+		mika.sed = 0
+		paso(m)
+		t += DT
+	var resultado := [m.terminado and not m.mika.caida, f.atrapadas, m.mika.vida, t]
+	m.queue_free()
+	paused = false
+	return resultado

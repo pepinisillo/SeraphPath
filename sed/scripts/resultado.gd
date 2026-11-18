@@ -68,6 +68,11 @@ func mostrar(mapa: Mapa, p_exito: bool) -> void:
 		["Sangre humana bebida", str(e.sangre_bebida)],
 		["Viales recogidos", str(e.viales_recogidos)],
 	]
+	# Solo si pasaron: lo que depende de los vampiros, los Jinetes y los hechiceros.
+	if not mapa.prueba_de_la_sed:
+		for extra in [["Veces que te delató un vampiro", e.delaciones], ["Soldados cazados por un Jinete", e.cazados_por_jinetes], ["Talismanes pisados", e.talismanes_pisados]]:
+			if extra[1] > 0:
+				filas.append([extra[0], str(extra[1])])
 	for fila in filas:
 		_etiqueta(tabla, fila[0], 16, Paleta.DETALLES)
 		_etiqueta(tabla, fila[1], 16, Paleta.BLANCO_HUESO).horizontal_alignment = HORIZONTAL_ALIGNMENT_RIGHT
@@ -80,6 +85,8 @@ func mostrar(mapa: Mapa, p_exito: bool) -> void:
 		for id in mika.mejoras:
 			nombres.append(Mejoras.nombre(id))
 		_etiqueta(caja, "Sangre: " + " · ".join(nombres), 16, Paleta.ROJO)
+	if not mika.filos.is_empty():
+		_etiqueta(caja, "Filos: " + " · ".join(mika.filos.map(func(f): return Filos.nombre(f))), 16, Paleta.BLANCO_HUESO)
 
 	var logros := _logros(e)
 	if exito and not mapa.prueba_de_la_sed and not logros.is_empty():

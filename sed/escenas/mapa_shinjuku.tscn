@@ -10,6 +10,8 @@
 [ext_resource type="Script" path="res://scripts/aparicion.gd" id="8_aparicion"]
 [ext_resource type="PackedScene" path="res://escenas/vampiro.tscn" id="9_vampiro"]
 [ext_resource type="PackedScene" path="res://escenas/jinete.tscn" id="10_jinete"]
+[ext_resource type="PackedScene" path="res://escenas/portador.tscn" id="11_portador"]
+[ext_resource type="PackedScene" path="res://escenas/hechicero.tscn" id="12_hechicero"]
 
 [node name="MapaShinjuku" type="Node2D"]
 y_sort_enabled = true
@@ -65,6 +67,10 @@ en_bucle = false
 ruta = Array[Vector2i]([Vector2i(31, 16), Vector2i(17, 16)])
 en_bucle = false
 
+[node name="K4" parent="." instance=ExtResource("4_soldado")]
+ruta = Array[Vector2i]([Vector2i(28, 12), Vector2i(28, 6)])
+en_bucle = false
+
 [node name="VS1" parent="." instance=ExtResource("9_vampiro")]
 ruta = Array[Vector2i]([Vector2i(21, 3), Vector2i(21, 8)])
 en_bucle = false
@@ -78,7 +84,7 @@ zonas = Array[Rect2i]([Rect2i(20, 1, 4, 2), Rect2i(28, 9, 2, 4)])
 probabilidad = 1.0
 
 [node name="G1" parent="GrupoAzotea" instance=ExtResource("4_soldado")]
-ruta = Array[Vector2i]([Vector2i(31, 2), Vector2i(25, 2)])
+ruta = Array[Vector2i]([Vector2i(26, 2), Vector2i(21, 2)])
 en_bucle = false
 
 [node name="HUD" parent="." instance=ExtResource("6_hud")]

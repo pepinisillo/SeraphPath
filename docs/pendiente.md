@@ -14,7 +14,7 @@ Lo que falta por construir, de lo más difícil a lo más sencillo. Lo que ya ex
 5. **Zonas.** Las tres existen. Cada Prueba de la sed usa el mismo mapa; faltaría uno por zona.
 6. **Romance repartido por la partida.** Que la palabra «familia» cambie solo en el final con Humanidad 3, y que los eventos de Yuu conecten con las Pruebas de la sed. Es delicado sobre todo por el tono.
 7. **Filos y habilidades.** Ya existen los diez filos, Sentidos y «Espada, bebe mi sangre». Falta probar el equilibrio jugando.
-8. **Ajustar la dificultad con jugadores automáticos.** Medir tiempos, sed gastada y caídas en muchas partidas simuladas, y ajustar los números con esos datos.
+8. **Ajustar la dificultad con jugadores automáticos.** Ya hay informe (`docs/dificultad.md`). Falta medir con más semillas y con bots menos perfectos.
 9. **Controles táctiles para Android.** Ya hay joystick y botones en pantalla. Falta exportar para Android, probarlo en un teléfono y medir el rendimiento.
 
 ## Medio

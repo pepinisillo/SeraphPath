@@ -432,11 +432,12 @@ M#..#######..#######..######..##
 | K1 | Vaivén por la calle de la fila 9, de (19,9) a (3,9): viene de frente |
 | K2 | Vaivén por la calle de la columna 11, de (11,3) a (11,15) |
 | K3 | Vaivén por la calle de la fila 16, de (31,16) a (17,16) |
+| K4 | Vaivén por el tramo central de la calle de la columna 28, de (28,12) a (28,6) |
 | VS1 | Vampiro. Vaivén por la columna 21, junto al patio prohibido |
 | J1 | Jinete. Bucle por la plaza |
-| G1 | Grupo de la azotea (siempre). Sale al llegar a la calle de arriba o a la columna 28; vaivén por la fila 2 junto a la salida |
+| G1 | Grupo de la azotea (siempre). Sale al llegar a la calle de arriba o a la columna 28; vaivén por la fila 2, de (26,2) a (21,2) |
 
-La ruta sin ser visto tarda unos 18 s (8,6 s yendo directo). Al principio también vigilaba K4 la calle de la salida, pero con G1 no quedaba hueco.
+La ruta sin ser visto tarda unos 13 s (8,6 s yendo directo). **Cómo se ajustó:** G1 iba y venía justo delante de la salida y, con las patrullas al azar, en algunas partidas no quedaba ningún hueco (el informe de dificultad lo encontró con la semilla 3). Ahora G1 vigila la calle de arriba más al oeste y K4 el tramo central de la columna 28; todas las semillas probadas tienen ruta.
 
 ### «La estación hundida» (ruta arriesgada)
 
@@ -680,6 +681,10 @@ Mientras no hay arte, los personajes son cápsulas. Cada uno tiene un `Animador`
 | `yuu.tres` | quieto |
 
 Los retratos de las escenas con diálogo se dibujan en `Dialogo._dibujar_retrato` (una silueta por personaje): al tener arte, ese es el único sitio que cambia.
+
+## Informe de dificultad
+
+`sed/pruebas/informe_dificultad.gd` juega con bots todos los mapas de infiltración (con patrullas al azar), los tres jefes y la Prueba de la sed, y escribe los números en `docs/dificultad.md`. No forma parte de las pruebas (tarda varios minutos): se lanza a mano con `godot --headless --path . -s res://pruebas/informe_dificultad.gd`.
 
 ## Plan de construcción
 

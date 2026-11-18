@@ -49,7 +49,7 @@ func _initialize():
 	comprobar("ya tiene efecto", Eventos.describir(Eventos.por_id("jinete_dormido").opciones[1].efectos).contains("aún sin efecto"), false)
 	m = await cargar_mapa(ESCENA)
 	await process_frame
-	comprobar("el siguiente mapa: 2 soldados menos y un Jinete más", [m.soldados().size(), m.jinetes().size()], [1, 2])
+	comprobar("el siguiente mapa: 2 soldados menos y un Jinete más", [m.soldados().size(), m.jinetes().size()], [2, 2])
 	m.queue_free()
 	e.activa = false
 	terminar()

@@ -10,7 +10,7 @@ func _initialize():
 	print("A) Estructura")
 	var m: Mapa = await cargar_mapa(ESCENA)
 	comprobar("nombre y tamaño", [m.nombre, m.ancho, m.alto], ["Ruinas de Shinjuku", 32, 20])
-	comprobar("bandos: 3 soldados, un vampiro, un Jinete y un grupo", [m.soldados().size(), m.vampiros().size(), m.jinetes().size(), m.apariciones().size()], [3, 1, 1, 1])
+	comprobar("bandos: 4 soldados, un vampiro, un Jinete y un grupo", [m.soldados().size(), m.vampiros().size(), m.jinetes().size(), m.apariciones().size()], [4, 1, 1, 1])
 	m.queue_free()
 	print("B) Infiltración")
 	await probar_infiltracion(ESCENA, Vector2i(0, 18), Vector2i(31, 1))
