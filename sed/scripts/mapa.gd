@@ -120,6 +120,10 @@ func _ready() -> void:
 	var hud := get_node_or_null("HUD")
 	if hud:
 		hud.iniciar(self)
+	var menu := MenuPausa.new()
+	menu.name = "MenuPausa"
+	add_child(menu)
+	menu.iniciar(self)
 	if mika:
 		mika.derrotada.connect(_al_caer_mika)
 		if EstadoExpedicion.en_curso():
