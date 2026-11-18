@@ -18,6 +18,9 @@ class_name Guion
 ## Desde una línea que empieza por «**◆ El otro Yuu**» (sin dos puntos) hasta el final de la
 ## sección, cada golpe lleva `rombo`: solo sale con Humanidad 1 o más.
 ## - "negro": pantalla en negro (sale de una acotación que lo pide).
+## - "beber": «aparece el botón Beber»: espera a que el jugador lo mantenga. Lleva `obligatorio`
+##   («no hay otra opción»); si no, se puede seguir sin beber.
+## - "sin_color": «la pantalla casi no tiene color»; "color": «el color vuelve a la pantalla».
 ## - "silencio": pausa sin texto (Humanidad 0, donde el otro Yuu ya no comenta).
 ## - "nota": las demás acotaciones *(…)*, notas para el juego que no se enseñan.
 ## Quién habla lo deduce asignar_hablantes(); se puede forzar con «[Krul]» al principio de la línea.
@@ -29,7 +32,7 @@ const ARCHIVO_PRUEBAS := "1_pruebas_de_la_sed.md"
 const ARCHIVO_EVENTOS := "2_eventos_y_refugios.md"
 const ARCHIVO_JEFES := "3_jefes.md"
 const ARCHIVO_FINALES := "4_finales.md"
-const TIPOS_VISIBLES := ["narracion", "dialogo", "ahora", "otro_yuu", "final", "negro", "silencio"]
+const TIPOS_VISIBLES := ["narracion", "dialogo", "ahora", "otro_yuu", "final", "negro", "silencio", "beber", "sin_color", "color"]
 
 ## Personajes que se reconocen al deducir quién habla, con los nombres con que aparecen en el texto.
 const PERSONAJES := {
@@ -314,6 +317,10 @@ static func jefe_durante(jefe: String) -> Dictionary:
 
 # --- Finales ---
 
+## La escena de un final («La sangre de Yuu», «En el límite», «Vampiro completo»).
+static func final(nombre: String) -> Array[Dictionary]:
+	return sin_notas(seccion(ARCHIVO_FINALES, nombre))
+
 ## Final «Caído»: la primera vez, entero; después, una línea de Krul al azar y otra del otro Yuu
 ## (Humanidad 1 o más), con el mismo texto final; con Humanidad 0, su versión.
 static func caido(humanidad: int, primera_vez: bool, rng: RandomNumberGenerator) -> Array[Dictionary]:
@@ -507,8 +514,15 @@ static func _golpe(texto: String) -> Dictionary:
 		return g
 	# Acotación para el juego: *(…)*
 	if texto.begins_with("*(") and texto.ends_with(")*"):
-		if texto.to_lower().contains("pantalla en negro"):
+		var nota := texto.to_lower()
+		if nota.contains("pantalla en negro"):
 			return {"tipo": "negro", "texto": ""}
+		if nota.contains("botón beber"):
+			return {"tipo": "beber", "texto": "", "obligatorio": nota.contains("no hay otra opción")}
+		if nota.contains("color vuelve"):
+			return {"tipo": "color", "texto": ""}
+		if nota.contains("casi no tiene color"):
+			return {"tipo": "sin_color", "texto": ""}
 		return {"tipo": "nota", "texto": texto.substr(2, texto.length() - 4)}
 	if texto.begins_with("**Mika, ahora:**"):
 		return {"tipo": "ahora", "texto": texto.trim_prefix("**Mika, ahora:**").strip_edges()}

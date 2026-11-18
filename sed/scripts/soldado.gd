@@ -42,6 +42,11 @@ var direccion := 0 # una de 8 direcciones de pantalla
 var estado := Estado.OCULTO
 var medidor := 0.0 # detección, de 0 a 1
 var vida := Config.SOLDADO_VIDA
+## Lo que cambia de un tipo de soldado a otro (el portador de arma maldita ve más lejos y pega
+## más fuerte y desde lejos). Las subclases lo ajustan en _ready.
+var alcance_vision := Config.VISION_ALCANCE
+var dano := Config.SOLDADO_DANO
+var distancia_golpe := Config.SOLDADO_DISTANCIA_GOLPE
 var derribado := false
 var descubierto := false # otro soldado ya encontró su cuerpo
 var bebido := false # Mika ya bebió de él
@@ -159,7 +164,7 @@ func _physics_process(delta: float) -> void:
 
 	direccion = Formas.direccion_8(mirada)
 	position = Iso.a_pantalla(pos)
-	cono.actualizar(mapa, pos, mirada, _color_estado())
+	cono.actualizar(mapa, pos, mirada, _color_estado(), Config.VISION_ANGULO, alcance_vision)
 	queue_redraw()
 
 
@@ -185,6 +190,11 @@ func derribar() -> void:
 	queue_redraw()
 
 
+## Mika le da un Golpe silencioso: lo derriba (el portador de arma maldita solo queda aturdido).
+func recibir_golpe_silencioso() -> void:
+	derribar()
+
+
 ## Por la espalda o fuera del cono, y sin alarma activa.
 func admite_golpe_silencioso() -> bool:
 	return not derribado and not mapa.alerta.activa and not _ve_a_mika()
@@ -208,7 +218,7 @@ func _puede_ver(punto: Vector2) -> bool:
 	var hacia := punto - pos
 	var distancia := hacia.length()
 	var en_sombra := mapa.es_sombra(Vector2i(floori(punto.x), floori(punto.y)))
-	var alcance := Config.VISION_ALCANCE_SOMBRA if en_sombra else Config.VISION_ALCANCE
+	var alcance := Config.VISION_ALCANCE_SOMBRA * alcance_vision / Config.VISION_ALCANCE if en_sombra else alcance_vision
 	if distancia > alcance:
 		return false
 	if distancia > 0.001 and absf(angle_difference(mirada.angle(), hacia.angle())) > deg_to_rad(Config.VISION_ANGULO) / 2.0:
@@ -282,10 +292,10 @@ func _alarma(ve: bool, delta: float) -> void:
 		mapa.alerta.vista(mapa.mika.pos)
 	_enfriamiento_ataque -= delta
 	var objetivo := mapa.alerta.ultima_posicion
-	if ve and pos.distance_to(objetivo) <= Config.SOLDADO_DISTANCIA_GOLPE:
+	if ve and pos.distance_to(objetivo) <= distancia_golpe:
 		_girar_hacia(objetivo - pos, delta)
 		if _enfriamiento_ataque <= 0.0:
-			mapa.mika.recibir_golpe(Config.SOLDADO_DANO)
+			mapa.mika.recibir_golpe(dano)
 			_enfriamiento_ataque = Config.SOLDADO_GOLPE_INTERVALO
 		return
 	if _ir_hacia(objetivo, Config.SOLDADO_VELOCIDAD_ALARMA, delta):

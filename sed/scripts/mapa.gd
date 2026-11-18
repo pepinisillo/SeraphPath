@@ -26,6 +26,8 @@ const COLOR_PROHIBIDA := Paleta.VAMPIROS
 @export var nombre := "Puesto de control"
 ## Casilla por la que llegan los refuerzos durante la alarma.
 @export var entrada_refuerzos := Vector2i(9, 0)
+## Prueba de la sed: dónde empieza Mika con el evento «El escuadrón de Yuu» (más cerca de la salida).
+@export var inicio_cerca := Vector2i(-1, -1)
 ## Ruta del vampiro de más que trae el evento «La doncella de Krul» (vacía: no cabe en este mapa).
 @export var ruta_vampiro_extra: Array[Vector2i] = []
 ## Ruta del Jinete que suelta el evento «El Jinete dormido» (vacía: no cabe en este mapa).
@@ -48,7 +50,7 @@ var punto_de_control := 0 # el último que pasó Mika
 var vampiros_callados := false # evento «Lacus y René»: los vampiros de este mapa no lo delatan
 var celdas_prohibidas: Array[Vector2i] = []
 var ferid: Ferid
-var crowley: Crowley
+var jefe_combate: Crowley # Crowley o Guren: el jefe con el que se pelea
 
 var filas: PackedStringArray = []
 var ancho := 0
@@ -110,10 +112,11 @@ func _ready() -> void:
 		ferid = load("res://escenas/ferid.tscn").instantiate()
 		add_child(ferid)
 		ferid.iniciar(self, inicio_jefe)
-	elif jefe == "Crowley Eusford" and inicio_jefe.x >= 0:
-		crowley = load("res://escenas/crowley.tscn").instantiate()
-		add_child(crowley)
-		crowley.iniciar(self, inicio_jefe)
+	elif jefe in ["Crowley Eusford", "Guren Ichinose"] and inicio_jefe.x >= 0:
+		var escena := "res://escenas/crowley.tscn" if jefe == "Crowley Eusford" else "res://escenas/guren.tscn"
+		jefe_combate = load(escena).instantiate()
+		add_child(jefe_combate)
+		jefe_combate.iniciar(self, inicio_jefe)
 	var hud := get_node_or_null("HUD")
 	if hud:
 		hud.iniciar(self)
@@ -213,6 +216,15 @@ func caracter(celda: Vector2i) -> String:
 ## Fuera del mapa cuenta como muro, para que nadie se salga.
 func es_muro(celda: Vector2i) -> bool:
 	return caracter(celda) == "#"
+
+
+## Casillas con un talismán que aún revela a Mika (su hechicero sigue en pie).
+func talismanes_activos() -> Array[Vector2i]:
+	var lista: Array[Vector2i] = []
+	for soldado in soldados():
+		if soldado is Hechicero:
+			lista.append_array(soldado.talismanes_activos())
+	return lista
 
 
 func es_prohibida(celda: Vector2i) -> bool:
@@ -381,13 +393,13 @@ func vampiros() -> Array[Vampiro]:
 	return lista
 
 
-## Lo que Mika puede atacar: soldados, vampiros y el jefe con el que se pelea (Crowley).
+## Lo que Mika puede atacar: soldados, vampiros y el jefe con el que se pelea (Crowley, Guren).
 func atacables() -> Array:
 	var lista: Array = [] # sin tipo: soldados y vampiros juntos
 	lista.append_array(soldados())
 	lista.append_array(vampiros())
-	if crowley:
-		lista.append(crowley)
+	if jefe_combate:
+		lista.append(jefe_combate)
 	return lista
 
 

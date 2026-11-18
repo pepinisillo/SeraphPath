@@ -11,3 +11,4 @@ var sangre_bebida := 0 # humanos de los que bebió
 var viales_recogidos := 0
 var delaciones := 0 # veces que un vampiro delató a Mika
 var cazados_por_jinetes := 0 # soldados que derribó un Jinete
+var talismanes_pisados := 0

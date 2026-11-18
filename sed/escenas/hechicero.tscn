@@ -1,0 +1,17 @@
+[gd_scene format=3]
+
+[ext_resource type="Script" path="res://scripts/hechicero.gd" id="1_hechicero"]
+[ext_resource type="Script" path="res://scripts/cono_vision.gd" id="2_cono"]
+
+[node name="Hechicero" type="Node2D"]
+script = ExtResource("1_hechicero")
+
+[node name="Silueta" type="Node2D" parent="."]
+visible = false
+z_index = 50
+z_as_relative = false
+
+[node name="Cono" type="Node2D" parent="."]
+z_index = -1
+z_as_relative = false
+script = ExtResource("2_cono")

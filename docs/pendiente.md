@@ -5,16 +5,13 @@ Lo que falta por construir, de lo más difícil a lo más sencillo. Lo que ya ex
 ## Muy difícil
 
 1. **Generar mapas automáticamente.** Crear mapas de infiltración al azar y quedarse solo con los que se pueden cruzar sin ser visto y exigen esconderse. La búsqueda de rutas de `sed/pruebas/comun.gd` ya sirve para validarlos.
-2. **Jefes con fases.** Ferid Bathory y Crowley Eusford ya existen. Falta Guren Ichinose (arma maldita, zona 3).
-3. **Enemigos con reglas sociales.** El vampiro común y el Jinete del Apocalipsis ya existen. Faltan el hechicero de talismanes y el portador de arma maldita.
-4. **El final «La sangre de Yuu».** Escena dirigida:
-   - El jugador pulsa el botón de Beber que evitó toda la partida, y esta vez no cuesta Humanidad.
-   - No hay música hasta la última línea de Yuu.
-   - El color vuelve a la pantalla cuando la sed llega a 0.
+2. **Jefes con fases.** Ya existen los tres (Ferid, Crowley, Guren). Falta ajustarlos jugando.
+3. **Enemigos con reglas sociales.** Ya existen todos (vampiro, Jinete, hechicero, portador). Falta que el Jinete pueda pelear con Mika si lo ataca y que la espada activa se huela.
+4. **El final «La sangre de Yuu».** Ya existe la escena dirigida (botón Beber obligatorio, el color que vuelve). Falta la música: no hay hasta que Mika muerde.
 
 ## Difícil
 
-5. **Zona 3 completa.** Shibuya, con sus mapas, enemigos (hechicero, portador de arma maldita), eventos y Guren. La zona 2 ya existe.
+5. **Zonas.** Las tres existen. Cada Prueba de la sed usa el mismo mapa; faltaría uno por zona.
 6. **Romance repartido por la partida.** Que la palabra «familia» cambie solo en el final con Humanidad 3, y que los eventos de Yuu conecten con las Pruebas de la sed. Es delicado sobre todo por el tono.
 7. **Filos y habilidades que faltan.** Los diez filos, Sentidos y «Espada, bebe mi sangre», combinables sin romper el equilibrio.
 8. **Ajustar la dificultad con jugadores automáticos.** Medir tiempos, sed gastada y caídas en muchas partidas simuladas, y ajustar los números con esos datos.
@@ -23,7 +20,7 @@ Lo que falta por construir, de lo más difícil a lo más sencillo. Lo que ya ex
 ## Medio
 
 10. **Sistema de escenas con diálogo.** Hecho para el inicio y los recuerdos (texto poco a poco, pantalla en negro, avanzar y saltar). Falta: retratos, y usarlo en las Pruebas de la sed, eventos, refugios, jefes y finales del guion nuevo.
-11. **Los otros finales.** «Caído» ya existe. Faltan «En el límite» y «Vampiro completo», que llegan al final de la zona 3.
+11. **Finales.** Ya existen los cuatro. Falta la música de «La sangre de Yuu».
 12. **Guardar a mitad de expedición.** Que cerrar el juego no pierda la partida, sin permitir trampas con la muerte permanente.
 13. **Animaciones en 8 direcciones.** Conectar los estados de cada personaje (quieto, correr, Tajo, beber, derribado…) con sus animaciones, listo para el arte final.
 14. **Sonido y música por capas.** Que la música cambie con el estado de alerta y con la sed.

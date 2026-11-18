@@ -159,7 +159,7 @@ Todo esto es dibujo y ritmo del tiempo; no cambia ninguna regla. Los valores est
 
 ### Expedición
 
-El juego empieza en la pantalla de título. Una expedición recorre hoy las **zonas 1 y 2** (`ZONAS` en `scripts/expedicion.gd`); cada una tiene la misma estructura:
+El juego empieza en la pantalla de título. Una expedición recorre las **tres zonas** (`ZONAS` en `scripts/expedicion.gd`): Sanguinem, las ruinas de Shinjuku y Shibuya. Cada una tiene la misma estructura:
 
 ```
                 ┌─ Refugio ──── Evento ─────────┐
@@ -187,7 +187,10 @@ Infiltración ───┤                               ├── Prueba de la 
   - Cedida: el texto de cedida. Fallida: el de fallida, y el siguiente mapa empieza en Alarma.
   - **Sin voz:** con Humanidad 0 no hay prueba ni recuerdo; se ve el texto «Sin voz» y se sigue a la siguiente parada (regla del guion).
 - **Voz en el Frenesí:** al perder el control sale arriba una frase del guion al azar durante 3 s; si el Frenesí pasa sin que beba, la de devolver el control.
-- **Jefe:** Ferid Bathory en la zona 1 y Crowley Eusford en la zona 2 (ver más abajo). Superarlo da un recuerdo y lleva a la zona siguiente; tras la zona 2, por ahora, se acaba el juego.
+- **Jefe:** Ferid Bathory en la zona 1, Crowley Eusford en la zona 2 y Guren Ichinose en la zona 3 (ver más abajo). Superarlo da un recuerdo y lleva a la zona siguiente; tras Guren, el final.
+- **Finales** (`final.gd`, con su escena del guion): **La sangre de Yuu** con Humanidad 3 y los siete recuerdos; **Vampiro completo** con Humanidad 0; **En el límite** en los demás casos (también con Humanidad 3 si faltan recuerdos: decisión propia, el guion no lo dice). Los finales vistos se guardan en `user://recuerdos.cfg`.
+  - En «La sangre de Yuu» la escena empieza casi sin color, se para en el botón Beber hasta que el jugador lo mantiene 2 s (ni avanzar ni saltar lo pasan; esta vez no cuesta Humanidad) y luego el color vuelve en 3 s. Son las acotaciones del guion: «la pantalla casi no tiene color», «aparece el botón Beber… no hay otra opción», «el color vuelve a la pantalla».
+  - La música (no hay hasta que Mika muerde) llegará con el sonido.
 - **Zonas:** al pasar de zona empiezan paradas nuevas (se vuelve a elegir ruta) y se acaba lo que duraba toda la zona (ver las patrullas). Mika conserva vida, sed, Humanidad, viales y mejoras. La Prueba de la sed usa el mismo mapa en todas las zonas, con la entrada, el fondo y la salida de su zona en el guion.
 - **Final «Caído»:** al caer, la escena del guion: entera la primera vez (se cuentan las caídas en `user://recuerdos.cfg`) y después una línea de Krul al azar, otra del otro Yuu (Humanidad 1 o más) y el texto final; con Humanidad 0, su versión.
 - **Inicio:** antes de la primera expedición se ve la escena con Krul, una sola vez (queda apuntado en `user://recuerdos.cfg`). En las siguientes sale solo la línea de la caja de Krul (sección «Cada expedición» del guion), donde `{viales}` se cambia por el número de viales en letra: «dos», o «cuatro» con el recuerdo 1.
@@ -444,6 +447,85 @@ M.........#...........#...xxxx
 
 La ruta sin ser visto tarda unos 12 s (7,2 s yendo directo). Al principio las vías eran todas sombra y se cruzaban corriendo, y el Jinete, suelto por ellas, se comía a los soldados de los andenes.
 
+## Portador de arma maldita y hechicero de talismanes
+
+Los dos son soldados (`Portador` y `Hechicero` heredan de `Soldado`), con estos cambios:
+
+- **Portador de arma maldita** (`portador.gd`): vida 10, ve hasta 8 casillas (cono largo), pega 4 y, en Alarma, desde 4 casillas con la espada maldita. El Golpe silencioso **solo lo aturde** 4 s; al despertar sospecha y mira alrededor. Se le ve la espada negra a la espalda.
+- **Hechicero de talismanes** (`hechicero.gd`, `talisman.gd`): pega 1. Tiene talismanes en el suelo (`talismanes` en la escena). Si Mika pisa uno mientras el hechicero sigue en pie, el talismán lo revela: alarma en ese punto, y se quema. Derribar al hechicero apaga todos sus talismanes.
+- **Pruebas:** `prueba_elite.gd`. La búsqueda de ruta trata como vista cualquier casilla con talismán, también las que solo se rozan al cruzar una esquina.
+
+## Zona 3: Shibuya
+
+### «Dentro de la muralla» (primera infiltración)
+
+`mapa_shibuya.tscn`, 30 × 18: barracones en cuadrícula y una muralla interior en la columna 17 con solo dos puertas (filas 6 y 16).
+
+```
+.................#...........E
+.................##...........
+...#####...#######..######....
+...#####...#######..######....
+...#####...#######..######....
+...#####...#######..######....
+...sssss............ssssss.#..
+.........#.......#............
+...#####...#######..######....
+...#####...#######..######....
+...#####...#######..######....
+...........ssssss#............
+.................##...........
+...#####...#######..######....
+...#####...#######..######....
+...#####...#######..######....
+M..sssss.#..........ssssss....
+.................#............
+```
+
+| Quién | Ruta |
+| --- | --- |
+| B1 | Fila 12, de (16,12) a (1,12) |
+| PA1 | Portador. Columna 19, de (19,0) a (19,11), justo detrás de la muralla |
+| H1 | Hechicero. Columna 9, de (9,1) a (9,6); talismanes en (10,7), (10,12) y (19,7) |
+| B2 | Columna 27, de (27,16) a (27,7), en el acceso a la salida |
+| B3 | Fila 16 (la puerta de abajo), de (27,16) a (10,16) |
+| B4 | Fila 6 (la puerta de arriba), de (25,6) a (11,6) |
+| GP1 | Grupo del patio (siempre): sale al entrar en la fila 6 o en la 11 del lado este; vaivén por la fila 1 |
+
+La ruta sin ser visto tarda unos 20 s (8,1 s yendo directo). Sin la muralla interior había demasiados caminos y se cruzaba casi corriendo.
+
+### «El hueco del río» (ruta arriesgada)
+
+`mapa_rio.tscn`, 28 × 14: Mika llega en barca al muelle; almacenes en la orilla y la muralla de Shibuya en la columna 20, con el hueco del río en las filas 9 y 10.
+
+```
+....................#......E
+..........#####.....#.......
+...####...#####.....#.......
+...####...#####.....#..#....
+...####...#####.....#.......
+...####...sssss.....#.....#.
+...ssss.............#.......
+.............####...#...#...
+...####......####...#.......
+...####......####...........
+.............ssss...........
+#########..#################
+#########M.#################
+############################
+```
+
+| Quién | Ruta |
+| --- | --- |
+| R1 | Fila 0, de (19,0) a (7,0) |
+| PR1 | Portador. Columna 18, de (18,10) a (18,2), delante del hueco |
+| HR1 | Hechicero. Fila 6, de (7,6) a (12,6); talismanes en (19,9), en la boca del hueco, y en (11,6) y (16,6) |
+| R2 | Dentro, fila 1, de (27,1) a (21,1), junto a la salida |
+| R3 | Dentro, columna 22, de (22,10) a (22,4) |
+| RG1 | Grupo de la guardia (mitad de las partidas): sale al cruzar el hueco; columna 25 |
+
+La ruta sin ser visto tarda unos 28 s (5,2 s yendo directo): hay que esperar mucho a que el portador mire hacia otro lado. Al principio había talismanes en las dos casillas del hueco y no se podía pasar sin derribar al hechicero.
+
 ## Jefe de la zona 1: Ferid Bathory, en el hangar
 
 No se le vence: se le escapa. Escena `mapa_hangar.tscn` (40 × 12), script `scripts/ferid.gd`.
@@ -504,6 +586,40 @@ Combate abierto. Escena `mapa_cruce.tscn` (22 × 16, el autobús quemado y escom
 - **Rendición:** cuando su vida llega a 0 se rinde («no me ganaste»): escena de después y un recuerdo.
 - **Frases:** las del guion mientras pelea, la de la segunda fase, la de «con poca vida» (a un cuarto de vida) y las del otro Yuu (Humanidad 1 o más).
 - **Prueba:** `prueba_crowley.gd`. Un jugador automático que solo se queda pegando cae con Crowley aún a 18; uno que sale de lo marcado y pega en la recuperación gana sin perder vida en unos 13 s.
+
+## Jefe de la zona 3: Guren Ichinose, en el patio
+
+Combate contra un arma maldita. Escena `mapa_patio.tscn` (22 × 16), script `scripts/guren.gd`, que hereda de Crowley con sus propios números (`GUREN_*` en `config.gd`; cada jefe da los suyos en `parametros()`).
+
+```
+......................
+....######............
+....s....s............
+......................
+...............s#.....
+......................
+......................
+......................
+.M........s#.......#..
+......................
+......................
+.....#................
+.....s.........s#.....
+......................
+......................
+......................
+```
+
+- **Vida 30, daño 6.** Más rápido que Crowley (3,6 casillas/s), avisos más cortos (0,6 s) y recuperación más corta (0,8 s). En lugar de la carga, una **estocada** más larga, estrecha y rápida.
+- **Segunda fase** a media vida: cambia la voz (Mahiru, el demonio de la espada) y su ataque especial son **tres sombras** de 1,3 casillas que caen donde va a estar Mika y a los dos lados (0,9 s de aviso).
+- Guardia fuera de la recuperación (le entra una cuarta parte), como Crowley. Cuando su vida llega a 0 cae y deja pasar a Mika: escena de después y el final.
+- **Prueba:** `prueba_guren.gd`. Sin esquivar se cae con Guren aún a 19; esquivando y castigando se gana sin perder vida en unos 13 s.
+
+### Eventos de la zona 3
+
+- **El desertor** (confiar): se salta la parada siguiente y su recompensa (si es la Prueba de la sed, el recuerdo). Nunca se salta al jefe.
+- **El escuadrón de Yuu** (quedarse mirando): la siguiente Prueba de la sed empieza más cerca de la salida (`inicio_cerca` del mapa, (6,6)).
+- **La escena del fondo de la zona 3** («En el suelo»): aparece el botón Beber. Se puede seguir sin beber; si se bebe, la prueba queda **cedida**: pierde el recuerdo recién ganado y 1 de Humanidad, la sed baja a 0, gana una mejora al azar y se ve el texto de cedida de la zona 3.
 
 ## Plan de construcción
 

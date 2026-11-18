@@ -173,9 +173,9 @@ func _decir(frase: String) -> void:
 	_voz_restante = Config.VOZ_FRENESI_DURACION
 
 
-## Barra de vida del jefe de combate (Crowley), abajo en el centro.
+## Barra de vida del jefe de combate (Crowley, Guren), abajo en el centro.
 func _dibujar_vida_del_jefe(fuente: Font, tam: Vector2) -> void:
-	var jefe := mapa.crowley
+	var jefe := mapa.jefe_combate
 	if jefe == null:
 		return
 	var ancho := minf(560.0, tam.x - 2 * MARGEN)
@@ -183,8 +183,8 @@ func _dibujar_vida_del_jefe(fuente: Font, tam: Vector2) -> void:
 	var y := tam.y - MARGEN - 18.0
 	lienzo.draw_string(fuente, Vector2(x, y - 8), mapa.jefe, HORIZONTAL_ALIGNMENT_LEFT, ancho, 18, COLOR_TEXTO)
 	lienzo.draw_rect(Rect2(x - 2, y - 2, ancho + 4, 14), COLOR_FONDO)
-	lienzo.draw_rect(Rect2(x, y, ancho * float(jefe.vida) / Config.CROWLEY_VIDA, 10), Paleta.VAMPIROS)
-	lienzo.draw_rect(Rect2(x + ancho * Config.CROWLEY_FASE2_VIDA - 1, y - 2, 2, 14), COLOR_TEXTO) # dónde empieza la segunda fase
+	lienzo.draw_rect(Rect2(x, y, ancho * float(jefe.vida) / jefe._p.VIDA, 10), jefe._p.COLOR)
+	lienzo.draw_rect(Rect2(x + ancho * jefe._p.FASE2_VIDA - 1, y - 2, 2, 14), COLOR_TEXTO) # dónde empieza la segunda fase
 
 
 func _dibujar_voz(fuente: Font, tam: Vector2) -> void:

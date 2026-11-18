@@ -12,6 +12,8 @@ extends CanvasLayer
 ## retratos son siluetas de color con el nombre; el arte final solo cambia _dibujar_retrato.
 
 signal terminado
+## El jugador mantuvo Beber en un golpe «beber» (si no era obligatorio, podía no hacerlo).
+signal bebio
 
 const ALTO_CUADRO := 190.0
 const MARGEN := 32.0
@@ -46,6 +48,10 @@ var _tween: Tween
 var _pista: Label
 var _retratos := {} # nombre -> Control
 var _raiz: Control
+var _gris: ColorRect # quita color a la escena (sin_color / color)
+var esperando_beber := false
+var beber_obligatorio := false
+var bebido := 0.0 # s que lleva mantenido Beber
 
 
 func _ready() -> void:
@@ -97,6 +103,15 @@ func _ready() -> void:
 	_pista.offset_right = -16
 	_pista.horizontal_alignment = HORIZONTAL_ALIGNMENT_RIGHT
 	cuadro.add_child(_pista)
+	_gris = ColorRect.new()
+	_gris.set_anchors_preset(Control.PRESET_FULL_RECT)
+	_gris.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	var material := ShaderMaterial.new()
+	material.shader = load("res://recursos/gris.gdshader")
+	material.set_shader_parameter("gris", 0.0)
+	_gris.material = material
+	_gris.visible = false
+	_raiz.add_child(_gris)
 	_negro = ColorRect.new()
 	_negro.color = Color.BLACK
 	_negro.modulate.a = 0.0
@@ -139,6 +154,12 @@ func empezar(p_golpes: Array[Dictionary]) -> void:
 
 
 func _process(delta: float) -> void:
+	if esperando_beber:
+		bebido = bebido + delta if Input.is_action_pressed("beber") else maxf(0.0, bebido - delta)
+		_pista.text = "Mantén E (B) para beber  %d%%" % roundi(100.0 * bebido / Config.BEBER_DURACION) if beber_obligatorio else "Mantén E (B) para beber · Intro: seguir  %d%%" % roundi(100.0 * bebido / Config.BEBER_DURACION)
+		if bebido >= Config.BEBER_DURACION:
+			beber_ya()
+		return
 	if acabado or _esperando or _etiqueta.visible_ratio >= 1.0:
 		return
 	_letras += delta * Config.DIALOGO_LETRAS_POR_S
@@ -161,15 +182,21 @@ func _input(evento: InputEvent) -> void:
 func avanzar() -> void:
 	if acabado or _esperando:
 		return
+	if esperando_beber:
+		if not beber_obligatorio:
+			esperando_beber = false # sigue sin beber
+			_pista.text = "Intro / clic: avanzar · Esc: saltar"
+			_siguiente()
+		return
 	if _etiqueta.visible_ratio < 1.0:
 		_etiqueta.visible_ratio = 1.0
 	else:
 		_siguiente()
 
 
-## Termina la escena de golpe.
+## Termina la escena de golpe. Si está esperando a que beba y es obligatorio, no se salta.
 func saltar() -> void:
-	if acabado:
+	if acabado or (esperando_beber and beber_obligatorio):
 		return
 	if _tween:
 		_tween.kill()
@@ -193,6 +220,21 @@ func _siguiente() -> void:
 			_nombre.text = ""
 			_destacar("")
 			_esperar(Config.DIALOGO_SILENCIO, false)
+		"beber":
+			esperando_beber = true
+			beber_obligatorio = g.get("obligatorio", false)
+			bebido = 0.0
+		"sin_color":
+			_gris.visible = true
+			_gris.material.set_shader_parameter("gris", Config.DIALOGO_GRIS)
+			_siguiente()
+		"color":
+			_esperando = true
+			_tween = create_tween()
+			_tween.tween_method(func(v: float) -> void: _gris.material.set_shader_parameter("gris", v), Config.DIALOGO_GRIS, 0.0, Config.DIALOGO_COLOR_VUELVE)
+			_tween.tween_callback(func() -> void:
+				_esperando = false
+				_siguiente())
 		_:
 			_mostrar(g)
 
@@ -209,6 +251,27 @@ func _esperar(segundos: float, negro: bool) -> void:
 	_tween.tween_callback(func() -> void:
 		_esperando = false
 		_siguiente())
+
+
+## Para la escena sin avisar (quien la puso va a enseñar otra cosa).
+func detener() -> void:
+	acabado = true
+	esperando_beber = false
+	if _tween:
+		_tween.kill()
+	set_process(false)
+	visible = false
+
+
+## Completa el trago (lo llama el botón mantenido; las pruebas, directamente).
+func beber_ya() -> void:
+	if not esperando_beber:
+		return
+	esperando_beber = false
+	_pista.text = "Intro / clic: avanzar · Esc: saltar"
+	bebio.emit()
+	if not acabado:
+		_siguiente()
 
 
 func _mostrar(g: Dictionary) -> void:

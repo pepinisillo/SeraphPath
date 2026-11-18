@@ -123,6 +123,14 @@ const VAMPIRO_VELOCIDAD := 2.4 # casillas/s patrullando
 const VAMPIRO_AVISO := 1.5 # s desde que ve algo prohibido hasta que delata (si no lo callan)
 const VAMPIRO_PROHIBIDA := 0.5 # s viendo a Mika en una zona prohibida antes de reaccionar
 
+# --- Portador de arma maldita y hechicero de talismanes (zona 3) ---
+const PORTADOR_VIDA := 10
+const PORTADOR_DANO := 4
+const PORTADOR_VISION := 8.0 # casillas: cono largo
+const PORTADOR_DISTANCIA_GOLPE := 4.0 # en Alarma pega desde lejos con la espada maldita
+const PORTADOR_ATURDIDO := 4.0 # s aturdido por un Golpe silencioso (no lo derriba)
+const HECHICERO_DANO := 1
+
 # --- Jinete del Apocalipsis (caza humanos, ignora a los vampiros y a Mika) ---
 const JINETE_VIDA := 14 # (aún no se le puede atacar)
 const JINETE_DANO := 5 # derriba a un soldado de un golpe
@@ -176,9 +184,34 @@ const CROWLEY_FASE2_AVISO := 0.75 # los avisos duran esto (fracción) en la segu
 const CROWLEY_FASE2_VELOCIDAD := 1.3
 const CROWLEY_POCA_VIDA := 0.25 # fracción a la que dice su frase de «con poca vida»
 
+# --- Guren Ichinose (jefe de la zona 3: arma maldita; en la segunda fase habla Mahiru) ---
+const GUREN_VIDA := 30
+const GUREN_DANO := 6
+const GUREN_VELOCIDAD := 3.6
+const GUREN_AVISO := 0.6
+const GUREN_AVISO_SOMBRAS := 0.9
+const GUREN_RECUPERACION := 0.8
+const GUREN_DANO_EN_GUARDIA := 0.25
+const GUREN_PAUSA_ENTRE_ATAQUES := 0.5
+const GUREN_TAJO_ALCANCE := 2.0
+const GUREN_TAJO_ANGULO := 110.0
+const GUREN_ESTOCADA_ALCANCE := 6.0 # la carga de Guren: una estocada larga y estrecha
+const GUREN_ESTOCADA_MINIMA := 3.0
+const GUREN_ESTOCADA_DISTANCIA := 7.0
+const GUREN_ESTOCADA_DURACION := 0.2
+const GUREN_ESTOCADA_ANCHO := 0.5
+const GUREN_SOMBRAS_RADIO := 1.3 # cada sombra de Mahiru
+const GUREN_SOMBRAS_SEPARACION := 2.2 # entre las tres sombras
+const GUREN_FASE2_VIDA := 0.5
+const GUREN_FASE2_AVISO := 0.8
+const GUREN_FASE2_VELOCIDAD := 1.25
+const GUREN_POCA_VIDA := 0.25
+
 # --- Escenas con diálogo ---
 const DIALOGO_LETRAS_POR_S := 55.0 # velocidad del texto que aparece poco a poco
 const DIALOGO_NEGRO := 2.5 # s de pantalla en negro (sin contar los fundidos)
 const DIALOGO_FUNDIDO := 0.6 # s de cada fundido a negro
 const VOZ_FRENESI_DURACION := 3.0 # s que se ve cada frase de la voz en el Frenesí
+const DIALOGO_GRIS := 0.9 # cuánto color quita «la pantalla casi no tiene color»
+const DIALOGO_COLOR_VUELVE := 3.0 # s que tarda en volver el color
 const DIALOGO_SILENCIO := 3.0 # s de silencio donde el otro Yuu ya no comenta (Humanidad 0)

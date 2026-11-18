@@ -68,7 +68,7 @@ const TODOS := [
 	{
 		"id": "desertor", "titulo": "El desertor", "zona": 3,
 		"opciones": [
-			{"texto": "Confiar", "efectos": {"pendiente": "saltar la siguiente parada y perder su recompensa"}},
+			{"texto": "Confiar", "efectos": {"saltar_parada": true}},
 			{"texto": "Beber de él", "efectos": {"sed_a": 0, "mejora": true, "humanidad": -1}},
 			{"texto": "Dejarlo ir", "efectos": {}},
 		],
@@ -76,7 +76,7 @@ const TODOS := [
 	{
 		"id": "escuadron_yuu", "titulo": "El escuadrón de Yuu", "zona": 3,
 		"opciones": [
-			{"texto": "Quedarse mirando", "efectos": {"sed": 10, "pendiente": "la siguiente prueba de la sed empezará más cerca de la salida"}},
+			{"texto": "Quedarse mirando", "efectos": {"sed": 10, "prueba_cerca": true}},
 			{"texto": "Seguir", "efectos": {}},
 		],
 	},
@@ -120,6 +120,10 @@ static func describir(efectos: Dictionary) -> String:
 		partes.append("ves todas las patrullas de la zona")
 	if efectos.has("vampiro_extra"):
 		partes.append("el siguiente mapa tiene un vampiro más")
+	if efectos.has("saltar_parada"):
+		partes.append("te saltas la siguiente parada (y su recompensa)")
+	if efectos.has("prueba_cerca"):
+		partes.append("la siguiente Prueba de la sed empieza más cerca de la salida")
 	if efectos.has("jinete_suelto"):
 		partes.append("el siguiente mapa tiene 2 soldados menos y un Jinete suelto")
 	if efectos.has("vampiros_callados"):

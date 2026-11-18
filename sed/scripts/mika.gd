@@ -432,7 +432,7 @@ func golpe_silencioso() -> bool:
 	if objetivo == null:
 		return false
 	_enfriamiento_golpe = Config.GOLPE_SILENCIOSO_ENFRIAMIENTO
-	objetivo.derribar()
+	objetivo.recibir_golpe_silencioso()
 	mapa.estadisticas.derribados_en_silencio += 1
 	if objetivo is Vampiro:
 		mapa.acto_prohibido("ataque")

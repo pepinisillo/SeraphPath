@@ -22,6 +22,7 @@ plano = "....#......E
 .#.#...#....
 M......#.##."
 prueba_de_la_sed = true
+inicio_cerca = Vector2i(6, 6)
 nombre = "Prueba de la sed"
 
 [node name="Suelo" type="TileMapLayer" parent="."]

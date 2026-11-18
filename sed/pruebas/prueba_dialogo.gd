@@ -202,6 +202,22 @@ Después uno.
 
 const FINALES := """# Finales
 
+## La sangre de Yuu (Humanidad 3, con los siete recuerdos)
+
+*(La sed está en 100. La pantalla casi no tiene color.)*
+
+Línea antes.
+
+*(Aparece el botón Beber, el mismo de toda la partida. No hay otra opción. El juego espera a que el jugador lo mantenga pulsado.)*
+
+—Línea después.
+
+*(La cámara se queda en las manos de los dos. La sed baja despacio hasta 0. El color vuelve a la pantalla.)*
+
+**Texto final.** «Final sangre.»
+
+---
+
 ## Caído (Mika cae antes de llegar)
 
 ### La primera vez
@@ -314,6 +330,38 @@ func _initialize():
 	comprobar("caído, después: Krul al azar, el otro Yuu y el texto final", [siguiente.size(), siguiente[0].texto in ["—Krul uno.", "—Krul dos."], siguiente[1].tipo, siguiente[2].tipo], [3, true, "otro_yuu", "final"])
 	comprobar("caído con Humanidad 1: el otro Yuu sigue saliendo", Guion.caido(1, false, rng).size(), 3)
 	comprobar("caído con Humanidad 0", Guion.caido(0, false, rng).map(func(g): return g.texto), ["Sin humanidad uno.", "«Final cero.»"])
+
+	print("E3) Final con indicaciones: sin color, beber obligatorio y el color que vuelve")
+	var sangre := Guion.final("La sangre de Yuu")
+	comprobar("tipos del final", sangre.map(func(g): return g.tipo), ["sin_color", "narracion", "beber", "dialogo", "color", "final"])
+	comprobar("el botón Beber es obligatorio", sangre[2].obligatorio, true)
+	var df := Dialogo.new()
+	root.add_child(df)
+	var bebio := [0]
+	df.bebio.connect(func() -> void: bebio[0] += 1)
+	df.empezar(sangre)
+	comprobar("empieza casi sin color", [df._gris.visible, df._gris.material.get_shader_parameter("gris")], [true, Config.DIALOGO_GRIS])
+	df.avanzar()
+	df.avanzar()
+	comprobar("llega al botón Beber y espera", [df.indice, df.esperando_beber], [2, true])
+	df.avanzar()
+	df.saltar()
+	comprobar("ni avanzar ni saltar lo pasan", [df.indice, df.esperando_beber, df.acabado], [2, true, false])
+	df.beber_ya()
+	comprobar("al beber, sigue", [df.indice, bebio[0]], [3, 1])
+	df.avanzar()
+	df.avanzar()
+	comprobar("el color vuelve poco a poco", [df.indice, df._esperando], [4, true])
+	await create_timer(Config.DIALOGO_COLOR_VUELVE + 0.2).timeout
+	comprobar("y vuelve del todo", [df._gris.material.get_shader_parameter("gris"), df.indice], [0.0, 5])
+	df.queue_free()
+	var opcional: Array[Dictionary] = [{"tipo": "beber", "texto": "", "obligatorio": false}, {"tipo": "narracion", "texto": "Sigue."}]
+	df = Dialogo.new()
+	root.add_child(df)
+	df.empezar(opcional)
+	df.avanzar()
+	comprobar("si no es obligatorio, se puede seguir sin beber", [df.indice, df.esperando_beber], [1, false])
+	df.queue_free()
 
 	print("F) Avanzar, negro y saltar")
 	var d := Dialogo.new()

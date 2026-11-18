@@ -42,7 +42,20 @@ const ZONAS := {
 		"texto_arriesgada": "Cruza la estación hundida hasta la salida.",
 		"texto_jefe": "Combate abierto. Aguanta hasta que se rinda.",
 	},
+	3: {
+		"nombre": "Shibuya", "jefe": "Guren Ichinose",
+		"infiltracion": "res://escenas/mapa_shibuya.tscn", "arriesgada": "res://escenas/mapa_rio.tscn",
+		"mapa_jefe": "res://escenas/mapa_patio.tscn",
+		"texto_infiltracion": "Cruza la base del ejército dentro de la muralla. Cuidado con los talismanes.",
+		"texto_arriesgada": "Entra por el hueco de la muralla, del lado del río.",
+		"texto_jefe": "Combate contra un arma maldita. Al final está Yuu.",
+	},
 }
+
+## Los finales de la expedición entera (tras el jefe de la última zona), según cómo llegue Mika.
+const FINAL_SANGRE := "La sangre de Yuu" # Humanidad 3 y los siete recuerdos
+const FINAL_LIMITE := "En el límite" # el resto, con Humanidad 1 o más
+const FINAL_VAMPIRO := "Vampiro completo" # Humanidad 0
 
 ## Cada zona: infiltración, dos rutas de dos paradas, Prueba de la sed y jefe.
 const RUTAS := {
@@ -93,6 +106,9 @@ var escena_tras_parada: Array[Dictionary] = []
 var siguiente_vampiro_extra := false # evento «La doncella de Krul»
 var siguiente_vampiros_callados := false # evento «Lacus y René»
 var siguiente_jinete_suelto := false # evento «El Jinete dormido»
+var saltar_siguiente := false # evento «El desertor» (confiar)
+var siguiente_prueba_cerca := false # evento «El escuadrón de Yuu»
+var finales_vistos: Array[String] = []
 var _tras_escena: Callable
 var rng := RandomNumberGenerator.new()
 
@@ -137,6 +153,8 @@ func nueva() -> void:
 	siguiente_vampiro_extra = false
 	siguiente_vampiros_callados = false
 	siguiente_jinete_suelto = false
+	saltar_siguiente = false
+	siguiente_prueba_cerca = false
 	rng.randomize()
 
 
@@ -244,6 +262,9 @@ func escena_infiltracion() -> String:
 ## Pasa a la siguiente parada y vuelve al mapa de paradas (o enseña antes el recuerdo ganado).
 func completar_parada() -> void:
 	indice += 1
+	if saltar_siguiente and indice < paradas().size() and paradas()[indice] != "jefe":
+		indice += 1 # «El desertor»: se salta la parada siguiente y su recompensa
+	saltar_siguiente = false
 	var golpes := escena_tras_parada
 	escena_tras_parada = []
 	mostrar_escena("", golpes, _tras_parada)
@@ -330,6 +351,10 @@ func aplicar_efectos(efectos: Dictionary) -> Array[String]:
 		siguiente_vampiros_callados = true
 	if efectos.get("jinete_suelto", false):
 		siguiente_jinete_suelto = true
+	if efectos.get("saltar_parada", false):
+		saltar_siguiente = true
+	if efectos.get("prueba_cerca", false):
+		siguiente_prueba_cerca = true
 	if efectos.get("mejora", false):
 		return opciones_de_mejora()
 	return []
@@ -386,6 +411,11 @@ func aplicar_a_mapa(mapa: Mapa) -> void:
 	mika.sed_congelada = sed_congelada
 	sed_congelada = false
 	mapa.patrullas_visibles = patrullas_visibles
+	if mapa.prueba_de_la_sed and siguiente_prueba_cerca:
+		siguiente_prueba_cerca = false
+		if mapa.inicio_cerca.x >= 0:
+			mika.pos = Vector2(mapa.inicio_cerca) + Vector2(0.5, 0.5)
+			mika.position = Iso.a_pantalla(mika.pos)
 	if not mapa.prueba_de_la_sed:
 		if siguiente_vampiro_extra:
 			mapa.poner_vampiro_extra()
@@ -426,6 +456,37 @@ func al_terminar_mapa(mapa: Mapa, exito: bool, motivo: String) -> void:
 	elif mapa.jefe != "" and exito:
 		recuerdo_nuevo = ganar_recuerdo() # cada jefe superado da un recuerdo
 		escena_tras_parada = Guion.segun_humanidad(Guion.jefe_despues(mapa.jefe), humanidad)
+
+
+## En la escena del fondo (zona 3) Mika bebió del otro Yuu: la prueba queda cedida. Pierde el
+## recuerdo que acababa de ganar y 1 de Humanidad, la sed baja a 0 y gana una mejora al azar.
+func ceder_en_fondo() -> void:
+	if recuerdo_nuevo > 0:
+		recuerdos.erase(recuerdo_nuevo)
+		guardar_recuerdos()
+		recuerdo_nuevo = 0
+	humanidad = maxi(0, humanidad - 1)
+	sed = 0
+	var opciones := opciones_de_mejora()
+	if not opciones.is_empty():
+		elegir_mejora(opciones[0])
+
+
+## El final de la expedición: el de la sangre de Yuu con Humanidad 3 y los siete recuerdos,
+## vampiro completo con Humanidad 0 y, si no, en el límite.
+func final_alcanzado() -> String:
+	if humanidad >= Config.HUMANIDAD_INICIAL and recuerdos.size() >= TOTAL_RECUERDOS:
+		return FINAL_SANGRE
+	if humanidad <= 0:
+		return FINAL_VAMPIRO
+	return FINAL_LIMITE
+
+
+## Apunta que se vio un final (queda en disco con los recuerdos).
+func marcar_final(nombre: String) -> void:
+	if not nombre in finales_vistos:
+		finales_vistos.append(nombre)
+		guardar_recuerdos()
 
 
 ## Lo que se ve al salir de la Prueba de la sed: si se superó, la escena del fondo (entera la
@@ -470,6 +531,7 @@ func guardar_recuerdos() -> void:
 	cfg.set_value("recuerdos", "inicio_visto", inicio_visto)
 	cfg.set_value("recuerdos", "fondos_vistos", fondos_vistos)
 	cfg.set_value("recuerdos", "caidas", caidas)
+	cfg.set_value("recuerdos", "finales", finales_vistos)
 	cfg.save(archivo_recuerdos)
 
 
@@ -479,7 +541,9 @@ func cargar_recuerdos() -> void:
 	inicio_visto = false
 	fondos_vistos = []
 	caidas = 0
+	finales_vistos = []
 	if cfg.load(archivo_recuerdos) == OK:
+		finales_vistos.assign(cfg.get_value("recuerdos", "finales", []))
 		caidas = cfg.get_value("recuerdos", "caidas", 0)
 		fondos_vistos.assign(cfg.get_value("recuerdos", "fondos_vistos", []))
 		recuerdos.assign(cfg.get_value("recuerdos", "ganados", []))

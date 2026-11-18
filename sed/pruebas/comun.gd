@@ -9,6 +9,7 @@ var ok := true
 var linea := [] # [muestra] -> [[pos, mirada], ...] por soldado
 var _visible_cache := {}
 var _con_margen := false # solo la búsqueda con grupos planifica con margen
+var _talismanes: Array[Vector2i] = [] # pisar uno revela a Mika: cuentan como vistos
 
 
 ## Las pruebas de los pasos se escribieron con patrullas fijas; las que prueban el azar lo encienden.
@@ -78,7 +79,7 @@ func paso(m: Mapa, segundos: float = DT) -> void:
 				ok = false
 				print("FALLO: ", s.name, " dentro de muro en ", s.pos)
 		for h in m.get_children():
-			if h is Vial or h is Eco or h is Aparicion or h is Ferid or h is Vampiro or h is Jinete or h is Crowley:
+			if h is Vial or h is Eco or h is Aparicion or h is Ferid or h is Vampiro or h is Jinete or h is Crowley or h is Talisman:
 				h._physics_process(DT)
 
 
@@ -114,6 +115,7 @@ func comprobar(nombre: String, valor, esperado, tolerancia := 0.01) -> void:
 func grabar_linea(m: Mapa) -> void:
 	linea = []
 	_visible_cache = {}
+	_talismanes = m.talismanes_activos()
 	m.mika.pos = FUERA
 	var por_muestra := roundi(PASO_PLAN / DT)
 	for k in roundi(HORIZONTE / PASO_PLAN) + 1:
@@ -232,7 +234,7 @@ func buscar_ruta_con_apariciones(escena: String, inicio: Vector2i, meta: Vector2
 					if en_zona.call(grupos[idx], a.lerp(b, t)):
 						salidas[idx] = f + aviso
 						break
-			var seguro := true
+			var seguro := not _cruza_talisman(a, b)
 			for j in range(k, k2 + 1):
 				if visto.call(a.lerp(b, float(j - k) / (k2 - k)), j, salidas):
 					seguro = false
@@ -273,6 +275,9 @@ func _visible_en(m: Mapa, punto: Vector2, k: int) -> bool:
 		return _visible_cache[clave]
 	var resultado := false
 	var celda := Vector2i(floori(punto.x), floori(punto.y))
+	if celda in _talismanes:
+		_visible_cache[clave] = true
+		return true
 	var prohibida := m.es_prohibida(celda) or celda in m.celdas_vial # coger un vial a la vista es robar
 	for foto in linea[k]:
 		var s: Node2D = foto[0]
@@ -293,6 +298,17 @@ func _visible_en(m: Mapa, punto: Vector2, k: int) -> bool:
 	return resultado
 
 
+## El tramo recto de a a b pasa, aunque sea por una esquina, por una casilla con talismán.
+func _cruza_talisman(a: Vector2, b: Vector2) -> bool:
+	if _talismanes.is_empty():
+		return false
+	for i in 21:
+		var p := a.lerp(b, i / 20.0)
+		if Vector2i(floori(p.x), floori(p.y)) in _talismanes:
+			return true
+	return false
+
+
 ## Como Soldado._puede_ver, con margen: la planificación mira cada PASO_PLAN s y un cono que
 ## gira deprisa (o un soldado que pasa al lado) puede barrer a Mika entre dos muestras.
 const MARGEN_ANGULO := 15.0 # grados de más a cada lado
@@ -306,7 +322,8 @@ func _ve_con_margen(m: Mapa, s: Node2D, punto: Vector2) -> bool:
 	if distancia < MARGEN_CERCA:
 		return m.hay_linea_de_vision(s.pos, punto)
 	var en_sombra := m.es_sombra(Vector2i(floori(punto.x), floori(punto.y)))
-	var alcance := (Config.VISION_ALCANCE_SOMBRA if en_sombra else Config.VISION_ALCANCE) + MARGEN_ALCANCE
+	var vision: float = s.alcance_vision if s is Soldado else Config.VISION_ALCANCE
+	var alcance := (Config.VISION_ALCANCE_SOMBRA * vision / Config.VISION_ALCANCE if en_sombra else vision) + MARGEN_ALCANCE
 	if distancia > alcance:
 		return false
 	if absf(angle_difference(s.mirada.angle(), hacia.angle())) > deg_to_rad(Config.VISION_ANGULO / 2.0 + MARGEN_ANGULO):
@@ -346,7 +363,7 @@ func buscar_ruta(m: Mapa, inicio: Vector2i, meta: Vector2i) -> Array:
 			var k2: int = k + opcion[1]
 			if k2 > ultima or previo.has([destino, k2]):
 				continue
-			var seguro := true
+			var seguro := not _cruza_talisman(centro.call(celda), centro.call(destino))
 			for j in range(k, k2 + 1): # posición interpolada en cada muestra del trayecto
 				var f := float(j - k) / (k2 - k)
 				if _visible(m, centro.call(celda).lerp(centro.call(destino), f), j):
@@ -455,3 +472,59 @@ func probar_infiltracion(escena: String, inicio: Vector2i, meta: Vector2i) -> vo
 	comprobar("ir directo sin esperar no llega sin ser visto", reproducir(m, ruta_directa(m, inicio, meta), false), false)
 	m.queue_free()
 	paused = false
+
+
+## Jugador automático contra un jefe de combate (Crowley, Guren). Sin `esquivar`: se pega a él y da Tajos sin parar. Con `esquivar`:
+## si va a estar dentro de lo marcado, se aparta; mientras Crowley se recupera, entra y le pega;
+## si no, guarda distancia. Devuelve [ganó, vida de Mika, vida del jefe, segundos].
+func pelear_con_jefe(escena: String, esquivar: bool) -> Array:
+	var m: Mapa = await cargar_mapa(escena)
+	var c: Crowley = m.jefe_combate
+	var mika := m.mika
+	var t := 0.0
+	while t < 90.0 and not m.terminado and not mika.caida:
+		var hacia := c.pos - mika.pos
+		var paso_mika := Vector2.ZERO
+		if not esquivar:
+			if hacia.length() > 1.0:
+				paso_mika = hacia.normalized()
+		elif c.estado == Crowley.Estado.AVISA and (c.en_zona_de_ataque(mika.pos) or (c.ataque == Crowley.Ataque.TORBELLINO and hacia.length() < c._p.TORBELLINO_RADIO + 0.5)):
+			paso_mika = _salida(m, c, mika.pos)
+		elif c.estado == Crowley.Estado.RECUPERA:
+			if hacia.length() > 1.0:
+				paso_mika = hacia.normalized()
+		elif hacia.length() < 3.0:
+			paso_mika = -hacia.normalized()
+		var nueva := mika.pos + paso_mika * Config.VELOCIDAD_MIKA * DT
+		if not m.es_muro(Vector2i(nueva.floor())) and nueva.x > 0 and nueva.y > 0 and nueva.x < m.ancho and nueva.y < m.alto:
+			mika.pos = nueva
+		if hacia.length() <= Config.TAJO_ALCANCE and (not esquivar or c.estado == Crowley.Estado.RECUPERA):
+			mika.mirada = hacia.normalized()
+			mika.tajo()
+		mika.sed = 0
+		paso(m)
+		t += DT
+	var resultado := [m.terminado and not mika.caida, mika.vida, c.vida, t]
+	m.queue_free()
+	paused = false
+	return resultado
+
+
+## Hacia dónde apartarse: lejos de Crowley y, en una carga, a un lado de la línea.
+func _salida(m: Mapa, c: Crowley, p: Vector2) -> Vector2:
+	var fuera := p - c.pos
+	if c.ataque == Crowley.Ataque.SOMBRAS:
+		var cerca: Vector2 = c._sombras[0]
+		for sombra in c._sombras:
+			if p.distance_to(sombra) < p.distance_to(cerca):
+				cerca = sombra
+		fuera = p - cerca
+	elif c.ataque == Crowley.Ataque.CARGA:
+		var cerca := Geometry2D.get_closest_point_to_segment(p, c._desde, c._hasta)
+		fuera = p - cerca
+		if fuera.length() < 0.01:
+			fuera = Vector2(-(c._hasta - c._desde).y, (c._hasta - c._desde).x)
+	fuera = fuera.normalized()
+	if m.es_muro(Vector2i((p + fuera * 0.6).floor())):
+		fuera = Vector2(-fuera.y, fuera.x)
+	return fuera

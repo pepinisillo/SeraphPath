@@ -1,0 +1,82 @@
+[gd_scene format=3]
+
+[ext_resource type="Script" path="res://scripts/mapa.gd" id="1_mapa"]
+[ext_resource type="TileSet" path="res://recursos/casillas.tres" id="2_casillas"]
+[ext_resource type="PackedScene" path="res://escenas/mika.tscn" id="3_mika"]
+[ext_resource type="PackedScene" path="res://escenas/soldado.tscn" id="4_soldado"]
+[ext_resource type="Script" path="res://scripts/alerta.gd" id="5_alerta"]
+[ext_resource type="PackedScene" path="res://escenas/hud.tscn" id="6_hud"]
+[ext_resource type="Script" path="res://scripts/muros.gd" id="7_muros"]
+[ext_resource type="Script" path="res://scripts/aparicion.gd" id="8_aparicion"]
+[ext_resource type="PackedScene" path="res://escenas/vampiro.tscn" id="9_vampiro"]
+[ext_resource type="PackedScene" path="res://escenas/jinete.tscn" id="10_jinete"]
+[ext_resource type="PackedScene" path="res://escenas/portador.tscn" id="11_portador"]
+[ext_resource type="PackedScene" path="res://escenas/hechicero.tscn" id="12_hechicero"]
+
+[node name="MapaRio" type="Node2D"]
+y_sort_enabled = true
+script = ExtResource("1_mapa")
+plano = "....................#......E
+..........#####.....#.......
+...####...#####.....#.......
+...####...#####.....#..#....
+...####...#####.....#.......
+...####...sssss.....#.....#.
+...ssss.............#.......
+.............####...#...#...
+...####......####...#.......
+...####......####...........
+.............ssss...........
+#########..#################
+#########M.#################
+############################"
+nombre = "El hueco del río"
+entrada_refuerzos = Vector2i(27, 10)
+ruta_vampiro_extra = Array[Vector2i]([Vector2i(1, 1), Vector2i(1, 9)])
+ruta_jinete_suelto = Array[Vector2i]([Vector2i(7, 0), Vector2i(17, 0)])
+
+[node name="Alerta" type="Node" parent="."]
+script = ExtResource("5_alerta")
+
+[node name="Suelo" type="TileMapLayer" parent="."]
+z_index = -2
+tile_set = ExtResource("2_casillas")
+
+[node name="Muros" type="TileMapLayer" parent="."]
+y_sort_enabled = true
+tile_set = ExtResource("2_casillas")
+script = ExtResource("7_muros")
+
+[node name="Mika" parent="." instance=ExtResource("3_mika")]
+
+[node name="R1" parent="." instance=ExtResource("4_soldado")]
+ruta = Array[Vector2i]([Vector2i(19, 0), Vector2i(7, 0)])
+en_bucle = false
+
+[node name="PR1" parent="." instance=ExtResource("11_portador")]
+ruta = Array[Vector2i]([Vector2i(18, 10), Vector2i(18, 2)])
+en_bucle = false
+
+[node name="HR1" parent="." instance=ExtResource("12_hechicero")]
+ruta = Array[Vector2i]([Vector2i(7, 6), Vector2i(12, 6)])
+en_bucle = false
+talismanes = Array[Vector2i]([Vector2i(19, 9), Vector2i(11, 6), Vector2i(16, 6)])
+
+[node name="R2" parent="." instance=ExtResource("4_soldado")]
+ruta = Array[Vector2i]([Vector2i(27, 1), Vector2i(21, 1)])
+en_bucle = false
+
+[node name="R3" parent="." instance=ExtResource("4_soldado")]
+ruta = Array[Vector2i]([Vector2i(22, 10), Vector2i(22, 4)])
+en_bucle = false
+
+[node name="GrupoGuardia" type="Node2D" parent="."]
+script = ExtResource("8_aparicion")
+zonas = Array[Rect2i]([Rect2i(21, 6, 3, 5)])
+probabilidad = 0.5
+
+[node name="RG1" parent="GrupoGuardia" instance=ExtResource("4_soldado")]
+ruta = Array[Vector2i]([Vector2i(25, 9), Vector2i(25, 2)])
+en_bucle = false
+
+[node name="HUD" parent="." instance=ExtResource("6_hud")]

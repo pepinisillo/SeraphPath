@@ -139,6 +139,10 @@ func recibir_dano(cantidad: int) -> void:
 		presenciar("ataque") # el propio golpeado lo ha visto todo
 
 
+func recibir_golpe_silencioso() -> void:
+	derribar()
+
+
 func derribar() -> void:
 	derribado = true
 	vida = 0
