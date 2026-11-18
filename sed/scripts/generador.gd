@@ -9,7 +9,11 @@ class_name Generador
 ## no baste con correr) y guarda solo los que pasan en `escenas/generados/`.
 ##
 ## generar() devuelve un diccionario con: plano, inicio, salida, entidades
-## ([{tipo, nombre, ruta, bucle}]), ruta_vampiro_extra, ruta_jinete_suelto y entrada_refuerzos.
+## ([{tipo, nombre, ruta, bucle, grupo?, talismanes?}]), grupos ([{nombre, zonas, probabilidad}]),
+## ruta_vampiro_extra, ruta_jinete_suelto y entrada_refuerzos.
+## Además de las patrullas, la sala final tiene un grupo que aparece al entrar Mika en la
+## anterior (la mitad de las veces), y en Shibuya un hechicero deja dos talismanes en los
+## pasillos (siempre en una sola de sus dos casillas de ancho, para que quede paso).
 
 const ANCHO := 30
 const ALTO := 18
@@ -74,12 +78,26 @@ static func generar(semilla: int, zona: int) -> Dictionary:
 				entidades.append({"tipo": "jinete", "nombre": "J1", "ruta": ruta_zona, "bucle": false})
 			3:
 				entidades.append({"tipo": "portador", "nombre": "P1", "ruta": ruta_zona, "bucle": false})
+	# Grupo que aparece en la sala final, al entrar Mika en la anterior.
+	var grupos := []
+	if salas.size() >= 3 and rng.randf() < 0.5:
+		var ruta_grupo := _ruta_en_sala(g, final, rng)
+		if not ruta_grupo.is_empty():
+			grupos.append({"nombre": "GrupoFinal", "zonas": [salas[-2]], "probabilidad": 0.5 + 0.5 * float(rng.randf() < 0.5)})
+			entidades.append({"tipo": "soldado", "nombre": "GF1", "ruta": ruta_grupo, "bucle": false, "grupo": "GrupoFinal"})
+	# Shibuya: un hechicero con dos talismanes en los pasillos.
+	if zona == 3:
+		var sala_h: Rect2i = salas[1]
+		var ruta_h := _ruta_en_sala(g, sala_h, rng, true)
+		var talismanes := _casillas_de_pasillo(g, salas, rng, 2)
+		if not ruta_h.is_empty() and not talismanes.is_empty():
+			entidades.append({"tipo": "hechicero", "nombre": "H1", "ruta": ruta_h, "bucle": false, "talismanes": talismanes})
 	var plano := PackedStringArray()
 	for fila in g:
 		plano.append("".join(fila))
 	var sala_media: Rect2i = salas[salas.size() / 2]
 	return {
-		"plano": "\n".join(plano), "inicio": inicio, "salida": salida, "entidades": entidades,
+		"plano": "\n".join(plano), "inicio": inicio, "salida": salida, "entidades": entidades, "grupos": grupos,
 		"ruta_vampiro_extra": _ruta_en_sala(g, sala_media, rng, true),
 		"ruta_jinete_suelto": _ruta_en_sala(g, sala_media, rng, true),
 		"entrada_refuerzos": salida,
@@ -181,6 +199,28 @@ static func _ruta_en_sala(g: Array, s: Rect2i, rng: RandomNumberGenerator, corta
 	return []
 
 
+## Casillas de pasillo (suelo fuera de las salas) cuya vecina de al lado también es suelo: un
+## talismán en una deja paso por la otra.
+static func _casillas_de_pasillo(g: Array, salas: Array, rng: RandomNumberGenerator, cuantas: int) -> Array:
+	var posibles := []
+	for y in ALTO:
+		for x in ANCHO:
+			var c := Vector2i(x, y)
+			if g[y][x] != "." or salas.any(func(s): return s.has_point(c)):
+				continue
+			for d in [Vector2i(1, 0), Vector2i(0, 1)]:
+				var o: Vector2i = c + d
+				if o.x < ANCHO and o.y < ALTO and g[o.y][o.x] in [".", "s"]:
+					posibles.append(c)
+					break
+	var elegidas := []
+	while elegidas.size() < cuantas and not posibles.is_empty():
+		var c: Vector2i = posibles.pop_at(rng.randi_range(0, posibles.size() - 1))
+		if elegidas.all(func(e): return Vector2(e).distance_to(Vector2(c)) > 3.0):
+			elegidas.append(c)
+	return elegidas
+
+
 static func _conectado(g: Array, desde: Vector2i, hasta: Vector2i) -> bool:
 	var vistos := {desde: true}
 	var cola := [desde]
@@ -212,7 +252,9 @@ static func escena(datos: Dictionary, nombre_nodo: String, nombre: String) -> St
 		'[ext_resource type="Script" path="res://scripts/muros.gd" id="7_muros"]',
 		'[ext_resource type="PackedScene" path="res://escenas/vampiro.tscn" id="9_vampiro"]',
 		'[ext_resource type="PackedScene" path="res://escenas/jinete.tscn" id="10_jinete"]',
-		'[ext_resource type="PackedScene" path="res://escenas/portador.tscn" id="11_portador"]', "",
+		'[ext_resource type="PackedScene" path="res://escenas/portador.tscn" id="11_portador"]',
+		'[ext_resource type="PackedScene" path="res://escenas/hechicero.tscn" id="12_hechicero"]',
+		'[ext_resource type="Script" path="res://scripts/aparicion.gd" id="8_aparicion"]', "",
 		'[node name="%s" type="Node2D"]' % nombre_nodo, "y_sort_enabled = true", 'script = ExtResource("1_mapa")',
 		'plano = "%s"' % datos.plano, 'nombre = "%s"' % nombre,
 		"entrada_refuerzos = %s" % v.call(datos.entrada_refuerzos),
@@ -225,12 +267,21 @@ static func escena(datos: Dictionary, nombre_nodo: String, nombre: String) -> St
 		'[node name="Suelo" type="TileMapLayer" parent="."]', "z_index = -2", 'tile_set = ExtResource("2_casillas")', "",
 		'[node name="Muros" type="TileMapLayer" parent="."]', "y_sort_enabled = true", 'tile_set = ExtResource("2_casillas")', 'script = ExtResource("7_muros")', "",
 		'[node name="Mika" parent="." instance=ExtResource("3_mika")]', ""])
-	var ids := {"soldado": "4_soldado", "vampiro": "9_vampiro", "jinete": "10_jinete", "portador": "11_portador"}
+	var rect := func(r: Rect2i) -> String: return "Rect2i(%d, %d, %d, %d)" % [r.position.x, r.position.y, r.size.x, r.size.y]
+	for grupo in datos.get("grupos", []):
+		t.append('[node name="%s" type="Node2D" parent="."]' % grupo.nombre)
+		t.append('script = ExtResource("8_aparicion")')
+		t.append("zonas = Array[Rect2i]([%s])" % ", ".join(grupo.zonas.map(func(z): return rect.call(z))))
+		t.append("probabilidad = %s" % grupo.probabilidad)
+		t.append("")
+	var ids := {"soldado": "4_soldado", "vampiro": "9_vampiro", "jinete": "10_jinete", "portador": "11_portador", "hechicero": "12_hechicero"}
 	for e in datos.entidades:
-		t.append('[node name="%s" parent="." instance=ExtResource("%s")]' % [e.nombre, ids[e.tipo]])
+		t.append('[node name="%s" parent="%s" instance=ExtResource("%s")]' % [e.nombre, e.get("grupo", "."), ids[e.tipo]])
 		t.append("ruta = %s" % ruta.call(e.ruta))
 		if not e.bucle:
 			t.append("en_bucle = false")
+		if e.has("talismanes"):
+			t.append("talismanes = %s" % ruta.call(e.talismanes))
 		t.append("")
 	t.append('[node name="HUD" parent="." instance=ExtResource("6_hud")]')
 	return "\n".join(t) + "\n"

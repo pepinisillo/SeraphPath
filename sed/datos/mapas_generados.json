@@ -4,7 +4,7 @@
 			"directo": 9.8,
 			"escena": "res://escenas/generados/mapa_gen_z1_1001.tscn",
 			"nombre": "Pasillos de Sanguinem 1",
-			"ruta": 16.0,
+			"ruta": 16.2,
 			"semilla": 1001
 		},
 		{
@@ -13,38 +13,66 @@
 			"nombre": "Pasillos de Sanguinem 2",
 			"ruta": 17.7,
 			"semilla": 1002
+		},
+		{
+			"directo": 7.3,
+			"escena": "res://escenas/generados/mapa_gen_z1_1009.tscn",
+			"nombre": "Pasillos de Sanguinem 3",
+			"ruta": 10.5,
+			"semilla": 1009
 		}
 	],
 	"2": [
 		{
-			"directo": 8.0,
-			"escena": "res://escenas/generados/mapa_gen_z2_2001.tscn",
-			"nombre": "Ruinas sin nombre 1",
-			"ruta": 13.2,
-			"semilla": 2001
-		},
-		{
 			"directo": 8.9,
 			"escena": "res://escenas/generados/mapa_gen_z2_2010.tscn",
-			"nombre": "Ruinas sin nombre 2",
-			"ruta": 16.7,
+			"nombre": "Ruinas sin nombre 1",
+			"ruta": 20.2,
 			"semilla": 2010
+		},
+		{
+			"directo": 7.7,
+			"escena": "res://escenas/generados/mapa_gen_z2_2016.tscn",
+			"nombre": "Ruinas sin nombre 2",
+			"ruta": 15.5,
+			"semilla": 2016
+		},
+		{
+			"directo": 8.8,
+			"escena": "res://escenas/generados/mapa_gen_z2_2037.tscn",
+			"nombre": "Ruinas sin nombre 3",
+			"ruta": 14.8,
+			"semilla": 2037
+		},
+		{
+			"directo": 7.9,
+			"escena": "res://escenas/generados/mapa_gen_z2_2050.tscn",
+			"nombre": "Ruinas sin nombre 4",
+			"ruta": 13.4,
+			"semilla": 2050
 		}
 	],
 	"3": [
 		{
-			"directo": 8.6,
-			"escena": "res://escenas/generados/mapa_gen_z3_3003.tscn",
+			"directo": 8.0,
+			"escena": "res://escenas/generados/mapa_gen_z3_3009.tscn",
 			"nombre": "Barracones de Shibuya 1",
-			"ruta": 13.3,
-			"semilla": 3003
+			"ruta": 13.2,
+			"semilla": 3009
 		},
 		{
-			"directo": 7.6,
-			"escena": "res://escenas/generados/mapa_gen_z3_3005.tscn",
-			"nombre": "Barracones de Shibuya 2",
-			"ruta": 16.5,
-			"semilla": 3005
+			"directo": 8.4,
+			"escena": "res://escenas/generados/mapa_gen_z3_3012.tscn",
+			"nombre": "Barracones de Shibuya 3",
+			"ruta": 35.4,
+			"semilla": 3012
+		},
+		{
+			"directo": 8.4,
+			"escena": "res://escenas/generados/mapa_gen_z3_3018.tscn",
+			"nombre": "Barracones de Shibuya 4",
+			"ruta": 11.8,
+			"semilla": 3018
 		}
 	]
 }

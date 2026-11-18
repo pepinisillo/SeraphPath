@@ -10,32 +10,34 @@
 [ext_resource type="PackedScene" path="res://escenas/vampiro.tscn" id="9_vampiro"]
 [ext_resource type="PackedScene" path="res://escenas/jinete.tscn" id="10_jinete"]
 [ext_resource type="PackedScene" path="res://escenas/portador.tscn" id="11_portador"]
+[ext_resource type="PackedScene" path="res://escenas/hechicero.tscn" id="12_hechicero"]
+[ext_resource type="Script" path="res://scripts/aparicion.gd" id="8_aparicion"]
 
 [node name="MapaGenerado" type="Node2D"]
 y_sort_enabled = true
 script = ExtResource("1_mapa")
-plano = "########################.s..E#
-########################.....#
-############....####.........#
-############..#.####.......#.#
-############..#........#...s.#
-############..s.....#..#######
-##############s.##..s..#######
-##############..##....s#######
-##############..##.....#######
-##############.s##s...s#######
-##############..##.....#######
-....s#.....###..##############
-.....#...#.###ss##############
-.....#......s..s##############
-.............ss.##############
-..........####################
-s...s#########################
-M....#########################"
-nombre = "Ruinas sin nombre 1"
-entrada_refuerzos = Vector2i(28, 0)
-ruta_vampiro_extra = Array[Vector2i]([Vector2i(13, 5), Vector2i(12, 5)])
-ruta_jinete_suelto = Array[Vector2i]([Vector2i(12, 5), Vector2i(13, 5)])
+plano = "########################...E##
+########################....##
+########################....##
+####################........##
+####################s...s##.##
+####################..##.s.s##
+####################..########
+##################.....#######
+##################....s#######
+######..s.########..##s#######
+######...s###....#...s.#######
+.....#....###s...#.s...#######
+.......#.........###s.########
+.....s.........#..s...########
+.....#....###..#..s...########
+.....#....###....#############
+.....#########################
+M.s..#########################"
+nombre = "Barracones de Shibuya 4"
+entrada_refuerzos = Vector2i(27, 0)
+ruta_vampiro_extra = Array[Vector2i]([Vector2i(16, 12), Vector2i(16, 10)])
+ruta_jinete_suelto = Array[Vector2i]([Vector2i(14, 12), Vector2i(14, 10)])
 
 [node name="Alerta" type="Node" parent="."]
 script = ExtResource("5_alerta")
@@ -52,23 +54,28 @@ script = ExtResource("7_muros")
 [node name="Mika" parent="." instance=ExtResource("3_mika")]
 
 [node name="G1" parent="." instance=ExtResource("4_soldado")]
-ruta = Array[Vector2i]([Vector2i(10, 11), Vector2i(6, 11)])
+ruta = Array[Vector2i]([Vector2i(9, 9), Vector2i(9, 15)])
 en_bucle = false
 
 [node name="G2" parent="." instance=ExtResource("4_soldado")]
-ruta = Array[Vector2i]([Vector2i(12, 5), Vector2i(15, 5)])
+ruta = Array[Vector2i]([Vector2i(14, 10), Vector2i(14, 15)])
 en_bucle = false
 
 [node name="G3" parent="." instance=ExtResource("4_soldado")]
-ruta = Array[Vector2i]([Vector2i(18, 10), Vector2i(18, 4)])
+ruta = Array[Vector2i]([Vector2i(22, 7), Vector2i(18, 7)])
 en_bucle = false
 
 [node name="G4" parent="." instance=ExtResource("4_soldado")]
-ruta = Array[Vector2i]([Vector2i(28, 2), Vector2i(24, 2)])
+ruta = Array[Vector2i]([Vector2i(24, 5), Vector2i(24, 0)])
 en_bucle = false
 
-[node name="J1" parent="." instance=ExtResource("10_jinete")]
-ruta = Array[Vector2i]([Vector2i(8, 13), Vector2i(6, 13)])
+[node name="P1" parent="." instance=ExtResource("11_portador")]
+ruta = Array[Vector2i]([Vector2i(9, 9), Vector2i(9, 12)])
 en_bucle = false
+
+[node name="H1" parent="." instance=ExtResource("12_hechicero")]
+ruta = Array[Vector2i]([Vector2i(8, 9), Vector2i(8, 12)])
+en_bucle = false
+talismanes = Array[Vector2i]([Vector2i(11, 12), Vector2i(20, 5)])
 
 [node name="HUD" parent="." instance=ExtResource("6_hud")]

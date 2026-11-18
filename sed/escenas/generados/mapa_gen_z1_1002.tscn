@@ -10,6 +10,8 @@
 [ext_resource type="PackedScene" path="res://escenas/vampiro.tscn" id="9_vampiro"]
 [ext_resource type="PackedScene" path="res://escenas/jinete.tscn" id="10_jinete"]
 [ext_resource type="PackedScene" path="res://escenas/portador.tscn" id="11_portador"]
+[ext_resource type="PackedScene" path="res://escenas/hechicero.tscn" id="12_hechicero"]
+[ext_resource type="Script" path="res://scripts/aparicion.gd" id="8_aparicion"]
 
 [node name="MapaGenerado" type="Node2D"]
 y_sort_enabled = true
@@ -34,8 +36,8 @@ plano = "######...s.##############...E#
 M.s.##########################"
 nombre = "Pasillos de Sanguinem 2"
 entrada_refuerzos = Vector2i(28, 0)
-ruta_vampiro_extra = Array[Vector2i]([Vector2i(14, 10), Vector2i(12, 10)])
-ruta_jinete_suelto = Array[Vector2i]([Vector2i(14, 10), Vector2i(12, 10)])
+ruta_vampiro_extra = Array[Vector2i]([Vector2i(12, 10), Vector2i(14, 10)])
+ruta_jinete_suelto = Array[Vector2i]([Vector2i(14, 13), Vector2i(12, 13)])
 
 [node name="Alerta" type="Node" parent="."]
 script = ExtResource("5_alerta")

@@ -7,8 +7,9 @@ extends "res://pruebas/comun.gd"
 ## No es una prueba (no lo lanza ejecutar.sh): se ejecuta a mano y tarda varios minutos.
 ##   godot --headless --path . -s res://pruebas/generar_mapas.gd
 
-const POR_ZONA := 2 # mapas buenos que se buscan en cada zona
-const INTENTOS := 40 # candidatos como mucho por zona
+const POR_ZONA := 4 # mapas buenos que se buscan en cada zona
+const INTENTOS := 60 # candidatos como mucho por zona
+const MAXIMO := 40.0 # s: una ruta sin ser visto más larga obliga a esperar demasiado
 const CARPETA := "res://escenas/generados"
 const INDICE := "res://datos/mapas_generados.json"
 const NOMBRES := {1: "Pasillos de Sanguinem", 2: "Ruinas sin nombre", 3: "Barracones de Shibuya"}
@@ -75,6 +76,8 @@ func _validar(escena: String, inicio: Vector2i, meta: Vector2i) -> Dictionary:
 		return {"bueno": false, "motivo": "sin ruta sin ser visto"}
 	if ruta[-1][1] < directo * 1.4:
 		return {"bueno": false, "motivo": "demasiado fácil (%.1f s frente a %.1f)" % [ruta[-1][1], directo]}
+	if ruta[-1][1] > MAXIMO:
+		return {"bueno": false, "motivo": "demasiada espera (%.1f s)" % ruta[-1][1]}
 	m = await cargar_mapa(escena)
 	var llega := reproducir(m, ruta, false)
 	m.queue_free()

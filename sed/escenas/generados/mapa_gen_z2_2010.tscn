@@ -10,6 +10,8 @@
 [ext_resource type="PackedScene" path="res://escenas/vampiro.tscn" id="9_vampiro"]
 [ext_resource type="PackedScene" path="res://escenas/jinete.tscn" id="10_jinete"]
 [ext_resource type="PackedScene" path="res://escenas/portador.tscn" id="11_portador"]
+[ext_resource type="PackedScene" path="res://escenas/hechicero.tscn" id="12_hechicero"]
+[ext_resource type="Script" path="res://scripts/aparicion.gd" id="8_aparicion"]
 
 [node name="MapaGenerado" type="Node2D"]
 y_sort_enabled = true
@@ -32,7 +34,7 @@ s...########.....s..#..#######
 ....##########################
 ....##########################
 M...##########################"
-nombre = "Ruinas sin nombre 2"
+nombre = "Ruinas sin nombre 1"
 entrada_refuerzos = Vector2i(28, 0)
 ruta_vampiro_extra = Array[Vector2i]([Vector2i(12, 9), Vector2i(12, 7)])
 ruta_jinete_suelto = Array[Vector2i]([Vector2i(12, 9), Vector2i(12, 7)])
@@ -50,6 +52,11 @@ tile_set = ExtResource("2_casillas")
 script = ExtResource("7_muros")
 
 [node name="Mika" parent="." instance=ExtResource("3_mika")]
+
+[node name="GrupoFinal" type="Node2D" parent="."]
+script = ExtResource("8_aparicion")
+zonas = Array[Rect2i]([Rect2i(18, 10, 5, 5)])
+probabilidad = 0.5
 
 [node name="G1" parent="." instance=ExtResource("4_soldado")]
 ruta = Array[Vector2i]([Vector2i(10, 6), Vector2i(6, 6)])
@@ -69,6 +76,10 @@ en_bucle = false
 
 [node name="J1" parent="." instance=ExtResource("10_jinete")]
 ruta = Array[Vector2i]([Vector2i(13, 7), Vector2i(13, 9)])
+en_bucle = false
+
+[node name="GF1" parent="GrupoFinal" instance=ExtResource("4_soldado")]
+ruta = Array[Vector2i]([Vector2i(26, 0), Vector2i(26, 6)])
 en_bucle = false
 
 [node name="HUD" parent="." instance=ExtResource("6_hud")]

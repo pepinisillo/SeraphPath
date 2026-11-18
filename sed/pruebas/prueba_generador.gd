@@ -38,7 +38,16 @@ func _initialize():
 	var tipos := []
 	for zona in [1, 2, 3]:
 		tipos.append(Generador.generar(zona * 100 + 1, zona).entidades.map(func(e): return e.tipo).filter(func(t): return t != "soldado"))
-	comprobar("el enemigo de cada zona", tipos, [["vampiro"], ["jinete"], ["portador"]])
+	comprobar("el enemigo de cada zona", tipos.map(func(t): return t.filter(func(x): return x != "hechicero")), [["vampiro"], ["jinete"], ["portador"]])
+	var con_grupo := 0
+	var con_hechicero := 0
+	for semilla in range(300, 330):
+		var dz := Generador.generar(semilla, 3)
+		if dz.is_empty():
+			continue
+		con_grupo += int(not dz.grupos.is_empty())
+		con_hechicero += int(dz.entidades.any(func(x): return x.tipo == "hechicero"))
+	comprobar("algunos tienen grupo que aparece y, en Shibuya, hechicero", [con_grupo > 3, con_hechicero > 10], [true, true])
 
 	print("B) La escena se carga")
 	var ruta := "user://mapa_gen_prueba.tscn"

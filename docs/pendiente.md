@@ -4,7 +4,7 @@ Lo que falta por construir, de lo más difícil a lo más sencillo. Lo que ya ex
 
 ## Muy difícil
 
-1. **Generar mapas automáticamente.** Ya existe (generador + herramienta que valida; los usa la emboscada). Falta variedad: grupos que aparecen, talismanes y formas de sala distintas.
+1. **Generar mapas automáticamente.** Ya existe (generador con grupos y talismanes, y herramienta que valida; los usa la emboscada). Falta variedad de formas: salas que no sean rectángulos, varios caminos.
 2. **Jefes con fases.** Ya existen los tres (Ferid, Crowley, Guren). Falta ajustarlos jugando.
 3. **Enemigos con reglas sociales.** Ya existen todos (vampiro, Jinete, hechicero, portador). Falta que el Jinete pueda pelear con Mika si lo ataca y que la espada activa se huela.
 4. **El final «La sangre de Yuu».** Ya existe la escena dirigida (botón Beber obligatorio, el color que vuelve). Falta la música: no hay hasta que Mika muerde.
