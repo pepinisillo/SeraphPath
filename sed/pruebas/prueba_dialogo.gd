@@ -12,8 +12,8 @@ const INICIO := """# Bloque de muestra
 
 *(Se ve una sola vez.)*
 
-Mika miró el reloj.
-—Uno —dijo una voz—. Uno solo.
+Narración uno.
+—Línea uno —dijo una voz—. Sigue.
 
 ---
 
@@ -21,7 +21,7 @@ Mika miró el reloj.
 
 *(Nota.)*
 
-Hay {viales} viales en la mesa.
+Viales: {viales}.
 
 ---
 
@@ -29,21 +29,21 @@ Hay {viales} viales en la mesa.
 
 ### 1. El primero
 
-Krul abrió la ventana.
+Krul, narración.
 
-—Pasa —dijo Krul.
+—Línea dos —dijo Krul.
 
 *(Pantalla en negro. Pasos.)*
 
-—**Hola** —dijo Mika.
+—**Línea tres** —dijo Mika.
 
-—¿Y bien?
+—Línea cuatro.
 
-—Nada.
+—Línea cinco.
 
-[Akane] —Ya.
+[Akane] —Línea seis.
 
-**Mika, ahora:** «Lo de ahora.»
+**Mika, ahora:** «Línea ahora.»
 
 **El otro Yuu, hambriento:** «Hambre.»
 
@@ -140,17 +140,17 @@ const EVENTOS := """# Eventos
 
 ### 1. La doncella de Krul (zona 1)
 
-La doncella saludó.
-—Hola —dijo ella.
+La doncella, narración.
+—Línea —dijo ella.
 
-**◆ El otro Yuu:** «Mira.»
+**◆ El otro Yuu:** «Línea rombo.»
 
 **Aceptar** *(1 vial).*
-Lo apuntó.
+Resultado A.
 
 **Rechazar** *(nada).*
-—No.
-—Bueno.
+—Resultado B1.
+—Resultado B2.
 
 ---
 
@@ -158,9 +158,9 @@ Lo apuntó.
 
 ### Humanidad 3
 
-1. «Hace frío.»
-2. *(Sed 60 o más.)* —Mira —dijo el otro Yuu.
-   —No.
+1. «Refugio uno.»
+2. *(Sed 60 o más.)* —Refugio dos —dijo el otro Yuu.
+   —Refugio dos, segunda línea.
 """
 
 
@@ -177,12 +177,12 @@ func _initialize():
 	print("A) Lectura del guion")
 	var inicio := Guion.inicio()
 	comprobar("inicio: una línea, un golpe; acotación fuera; corta en ---", inicio.map(func(g): return [g.tipo, g.texto]),
-		[["narracion", "Mika miró el reloj."], ["dialogo", "—Uno —dijo una voz—. Uno solo."]])
+		[["narracion", "Narración uno."], ["dialogo", "—Línea uno —dijo una voz—. Sigue."]])
 	comprobar("cada expedición: viales en letra", [Guion.cada_expedicion(2)[0].texto, Guion.cada_expedicion(4)[0].texto],
-		["Hay dos viales en la mesa.", "Hay cuatro viales en la mesa."])
+		["Viales: dos.", "Viales: cuatro."])
 	var r1 := Guion.recuerdo(1)
 	comprobar("recuerdo 1: tipos", r1.map(func(g): return g.tipo), ["narracion", "dialogo", "negro", "dialogo", "dialogo", "dialogo", "dialogo", "ahora", "otro_yuu", "otro_yuu"])
-	comprobar("negritas fuera", r1[3].texto, "—Hola —dijo Mika.")
+	comprobar("negritas fuera", r1[3].texto, "—Línea tres —dijo Mika.")
 	comprobar("variantes del otro Yuu", [r1[8].variante, r1[9].variante], ["hambriento", "lleno"])
 	comprobar("el recuerdo 1 no se come el 2", Guion.recuerdo(2).map(func(g): return g.texto), ["Otro texto."])
 	comprobar("título del recuerdo", Guion.titulo_recuerdo(1), "El primero")
@@ -191,7 +191,7 @@ func _initialize():
 	print("B) Quién habla")
 	var hablan := Guion.asignar_hablantes(r1).map(func(g): return g.habla)
 	comprobar("verbo, alternancia y [forzado]", hablan, ["", "Krul", "", "Mika", "Krul", "Mika", "Akane", "Mika, ahora", "El otro Yuu", "El otro Yuu"])
-	comprobar("[Akane] se quita del texto", Guion.asignar_hablantes(r1)[6].texto, "—Ya.")
+	comprobar("[Akane] se quita del texto", Guion.asignar_hablantes(r1)[6].texto, "—Línea seis.")
 	comprobar("la narración que empieza por un nombre da quién habla después",
 		Guion.asignar_hablantes(Guion.seccion(Guion.ARCHIVO_EVENTOS, "1. La doncella")).slice(0, 2).map(func(g): return g.habla), ["", "La doncella"])
 
@@ -219,7 +219,7 @@ func _initialize():
 	var ev := Guion.evento("La doncella de Krul")
 	comprobar("intro del evento, con la línea ◆", ev.intro.map(func(g): return g.tipo), ["narracion", "dialogo", "otro_yuu"])
 	comprobar("cada opción con su texto", [ev.opciones.keys(), ev.opciones["Aceptar"].map(func(g): return g.texto), ev.opciones["Rechazar"].size()],
-		[["Aceptar", "Rechazar"], ["Lo apuntó."], 2])
+		[["Aceptar", "Rechazar"], ["Resultado A."], 2])
 	comprobar("la línea ◆ no sale con Humanidad 0", Guion.segun_humanidad(ev.intro, 0).size(), 2)
 	comprobar("evento sin texto", Guion.evento("No existe").intro.size(), 0)
 	var rng := RandomNumberGenerator.new()
@@ -230,7 +230,7 @@ func _initialize():
 	vistos = {}
 	for i in 40:
 		vistos[str(Guion.refugio(3, 20, rng).map(func(g): return g.texto))] = true
-	comprobar("refugio con sed baja: solo la que no pide sed", vistos.keys(), ['["«Hace frío.»"]'])
+	comprobar("refugio con sed baja: solo la que no pide sed", vistos.keys(), ['["«Refugio uno.»"]'])
 	comprobar("el elemento sangrado sigue al de su número", Guion.refugio(3, 70, rng).size() in [1, 2], true)
 
 	print("F) Avanzar, negro y saltar")
@@ -284,7 +284,7 @@ func _initialize():
 	expe.nueva()
 	comprobar("la primera vez, el inicio completo", expe.escena_de_inicio().size(), 2)
 	expe.inicio_visto = true
-	comprobar("después, la caja con 4 viales (tiene el recuerdo 1)", expe.escena_de_inicio()[0].texto, "Hay cuatro viales en la mesa.")
+	comprobar("después, la caja con 4 viales (tiene el recuerdo 1)", expe.escena_de_inicio()[0].texto, "Viales: cuatro.")
 	expe.fondos_vistos = []
 	comprobar("superada la primera vez: fondo largo, negro y salida", expe.escena_salida_prueba("superada").map(func(g): return g.texto), ["Fondo largo.", "", "Salió uno."])
 	comprobar("la segunda, la versión corta", expe.escena_salida_prueba("superada").map(func(g): return g.texto), ["Fondo corto.", "", "Salió uno."])
