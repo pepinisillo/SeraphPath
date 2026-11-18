@@ -104,6 +104,8 @@ const SOLDADO_PAUSA_RUTA_MAX := 1.0 # ...hasta aquí
 const SOLDADO_GIRO := 6.0 # rad/s al girar la mirada
 const RADIO_SOLDADO := 0.3
 const SOLDADO_GIRO_BUSQUEDA := 1.6 # rad/s al mirar alrededor del punto investigado
+const APARICION_AVISO := 1.0 # s que se marca en el suelo dónde va a salir un grupo
+const APARICION_GRACIA := 1.0 # s que un soldado recién aparecido tarda en poder ver a Mika
 const SOLDADO_DISTANCIA_GOLPE := 0.9 # en alarma se detiene a esta distancia de Mika
 
 # --- Prueba de la sed ---

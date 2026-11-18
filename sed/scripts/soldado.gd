@@ -29,9 +29,11 @@ const LLEGADA := 0.05 # casillas: a esta distancia del destino ya ha llegado
 ## Patrullas al azar: cada soldado empieza en un punto cualquiera de su ruta (y, en vaivén, en
 ## cualquier sentido) y las pausas en los puntos duran entre SOLDADO_PAUSA_RUTA_MIN y _MAX.
 ## Las pruebas antiguas lo apagan; las que lo prueban fijan la semilla para poder repetir.
+## Cada soldado tiene su propio generador, sacado de la semilla del mapa y de su nombre: así lo
+## que sortea uno no cambia lo que sortea otro (por ejemplo, cuando aparece un grupo).
 static var patrullas_al_azar := true
 static var semilla_fija := -1 # -1: una semilla nueva en cada mapa
-static var azar := RandomNumberGenerator.new()
+static var semilla_mapa := 0
 
 var mapa: Mapa
 var pos := Vector2.ZERO # casillas
@@ -43,6 +45,9 @@ var vida := Config.SOLDADO_VIDA
 var derribado := false
 var descubierto := false # otro soldado ya encontró su cuerpo
 var bebido := false # Mika ya bebió de él
+var aparecido := false # salió de un grupo (Aparicion): empieza en el primer punto de su ruta
+var gracia := 0.0 # s que quedan sin poder ver a Mika (recién aparecido)
+var azar := RandomNumberGenerator.new()
 
 var _indice := 0 # punto de la ruta hacia el que camina
 var _sentido := 1 # para el vaivén
@@ -69,9 +74,12 @@ func iniciar(p_mapa: Mapa) -> void:
 	if ruta.is_empty():
 		push_warning("%s no tiene ruta" % name)
 		return
+	azar.seed = generador(name).seed
 	pos = _centro(ruta[0])
 	_indice = 1 % ruta.size()
-	if patrullas_al_azar and ruta.size() > 1:
+	if aparecido:
+		gracia = Config.APARICION_GRACIA
+	elif patrullas_al_azar and ruta.size() > 1:
 		_empezar_al_azar()
 	if ruta.size() > 1:
 		mirada = (_centro(ruta[_indice]) - pos).normalized()
@@ -80,10 +88,14 @@ func iniciar(p_mapa: Mapa) -> void:
 
 ## Prepara el azar de las patrullas de un mapa. Lo llama el mapa antes de iniciar a los soldados.
 static func preparar_azar() -> void:
-	if semilla_fija >= 0:
-		azar.seed = semilla_fija
-	else:
-		azar.randomize()
+	semilla_mapa = semilla_fija if semilla_fija >= 0 else randi()
+
+
+## Generador propio para algo del mapa (un soldado, un grupo), según la semilla del mapa y su nombre.
+static func generador(nombre: String) -> RandomNumberGenerator:
+	var rng := RandomNumberGenerator.new()
+	rng.seed = hash([semilla_mapa, nombre])
+	return rng
 
 
 ## Coloca al soldado en un punto al azar de su ruta, repartido según la longitud de cada tramo.
@@ -128,6 +140,9 @@ func _physics_process(delta: float) -> void:
 		queue_redraw() # el aviso de «Beber» depende de dónde esté Mika
 		return
 	var ve := _ve_a_mika()
+	if gracia > 0.0:
+		gracia -= delta
+		ve = false
 	if estado != Estado.ALARMA:
 		_buscar_cuerpos()
 	_actualizar_medidor(ve, delta)

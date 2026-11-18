@@ -2,12 +2,13 @@ extends "res://pruebas/comun.gd"
 ## Patrullas al azar: cada soldado empieza en un punto cualquiera de su ruta y las pausas varían.
 ## Con varias semillas fijas, en los dos mapas de infiltración: que cada soldado empiece sobre su
 ## ruta, que las partidas sean distintas, que nadie vea a Mika en el inicio y que siga existiendo
-## una ruta sin ser visto que, al reproducirla en el juego, llegue a la salida.
+## una ruta sin ser visto (con los grupos saliendo al pisar su zona) que, al reproducirla en
+## el juego, llegue a la salida.
 
 const SEMILLAS := [1, 2, 3, 4, 5, 6] # cada una tarda unos 9 s por mapa
 const MAPAS := {
 	"res://escenas/mapa_puesto_control.tscn": [Vector2i(0, 9), Vector2i(9, 0)],
-	"res://escenas/mapa_tuneles.tscn": [Vector2i(0, 6), Vector2i(13, 0)],
+	"res://escenas/mapa_tuneles.tscn": [Vector2i(1, 16), Vector2i(29, 0)],
 }
 
 
@@ -33,6 +34,7 @@ func _initialize():
 		for semilla in SEMILLAS:
 			Soldado.semilla_fija = semilla
 			var m: Mapa = await cargar_mapa(escena)
+			aparecer_todos(m)
 			var foto := []
 			for s in m.soldados():
 				foto.append(s.pos.snapped(Vector2(0.01, 0.01)))
@@ -51,19 +53,15 @@ func _initialize():
 				print("FALLO: semilla %d, alguien ve a Mika quieto en el inicio" % semilla)
 			m.queue_free()
 
-			m = await cargar_mapa(escena)
-			grabar_linea(m)
-			var ruta := buscar_ruta(m, inicio, meta)
-			m.queue_free()
+			var ruta: Array = await buscar_ruta_con_apariciones(escena, inicio, meta)
 			if ruta.is_empty():
 				ok = false
 				print("FALLO: semilla %d, no hay ruta sin ser visto" % semilla)
 				continue
-			m = await cargar_mapa(escena)
-			reproducir(m, ruta)
-			if not m.terminado or m.estadisticas.alarmas > 0:
+			m = await cargar_mapa(escena) # los grupos salen solos, al pisar Mika su zona
+			if not reproducir(m, ruta, false) or m.estadisticas.alarmas > 0:
 				ok = false
-				print("FALLO: semilla %d, la ruta no llega sin alarmas al reproducirla" % semilla)
+				print("FALLO: semilla %d, la ruta no llega sin ser visto al reproducirla" % semilla)
 			m.queue_free()
 			paused = false
 			tiempos.append(ruta[-1][1])

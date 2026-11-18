@@ -63,6 +63,8 @@ func _ready() -> void:
 	Soldado.preparar_azar()
 	for soldado in soldados():
 		soldado.iniciar(self)
+	for aparicion in apariciones():
+		aparicion.iniciar(self)
 	for i in celdas_eco.size():
 		var eco: Eco = load("res://escenas/eco.tscn").instantiate()
 		add_child(eco)
@@ -222,6 +224,15 @@ func soldados() -> Array[Soldado]:
 	var lista: Array[Soldado] = []
 	for hijo in get_children():
 		if hijo is Soldado:
+			lista.append(hijo)
+	return lista
+
+
+## Grupos de soldados que aparecen cuando Mika entra en su zona.
+func apariciones() -> Array[Aparicion]:
+	var lista: Array[Aparicion] = []
+	for hijo in get_children():
+		if hijo is Aparicion:
 			lista.append(hijo)
 	return lista
 

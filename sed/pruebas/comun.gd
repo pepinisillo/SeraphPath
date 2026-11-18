@@ -8,11 +8,21 @@ const FUERA := Vector2(-100, -100) # Mika aparcado fuera del mapa mientras se gr
 var ok := true
 var linea := [] # [muestra] -> [[pos, mirada], ...] por soldado
 var _visible_cache := {}
+var _con_margen := false # solo la búsqueda con grupos planifica con margen
 
 
 ## Las pruebas de los pasos se escribieron con patrullas fijas; las que prueban el azar lo encienden.
+## Los grupos que aparecen existen siempre (sin sorteo); aparecer_todos() los saca de golpe.
 func _init() -> void:
 	Soldado.patrullas_al_azar = false
+	Aparicion.forzar = true
+
+
+## Saca a todos los grupos del mapa a la vez, como si Mika hubiera pisado sus zonas.
+## La búsqueda de ruta los necesita en el mapa desde el principio: es el caso más difícil.
+func aparecer_todos(m: Mapa) -> void:
+	for a in m.apariciones():
+		a.aparecer()
 
 
 ## Carga el puesto de control sin que avance solo: las pruebas lo hacen avanzar con paso().
@@ -67,7 +77,7 @@ func paso(m: Mapa, segundos: float = DT) -> void:
 				ok = false
 				print("FALLO: ", s.name, " dentro de muro en ", s.pos)
 		for h in m.get_children():
-			if h is Vial or h is Eco:
+			if h is Vial or h is Eco or h is Aparicion:
 				h._physics_process(DT)
 
 
@@ -99,6 +109,7 @@ func comprobar(nombre: String, valor, esperado, tolerancia := 0.01) -> void:
 # cada uno, y se busca una ruta casilla a casilla (esperar o moverse) en la que nadie lo vea nunca.
 
 ## Avanza el mapa con Mika fuera y guarda dónde está y adónde mira cada soldado en cada muestra.
+## Cada foto guarda el propio soldado junto a su posición y su mirada.
 func grabar_linea(m: Mapa) -> void:
 	linea = []
 	_visible_cache = {}
@@ -107,10 +118,141 @@ func grabar_linea(m: Mapa) -> void:
 	for k in roundi(HORIZONTE / PASO_PLAN) + 1:
 		var foto := []
 		for s in m.soldados():
-			foto.append([s.pos, s.mirada])
+			foto.append([s, s.pos, s.mirada])
 		linea.append(foto)
 		paso(m, por_muestra * DT)
 		m.mika.sed = 0
+
+
+## Ruta sin ser visto en un mapa con grupos que aparecen, que salen cuando Mika pisa su zona
+## (más el aviso), como en el juego. Se graba una vez a los soldados fijos y, aparte, a cada
+## grupo fotograma a fotograma desde que aparece. La búsqueda en anchura lleva en cada estado
+## cuándo salió cada grupo en su propio camino: al pasar de una casilla a otra mira, fotograma a
+## fotograma, si Mika pisa una zona, y desde ahí coloca a ese grupo según su grabación.
+## Devuelve [[casilla, segundo], ...] o [].
+func buscar_ruta_con_apariciones(escena: String, inicio: Vector2i, meta: Vector2i) -> Array:
+	var por_muestra := roundi(PASO_PLAN / DT)
+	var fotogramas := roundi(HORIZONTE / DT) + por_muestra
+	var aviso := roundi(Config.APARICION_AVISO / DT) + 1 # como en paso(): sale al final del último fotograma del aviso
+	_con_margen = true
+	var m: Mapa = await cargar_mapa(escena)
+	grabar_linea(m) # Mika está fuera: no sale ningún grupo, solo los fijos
+	var grupos := [] # {zonas, soldados, fotos: [fotograma] -> [[pos, mirada], ...]}
+	for idx in m.apariciones().size():
+		var mg: Mapa = await cargar_mapa(escena)
+		for s in mg.soldados():
+			s.free() # solo hace falta el grupo
+		var a: Aparicion = mg.apariciones()[idx]
+		var soldados: Array = a.pendientes.duplicate()
+		a.aparecer()
+		mg.mika.pos = FUERA
+		var fotos := []
+		for f in fotogramas:
+			var foto := []
+			for s in soldados:
+				foto.append([s.pos, s.mirada])
+			fotos.append(foto)
+			paso(mg)
+			mg.mika.sed = 0
+		grupos.append({"zonas": a.zonas, "soldados": soldados, "fotos": fotos, "mapa": mg})
+
+	var ultima := linea.size() - 1
+	var centro := func(c: Vector2i) -> Vector2: return Vector2(c) + Vector2(0.5, 0.5)
+	var en_zona := func(g: Dictionary, p: Vector2) -> bool:
+		var celda := Vector2i(floori(p.x), floori(p.y))
+		for z in g.zonas:
+			if z.has_point(celda):
+				return true
+		return false
+	# ¿Algún soldado (fijo o de un grupo ya salido) ve el punto en la muestra k o en sus vecinas?
+	var visto := func(punto: Vector2, k: int, salidas: Dictionary) -> bool:
+		for j in [k - 1, k, k + 1]:
+			if j < 0 or j > ultima:
+				continue
+			if _visible_en(m, punto, j):
+				return true
+			for idx in salidas:
+				var f: int = j * por_muestra - salidas[idx]
+				if f < 0:
+					continue
+				var g: Dictionary = grupos[idx]
+				var foto: Array = g.fotos[mini(f, g.fotos.size() - 1)]
+				for n in g.soldados.size():
+					var s: Soldado = g.soldados[n]
+					s.pos = foto[n][0]
+					s.mirada = foto[n][1]
+					if _ve_con_margen(m, s, punto):
+						return true
+		return false
+
+	var salidas_inicio := {}
+	for idx in grupos.size():
+		if en_zona.call(grupos[idx], centro.call(inicio)):
+			salidas_inicio[idx] = aviso
+	var previo := {[inicio, 0]: null}
+	var salidas_de := {[inicio, 0]: salidas_inicio}
+	var cola := [[inicio, 0]]
+	var vecinos := [Vector2i(1, 0), Vector2i(-1, 0), Vector2i(0, 1), Vector2i(0, -1), Vector2i(1, 1), Vector2i(1, -1), Vector2i(-1, 1), Vector2i(-1, -1)]
+	var ruta := []
+	while not cola.is_empty():
+		var actual: Array = cola.pop_front()
+		var celda: Vector2i = actual[0]
+		var k: int = actual[1]
+		if celda == meta:
+			var nodo = actual
+			while nodo != null:
+				ruta.push_front([nodo[0], nodo[1] * PASO_PLAN])
+				nodo = previo[nodo]
+			break
+		var opciones := [[celda, 1]]
+		for d in vecinos:
+			var otra: Vector2i = celda + d
+			if m.es_muro(otra):
+				continue
+			if d.x != 0 and d.y != 0 and (m.es_muro(celda + Vector2i(d.x, 0)) or m.es_muro(celda + Vector2i(0, d.y))):
+				continue
+			opciones.append([otra, ceili(Vector2(d).length() / Config.VELOCIDAD_MIKA / PASO_PLAN)])
+		for opcion in opciones:
+			var destino: Vector2i = opcion[0]
+			var k2: int = k + opcion[1]
+			if k2 > ultima or previo.has([destino, k2]):
+				continue
+			var a: Vector2 = centro.call(celda)
+			var b: Vector2 = centro.call(destino)
+			# Grupos que salen en este tramo: el primer fotograma en que Mika pisa su zona.
+			var salidas: Dictionary = salidas_de[actual].duplicate()
+			for idx in grupos.size():
+				if salidas.has(idx):
+					continue
+				for f in range(k * por_muestra, k2 * por_muestra + 1):
+					var t := float(f - k * por_muestra) / ((k2 - k) * por_muestra)
+					if en_zona.call(grupos[idx], a.lerp(b, t)):
+						salidas[idx] = f + aviso
+						break
+			var seguro := true
+			for j in range(k, k2 + 1):
+				if visto.call(a.lerp(b, float(j - k) / (k2 - k)), j, salidas):
+					seguro = false
+					break
+			if seguro:
+				previo[[destino, k2]] = actual
+				salidas_de[[destino, k2]] = salidas
+				cola.push_back([destino, k2])
+	m.queue_free()
+	for g in grupos:
+		g.mapa.queue_free()
+	_con_margen = false
+	return ruta
+
+
+## El camino más corto de inicio a meta, sin esperar, como ruta para reproducir().
+func ruta_directa(m: Mapa, inicio: Vector2i, meta: Vector2i) -> Array:
+	var celdas := m._rejilla.get_id_path(inicio, meta)
+	var ruta := [[celdas[0], 0.0]]
+	for i in range(1, celdas.size()):
+		var t: float = ruta[-1][1] + ceili(Vector2(celdas[i] - celdas[i - 1]).length() / Config.VELOCIDAD_MIKA / PASO_PLAN) * PASO_PLAN
+		ruta.append([celdas[i], t])
+	return ruta
 
 
 ## Prudente: el punto cuenta como visto si algún soldado lo ve en la muestra k o en sus vecinas.
@@ -127,19 +269,39 @@ func _visible_en(m: Mapa, punto: Vector2, k: int) -> bool:
 	if _visible_cache.has(clave):
 		return _visible_cache[clave]
 	var resultado := false
-	var soldados := m.soldados()
-	for i in soldados.size():
-		var s: Soldado = soldados[i]
+	for foto in linea[k]:
+		var s: Soldado = foto[0]
 		var antes := [s.pos, s.mirada]
-		s.pos = linea[k][i][0]
-		s.mirada = linea[k][i][1]
-		resultado = s._puede_ver(punto)
+		s.pos = foto[1]
+		s.mirada = foto[2]
+		resultado = _ve_con_margen(m, s, punto) if _con_margen else s._puede_ver(punto)
 		s.pos = antes[0]
 		s.mirada = antes[1]
 		if resultado:
 			break
 	_visible_cache[clave] = resultado
 	return resultado
+
+
+## Como Soldado._puede_ver, con margen: la planificación mira cada PASO_PLAN s y un cono que
+## gira deprisa (o un soldado que pasa al lado) puede barrer a Mika entre dos muestras.
+const MARGEN_ANGULO := 15.0 # grados de más a cada lado
+const MARGEN_ALCANCE := 0.5 # casillas de más
+const MARGEN_CERCA := 1.2 # casillas: a esta distancia cuenta como visto, mire adonde mire
+
+
+func _ve_con_margen(m: Mapa, s: Soldado, punto: Vector2) -> bool:
+	var hacia := punto - s.pos
+	var distancia := hacia.length()
+	if distancia < MARGEN_CERCA:
+		return m.hay_linea_de_vision(s.pos, punto)
+	var en_sombra := m.es_sombra(Vector2i(floori(punto.x), floori(punto.y)))
+	var alcance := (Config.VISION_ALCANCE_SOMBRA if en_sombra else Config.VISION_ALCANCE) + MARGEN_ALCANCE
+	if distancia > alcance:
+		return false
+	if absf(angle_difference(s.mirada.angle(), hacia.angle())) > deg_to_rad(Config.VISION_ANGULO / 2.0 + MARGEN_ANGULO):
+		return false
+	return m.hay_linea_de_vision(s.pos, punto)
 
 
 ## Búsqueda en anchura sobre (casilla, muestra): cada paso es esperar una muestra o moverse a
@@ -186,8 +348,9 @@ func buscar_ruta(m: Mapa, inicio: Vector2i, meta: Vector2i) -> Array:
 	return []
 
 
-## Mueve a Mika por la ruta en el juego real, fotograma a fotograma.
-func reproducir(m: Mapa, ruta: Array) -> void:
+## Mueve a Mika por la ruta en el juego real, fotograma a fotograma. Devuelve si llega a la
+## salida sin que nadie llegue a Sospecha; con `informar`, cuenta como fallo si alguien llega.
+func reproducir(m: Mapa, ruta: Array, informar := true) -> bool:
 	var t := 0.0
 	var i := 0
 	while not m.terminado and t <= ruta[-1][1] + 1.0:
@@ -202,9 +365,11 @@ func reproducir(m: Mapa, ruta: Array) -> void:
 		t += DT
 		for s in m.soldados():
 			if s.medidor >= Config.DETECCION_SOSPECHA:
-				ok = false
-				print("FALLO: %s llegó a Sospecha en t=%.2f con Mika en %s" % [s.name, t, m.mika.pos])
-				return
+				if informar:
+					ok = false
+					print("FALLO: %s llegó a Sospecha en t=%.2f con Mika en %s" % [s.name, t, m.mika.pos])
+				return false
+	return m.terminado
 
 
 ## Lo que tarda Mika en ir de inicio a meta por el camino más corto, sin esperar a nadie,

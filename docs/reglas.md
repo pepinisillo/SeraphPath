@@ -238,31 +238,54 @@ Al principio S2 y S4 empezaban en (4,3) y (5,0), alejándose del camino de Mika,
 
 La infiltración de la ruta arriesgada de la zona 1 (la primera sigue siendo el puesto de control). Escena `mapa_tuneles.tscn`; se juega solo con F6.
 
+Es un mapa grande, de 30 × 18 casillas, al estilo de Hades: salas unidas por pasillos, con zonas vacías entre una sala vigilada y otra, y grupos de soldados que salen al acercarse Mika.
+
 ```
-......#.....sE
-.####.#.###.s.
-.#ss#...#.#...
-.#..#.###.#...
-...........#..
-##.###s###.#.#
-M..#.....#....
-.#.#.###.#.##.
-.#.......#.V#.
-.#####.#####..
-......s.......
+#########.............###....E
+#########........ss...........
+#########...##...##...........
+#########...ss........###.#...
+#########.............###.#...
+################..#######.s...
+################..#######.....
+################s.#######.....
+################..#######.....
+################..#########s.#
+############........#######..#
+############........####s.....
+......######..##....####......
+......######..ss..............
+........ss......ss............
+................##..####....V.
+.M....######........####s.....
+......######........##########
 ```
+
+Recorrido: sala de inicio (vacía) → pasillo → sala A (dos guardias fijos y pilares) → pasillo norte → sala B → pasillo → sala de la salida. Desde la sala A también se puede desviar al este, a la sala del vial, y subir a la salida por el sur.
 
 | Soldado | Ruta |
 | --- | --- |
-| T1 | Vaivén por el pasillo de la fila 4, de (10,4) a (0,4): empieza en el extremo lejano y viene hacia Mika |
-| T2 | Bucle por el salón central: (4,6) → (8,6) → (8,8) → (4,8) |
-| T3 | Vaivén por la columna 12, de (12,3) a (12,6), vigilando el acceso derecho a la salida |
-| T4 | Vaivén por la fila 0, de (7,0) a (11,0), junto a la salida |
-| T5 | Vaivén por la fila 10, de (13,10) a (3,10); no llega a la columna 0 para no ver el inicio |
+| A1 | Fijo. Bucle por la sala A: (13,11) → (18,11) → (18,16) → (13,16) |
+| A2 | Fijo. Vaivén por la fila 10, de (12,10) a (19,10), vigilando la entrada al pasillo norte |
+| F1 | Fijo. Vaivén por la fila 1, de (29,1) a (25,1): viene hacia la entrada de la sala de la salida |
+| B1, B2 | Grupo de la sala norte. Sale cuando Mika llega al final del primer pasillo. B1 va y viene por la columna 9 y B2 por la 21, junto a la salida de la sala |
+| F2 | Grupo de la salida, la mitad de las partidas. Sale al entrar en el pasillo norte o en el pasillo del vial. Va y viene por la fila 8 |
+| V1 | Grupo del vial, la mitad de las partidas. Sale al ir hacia la sala del vial. Va y viene por la fila 12 |
 
-- **Diseño:** 14 × 11 casillas, sin cuellos de botella absolutos: a la salida se llega por la fila 0 o por la columna derecha. El vial está en un rincón junto a la ruta de T3. Los refuerzos entran por (13,10).
-- **Ruta sin ser visto:** la prueba `prueba_tuneles.gd` comprueba que existe, la reproduce en el juego y verifica que no basta con correr. La más rápida tarda unos 7 s (frente a 3,8 s yendo directo) y obliga a esconderse en la sombra de (2,2) y (3,3) hasta que pase T1.
-- **Cómo se ajustó:** en la primera versión bastaba con correr por la fila 10 y luego por la fila 4 detrás de T1. Por eso se añadió T5 y se invirtió la ruta de T1.
+- **Refuerzos:** entran por (25,0), junto a la salida.
+- **Ruta sin ser visto:** `prueba_tuneles.gd` la busca con los grupos saliendo cuando la ruta pisa su zona, como en el juego, y la reproduce. Tarda unos 21 s frente a 7,9 s yendo directo: hay que esperar en la sala de inicio a que A1 y A2 dejen paso y, al final, rodear a F1 por el sur. Además, la prueba hace que Mika vaya directo a la salida en el juego real y comprueba que lo ven.
+- **Cómo se ajustó:** al principio cada grupo salía al entrar en su propia sala, y con el aviso y la gracia daba tiempo a cruzarla corriendo. Por eso las zonas se adelantaron a la sala o al pasillo anterior, y se añadieron A2 y F1 en la fila 1.
+
+### Grupos que aparecen
+
+Un grupo (`scripts/aparicion.gd`, nodo `Aparicion` con soldados como hijos) no está en el mapa hasta que Mika pisa una de sus zonas:
+
+- **Aviso:** durante 1 s, un rombo azul late en el suelo donde va a salir cada soldado.
+- **Aparición:** cada soldado sale en el primer punto de su ruta, sin empezar al azar.
+- **Gracia:** durante 1 s recién aparecido no puede ver a Mika, para que aparecer delante de él no sea injusto.
+- **Probabilidad:** con menos de 1, el grupo se sortea al empezar el mapa y en algunas partidas no sale nunca; su zona queda vacía.
+- **Azar propio:** cada soldado y cada grupo sortea con su propio generador, sacado de la semilla del mapa y de su nombre. Así, que salga un grupo no cambia lo que sortean los demás.
+- **Pruebas:** buscan la ruta sin ser visto grabando a los soldados fijos y, aparte, a cada grupo desde que sale. En la búsqueda, cada camino lleva cuándo salió cada grupo según por dónde pasó Mika. La planificación ve con margen (15° más de cono, media casilla más de alcance y todo lo que esté a menos de 1,2 casillas), porque solo mira cada 0,1 s. Ese margen la hace más prudente de la cuenta (las rutas que da son más lentas de lo necesario), así que solo se usa con grupos; `buscar_ruta` sigue sin margen. Para cada mapa nuevo con grupos, usar `buscar_ruta_con_apariciones` de `pruebas/comun.gd`.
 
 ## Plan de construcción
 
