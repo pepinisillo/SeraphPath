@@ -56,7 +56,7 @@ func cargar_mapa(escena: String) -> Mapa:
 
 ## Carga la Prueba de la sed sin que avance sola.
 func nueva_prueba_de_la_sed() -> Mapa:
-	var mapa: Mapa = load("res://escenas/mapa_prueba_sed.tscn").instantiate()
+	var mapa: Mapa = load("res://escenas/mapa_prueba_pasos.tscn").instantiate()
 	root.add_child(mapa)
 	mapa.process_mode = Node.PROCESS_MODE_DISABLED
 	await process_frame

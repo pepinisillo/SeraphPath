@@ -117,8 +117,8 @@ Decisiones que las reglas de arriba no fijan; sus valores están en `scripts/con
 
 ### Prueba de la sed
 
-Un mapa dentro de la mente de Mika, donde no puede atacar. La sed sube 1 cada 1,5 s, y 1 más cada 1,5 s por cada eco a menos de 1,5 casillas.
-Los ecos lo siguen a 1,9 casillas/s y le ofrecen sangre.
+Un mapa dentro de la mente de Mika, donde no puede atacar y apenas se tiene en pie (3,5 casillas/s). La sed sube 1 cada segundo, y 1 más cada segundo por cada eco a menos de 2,5 casillas.
+Los ecos lo siguen a 2,6 casillas/s y le ofrecen sangre.
 
 | Resultado | Condición |
 | --- | --- |
@@ -128,7 +128,8 @@ Los ecos lo siguen a 1,9 casillas/s y le ofrecen sangre.
 
 Cómo está construida (escena `mapa_prueba_sed.tscn`; para jugarla sola, abrirla en Godot y pulsar F6):
 
-- **Mapa:** un plano de 12 × 12 con cinco ecos (`e`) y Yuu en la salida, al fondo. No tiene cuellos de botella: ningún eco quieto puede cerrar el paso.
+- **Mapa:** un orfanato que se deforma, de 24 × 16: cuartos unidos por pasillos torcidos, muebles que estorban, once ecos (`e`) y Yuu en la salida, al fondo. El de 12 × 12 del paso 8 sigue en `mapa_prueba_pasos.tscn` para las pruebas.
+- **Ajuste:** al principio (1 cada 1,5 s, ecos a 1,5 casillas y 1,9 casillas/s, mapa de 12 × 12) un jugador automático la superaba en 10 s con la sed casi igual. Ahora tarda unos 11 s y la sed le sube unos 28: quien entra con 55 llega con 83, y quien entra muy sediento puede fallarla. Por eso conviene llegar con la sed baja (dentro no hay viales).
 - **Lo que cambia en la mente:**
   - Mika no puede usar el Tajo, el Golpe silencioso ni los viales, y no hay Frenesí.
   - Sí puede usar el Impulso, que sigue costando sed.

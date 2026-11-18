@@ -30,4 +30,4 @@ Lo que falta por construir, de lo más difícil a lo más sencillo. Lo que ya ex
 15. **Más eventos y textos.** Eventos de las zonas 2 y 3, frases definitivas de los ecos (las actuales son provisionales) y líneas de los jefes.
 16. **Efectos de eventos.** Ya no queda ninguno «aún sin efecto».
 17. **Más mapas de infiltración hechos a mano.** Grandes, de salas y pasillos como los Túneles, con grupos que aparecen y la prueba de ruta sin ser visto para cada uno. El Puesto de control ya es grande (30 × 20).
-18. **Ajustar la Prueba de la sed.** Hoy se supera con facilidad: velocidad de los ecos, número de ecos o longitud del camino.
+18. **Ajustar la Prueba de la sed.** Ya ajustada con un jugador automático (mapa más grande, Mika más lento dentro, ecos más rápidos). Falta probarla jugando.

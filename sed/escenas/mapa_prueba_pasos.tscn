@@ -1,0 +1,41 @@
+[gd_scene format=3]
+
+[ext_resource type="Script" path="res://scripts/mapa.gd" id="1_mapa"]
+[ext_resource type="TileSet" path="res://recursos/casillas.tres" id="2_casillas"]
+[ext_resource type="PackedScene" path="res://escenas/mika.tscn" id="3_mika"]
+[ext_resource type="PackedScene" path="res://escenas/hud.tscn" id="4_hud"]
+[ext_resource type="Script" path="res://scripts/muros.gd" id="5_muros"]
+
+[node name="MapaPruebaPasos" type="Node2D"]
+y_sort_enabled = true
+script = ExtResource("1_mapa")
+plano = "....#......E
+.##.#.####..
+.#e.#.#..#.#
+.#..#.#e.#..
+.##.....##..
+....##.#e..#
+#.#.#..#.#..
+..#e..##.#.#
+.###.....e..
+...#.###.##.
+.#.#...#....
+M......#.##."
+prueba_de_la_sed = true
+inicio_cerca = Vector2i(6, 6)
+nombre = "Prueba de la sed"
+
+[node name="Suelo" type="TileMapLayer" parent="."]
+modulate = Color(0.82, 0.74, 0.92, 1)
+z_index = -2
+tile_set = ExtResource("2_casillas")
+
+[node name="Muros" type="TileMapLayer" parent="."]
+modulate = Color(0.72, 0.62, 0.86, 1)
+y_sort_enabled = true
+tile_set = ExtResource("2_casillas")
+script = ExtResource("5_muros")
+
+[node name="Mika" parent="." instance=ExtResource("3_mika")]
+
+[node name="HUD" parent="." instance=ExtResource("4_hud")]

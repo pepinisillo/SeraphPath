@@ -22,13 +22,15 @@ func _initialize():
 	comprobar("cinco ecos", m.ecos().size(), 5)
 	comprobar("Yuu en la salida", m.celda_salida, Vector2i(11, 0))
 	apartar_ecos(m)
+	var sed_antes := mika.sed
 	solo_mika(m, 15.0 + DT)
-	comprobar("sin ecos: +1 cada 1,5 s", mika.sed, 40)
+	comprobar("sin ecos: +1 cada PRUEBA_SED_INTERVALO s", mika.sed, sed_antes + floori(15.0 / Config.PRUEBA_SED_INTERVALO))
 	m.ecos()[0].pos = mika.pos + Vector2(1.0, 0)
 	m.ecos()[1].pos = mika.pos + Vector2(0, 1.2)
 	comprobar("ecos cerca", mika.ecos_cerca(), 2)
+	sed_antes = mika.sed
 	solo_mika(m, 15.0 + DT)
-	comprobar("con 2 ecos cerca: +3 cada 1,5 s", mika.sed, 70)
+	comprobar("con 2 ecos cerca: +3 cada PRUEBA_SED_INTERVALO s", mika.sed, mini(Config.SED_MAX, sed_antes + 3 * floori(15.0 / Config.PRUEBA_SED_INTERVALO)))
 	m.queue_free()
 
 	print("B) Lo que no puede hacer en su mente")
@@ -83,7 +85,7 @@ func _initialize():
 	eco.pos = Vector2(7.5, 4.5) # fila 4, libre de (3,4) a (7,4)
 	mika.pos = Vector2(3.5, 4.5)
 	for i in 60: eco._physics_process(DT)
-	comprobar("lo sigue a 1,9 casillas/s", eco.pos.distance_to(Vector2(5.6, 4.5)), 0.0, 0.05)
+	comprobar("lo sigue a PRUEBA_ECO_VELOCIDAD casillas/s", eco.pos.distance_to(Vector2(7.5 - Config.PRUEBA_ECO_VELOCIDAD, 4.5)), 0.0, 0.05)
 	m.queue_free()
 
 	print("F) Superada por un jugador automático")

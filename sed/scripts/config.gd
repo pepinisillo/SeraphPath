@@ -109,9 +109,10 @@ const APARICION_GRACIA := 1.0 # s que un soldado recién aparecido tarda en pode
 const SOLDADO_DISTANCIA_GOLPE := 0.9 # en alarma se detiene a esta distancia de Mika
 
 # --- Prueba de la sed ---
-const PRUEBA_SED_INTERVALO := 1.5
-const PRUEBA_ECO_DISTANCIA := 1.5
-const PRUEBA_ECO_VELOCIDAD := 1.9
+const PRUEBA_SED_INTERVALO := 1.0
+const PRUEBA_ECO_DISTANCIA := 2.5
+const PRUEBA_ECO_VELOCIDAD := 2.6
+const PRUEBA_VELOCIDAD_MIKA := 3.5 # casillas/s: en su mente apenas se tiene en pie
 const PRUEBA_ECO_RADIO := 0.35 # casillas: los ecos cortan el paso a Mika
 const PRUEBA_ECO_VOZ := 3.0 # casillas a las que se oye lo que dice un eco
 const PRUEBA_SED_FALLIDA := 90 # sed con la que despierta si la prueba falla

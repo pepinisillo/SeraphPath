@@ -164,6 +164,8 @@ func activar_espada() -> bool:
 	return true
 
 func velocidad() -> float:
+	if mapa != null and mapa.prueba_de_la_sed:
+		return Config.PRUEBA_VELOCIDAD_MIKA
 	var base := Config.VELOCIDAD_MIKA_SEDIENTO if sed >= tramo_lento else Config.VELOCIDAD_MIKA
 	base += Config.MEJORA_VELOCIDAD if tiene_mejora(Mejoras.VELOCIDAD) else 0.0
 	return base + (Config.FILO_SOMBRA_VELOCIDAD if _sombra_restante > 0.0 else 0.0)

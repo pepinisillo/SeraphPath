@@ -205,7 +205,7 @@ func _initialize():
 	pulsar(s, "Entrar: Prueba de la sed")
 	s = await saltar_dialogos(await escena())
 	comprobar("prueba de la sed", s.name, "MapaPruebaSed")
-	s.mika.pos = Vector2(11.5, 0.6)
+	s.mika.pos = Vector2(23.5, 0.6) # junto a Yuu
 	await physics_frame
 	await physics_frame
 	res = s.get_node_or_null("Resultado")
