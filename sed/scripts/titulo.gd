@@ -1,5 +1,5 @@
 extends Pantalla
-## Pantalla de título: empezar una expedición, releer los recuerdos ganados o salir.
+## Pantalla de título: seguir la expedición guardada, empezar otra, releer los recuerdos o salir.
 
 
 func construir() -> void:
@@ -7,6 +7,9 @@ func construir() -> void:
 	texto("Fan juego de Owari no Seraph · La ruta de Mika", Paleta.BLANCO_HUESO, 20)
 	texto("Gratuito y sin fines de lucro. Arte y música propios.", Paleta.DETALLES, 14)
 	espacio(24)
+	if expedicion.hay_partida():
+		boton("Continuar la expedición", expedicion.continuar_partida)
+		texto("Si cerraste el juego en mitad de una parada, Mika cayó en ella.", Paleta.DETALLES, 13)
 	boton("Nueva expedición", _empezar)
 	var n := expedicion.recuerdos.size()
 	boton("Recuerdos (%d/%d)" % [n, EstadoExpedicion.TOTAL_RECUERDOS], _recuerdos, n > 0)
@@ -14,6 +17,7 @@ func construir() -> void:
 
 
 func _empezar() -> void:
+	expedicion.borrar_partida()
 	expedicion.empezar()
 
 

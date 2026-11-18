@@ -72,6 +72,15 @@ const RECUERDO_CONFESION := 7 # solo se gana con Humanidad 1 o más (Mika necesi
 
 ## Archivo de los recuerdos ganados (y de si ya se vio el inicio). Las pruebas automáticas lo cambian para no tocar el real.
 var archivo_recuerdos := "user://recuerdos.cfg"
+## Archivo de la expedición a medias. Se guarda en el mapa de paradas y al terminar cada parada;
+## si el juego se cierra dentro de una parada, al volver la expedición cuenta como caída (así
+## no se puede deshacer un mal mapa cerrando el juego).
+var archivo_partida := "user://expedicion.cfg"
+## Lo que se guarda de la expedición.
+const GUARDADO := ["zona", "ruta", "indice", "vida", "vida_max", "sed", "humanidad", "viales", "mejoras",
+	"filos", "salvacion_usada", "siguiente_empieza", "sed_congelada", "patrullas_visibles", "eventos_vistos",
+	"filo_pendiente", "saltar_siguiente", "siguiente_vampiro_extra", "siguiente_vampiros_callados",
+	"siguiente_jinete_suelto", "siguiente_prueba_cerca"]
 
 var activa := false
 var zona := 1
@@ -131,6 +140,11 @@ static func en_curso() -> bool:
 
 
 func _ready() -> void:
+	# Desde una prueba automática (godot -s), nunca se tocan los archivos de verdad.
+	var bucle := Engine.get_main_loop()
+	if bucle != null and bucle.get_script() != null:
+		archivo_recuerdos = "user://prueba_recuerdos_auto.cfg"
+		archivo_partida = "user://prueba_expedicion.cfg"
 	cargar_recuerdos()
 
 
@@ -208,7 +222,12 @@ func elegir_ruta(p_ruta: String) -> void:
 func ir_a_ruta() -> void:
 	if zona_terminada() and ZONAS.has(zona + 1):
 		pasar_de_zona()
-	_cambiar(ESCENA_FINAL if zona_terminada() else ESCENA_RUTA)
+	if zona_terminada():
+		borrar_partida() # la expedición terminó: el final
+		_cambiar(ESCENA_FINAL)
+		return
+	guardar_partida(false)
+	_cambiar(ESCENA_RUTA)
 
 
 ## Ya se pasó la última parada de la zona.
@@ -238,6 +257,7 @@ func nombre_parada(parada: String) -> String:
 
 ## Entra en la parada actual.
 func entrar() -> void:
+	guardar_partida(true) # si se cierra el juego dentro de la parada, cuenta como caída
 	match parada_actual():
 		"infiltracion":
 			_cambiar(escena_infiltracion())
@@ -272,6 +292,8 @@ func completar_parada() -> void:
 	if saltar_siguiente and indice < paradas().size() and paradas()[indice] != "jefe":
 		indice += 1 # «El desertor»: se salta la parada siguiente y su recompensa
 	saltar_siguiente = false
+	if not zona_terminada():
+		guardar_partida(false) # la parada ya está hecha
 	var golpes := escena_tras_parada
 	escena_tras_parada = []
 	if filo_pendiente:
@@ -331,6 +353,7 @@ func terminar_escena() -> void:
 ## Mika cayó: la expedición termina. Los recuerdos ganados se conservan.
 func caer() -> void:
 	activa = false
+	borrar_partida()
 	_cambiar(ESCENA_FINAL)
 
 
@@ -344,7 +367,48 @@ func escena_caido() -> Array[Dictionary]:
 
 func volver_al_titulo() -> void:
 	activa = false
+	borrar_partida()
 	_cambiar(ESCENA_TITULO)
+
+
+# --- Guardar a mitad de expedición ---
+
+func guardar_partida(en_parada: bool) -> void:
+	if not activa:
+		return
+	var cfg := ConfigFile.new()
+	for clave in GUARDADO:
+		cfg.set_value("expedicion", clave, get(clave))
+	cfg.set_value("expedicion", "en_parada", en_parada)
+	cfg.save(archivo_partida)
+
+
+func borrar_partida() -> void:
+	if FileAccess.file_exists(archivo_partida):
+		DirAccess.remove_absolute(ProjectSettings.globalize_path(archivo_partida))
+
+
+## Hay una expedición guardada para continuar.
+func hay_partida() -> bool:
+	return FileAccess.file_exists(archivo_partida)
+
+
+## Sigue la expedición guardada. Si se cerró el juego dentro de una parada, cuenta como caída.
+func continuar_partida() -> void:
+	var cfg := ConfigFile.new()
+	if cfg.load(archivo_partida) != OK:
+		return
+	nueva()
+	for clave in GUARDADO:
+		var valor = cfg.get_value("expedicion", clave, get(clave))
+		if get(clave) is Array:
+			get(clave).assign(valor)
+		else:
+			set(clave, valor)
+	if cfg.get_value("expedicion", "en_parada", false):
+		caer()
+	else:
+		ir_a_ruta()
 
 
 func _cambiar(escena: String) -> void:

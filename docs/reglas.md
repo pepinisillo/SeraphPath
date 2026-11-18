@@ -170,6 +170,7 @@ Infiltración ───┤                               ├── Prueba de la 
 ```
 
 - **Viales:** cada expedición empieza con 2, los de la caja de Krul (4 con el recuerdo 1).
+- **Guardar:** la expedición se guarda sola en `user://expedicion.cfg` al llegar al mapa de paradas y al terminar cada parada. En el título aparece «Continuar la expedición». Si el juego se cerró dentro de una parada (un mapa, un evento…), al continuar la expedición cuenta como caída: así no se puede deshacer un mal mapa cerrando el juego. Abandonar, caer o terminar borra la partida. Las pruebas automáticas usan sus propios archivos.
 - **Estado entre paradas:** Mika arrastra vida, sed, Humanidad, viales y mejoras de una parada a la siguiente. Si cae, la expedición termina y solo se conservan los recuerdos.
 - **Mapa de paradas:** muestra lo hecho, la parada actual y los avisos para el siguiente mapa (empieza en Sospecha o Alarma, la sed no sube, patrullas visibles). Sin el recuerdo 3, «El mapa», las dos rutas se ven como «? → ?».
 - **Infiltración:** el puesto de control (mapa grande).
