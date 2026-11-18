@@ -32,3 +32,7 @@ func _draw() -> void:
 	super()
 	# La espada maldita, negra.
 	draw_line(Vector2(ANCHO_CAPSULA * 0.4, -ALTO_CAPSULA * 0.45), Vector2(ANCHO_CAPSULA * 1.4, -ALTO_CAPSULA * 0.05), COLOR_ESPADA, 8.0)
+
+
+func nombre_arte() -> String:
+	return "guren"

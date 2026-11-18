@@ -48,3 +48,13 @@ func _draw() -> void:
 	if aturdido > 0.0:
 		var fuente := ThemeDB.fallback_font
 		draw_string(fuente, Vector2(-30, -ALTO_CAPSULA - 30), "aturdido", HORIZONTAL_ALIGNMENT_CENTER, 60, 14, Paleta.DETALLES)
+
+
+func nombre_arte() -> String:
+	return "portador"
+
+
+func estado_animacion(se_mueve: bool) -> String:
+	if aturdido > 0.0 and not derribado:
+		return "aturdido"
+	return super(se_mueve)

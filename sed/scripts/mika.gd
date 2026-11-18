@@ -76,7 +76,12 @@ var _espada_restante := 0.0 # «Espada, bebe mi sangre»
 var _sombra_restante := 0.0 # Filo de sombra: velocidad tras un Golpe silencioso
 
 
+var animador: Animador # el arte en 8 direcciones, cuando exista (ver animador.gd)
+
+
 func iniciar(p_mapa: Mapa, p_pos: Vector2) -> void:
+	if animador == null:
+		animador = Animador.crear(self, "mika")
 	mapa = p_mapa
 	pos = p_pos
 	position = Iso.a_pantalla(pos)
@@ -629,6 +634,8 @@ func _salir_de_muros() -> void:
 # --- Dibujo ---
 
 func _draw() -> void:
+	if animador:
+		animador.poner(estado_animacion(animador.se_mueve()), Formas.direccion_8(mirada))
 	if caida:
 		Formas.caido(self, ALTO_CAPSULA * 0.8, ANCHO_CAPSULA * 0.8, COLOR_CUERPO.darkened(0.3), COLOR_CONTORNO)
 		return
@@ -641,7 +648,8 @@ func _draw() -> void:
 	if esta_impulsando():
 		cuerpo.a = 0.6
 	var contorno := COLOR_FRENESI if sin_control() else COLOR_CONTORNO
-	Formas.capsula(self, ALTO_CAPSULA, ANCHO_CAPSULA, cuerpo, contorno)
+	if not (animador and animador.activo):
+		Formas.capsula(self, ALTO_CAPSULA, ANCHO_CAPSULA, cuerpo, contorno)
 
 	var progreso := progreso_bebida()
 	if progreso >= 0.0:
@@ -660,3 +668,20 @@ func _dibujar_tajo() -> void:
 		puntos.append(Iso.a_pantalla(punto) - Iso.a_pantalla(Vector2.ZERO))
 	var alfa := _tajo_restante / TAJO_VISIBLE
 	draw_polyline(puntos, Color(COLOR_TAJO, alfa), 6.0, true)
+
+
+## Estado para el arte: derribado, beber, vial, impulso, tajo, frenesi, correr o quieto.
+func estado_animacion(se_mueve: bool) -> String:
+	if caida:
+		return "derribado"
+	if esta_bebiendo():
+		return "beber"
+	if _vial_restante > 0.0:
+		return "vial"
+	if esta_impulsando():
+		return "impulso"
+	if _tajo_restante > 0.0:
+		return "tajo"
+	if sin_control():
+		return "frenesi"
+	return "correr" if se_mueve else "quieto"

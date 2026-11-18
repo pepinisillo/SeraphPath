@@ -24,7 +24,11 @@ var _tiempo := 0.0
 @onready var voz: Node2D = $Voz
 
 
+var animador: Animador # el arte en 8 direcciones, cuando exista (ver animador.gd)
+
+
 func _ready() -> void:
+	animador = Animador.crear(self, "eco")
 	voz.draw.connect(_dibujar_voz)
 
 
@@ -83,9 +87,12 @@ func beber() -> void:
 
 
 func _draw() -> void:
+	if animador:
+		animador.poner(estado_animacion(animador.se_mueve()), Formas.direccion_8(Vector2(1, 1)))
 	var flotar := sin(_tiempo * 2.0) * 3.0
 	draw_set_transform(Vector2(0, flotar), 0.0, Vector2.ONE)
-	Formas.capsula(self, ALTO_CAPSULA, ANCHO_CAPSULA, COLOR_CUERPO, COLOR_CONTORNO)
+	if not (animador and animador.activo):
+		Formas.capsula(self, ALTO_CAPSULA, ANCHO_CAPSULA, COLOR_CUERPO, COLOR_CONTORNO)
 	draw_set_transform(Vector2.ZERO, 0.0, Vector2.ONE)
 
 
@@ -102,3 +109,8 @@ func _dibujar_voz() -> void:
 	var mika := mapa.mika
 	if mika.objetivo_eco == self and not mika.esta_bebiendo():
 		voz.draw_string(fuente, Vector2(-60, -ALTO_CAPSULA - 12), "Beber (E)", HORIZONTAL_ALIGNMENT_CENTER, 120, 16, Paleta.ROJO)
+
+
+## Estado para el arte: flotar (o bebido, si ya bebió de él).
+func estado_animacion(_se_mueve: bool) -> String:
+	return "bebido" if bebido else "flotar"

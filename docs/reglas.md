@@ -646,6 +646,28 @@ Combate contra un arma maldita. Escena `mapa_patio.tscn` (22 × 16), script `scr
 - **El escuadrón de Yuu** (quedarse mirando): la siguiente Prueba de la sed empieza más cerca de la salida (`inicio_cerca` del mapa, (6,6)).
 - **La escena del fondo de la zona 3** («En el suelo»): aparece el botón Beber. Se puede seguir sin beber; si se bebe, la prueba queda **cedida**: pierde el recuerdo recién ganado y 1 de Humanidad, la sed baja a 0, gana una mejora al azar y se ve el texto de cedida de la zona 3.
 
+## Arte: cómo conectar las animaciones
+
+Mientras no hay arte, los personajes son cápsulas. Cada uno tiene un `Animador` (`scripts/animador.gd`) que busca su arte en `sed/arte/personajes/<nombre>.tres`, un recurso **SpriteFrames** de Godot. Si el archivo existe, el personaje deja de dibujar la cápsula y se ve el sprite; si no, sigue la cápsula. Se puede ir añadiendo arte personaje a personaje sin tocar código.
+
+- **Nombre de cada animación:** `<estado>_<dirección>`, por ejemplo `correr_se` o `tajo_n`.
+- **Direcciones de pantalla:** `e`, `se`, `s`, `so`, `o`, `no`, `n`, `ne` (este, sureste… en el sentido de las agujas del reloj, empezando por la derecha).
+- **Si falta alguna,** se usa lo más parecido: el estado sin dirección (`tajo`), `quieto_<dirección>`, `quieto`, el mismo estado en otra dirección o cualquier `quieto_…`. Así basta con empezar por unas pocas.
+- **El origen** del sprite son los pies del personaje (el punto que ordena el Y-sort). Tamaño: de 96 a 128 px de alto.
+
+| Archivo | Estados |
+| --- | --- |
+| `mika.tres` | quieto, correr, tajo, impulso, beber, vial, frenesi, derribado |
+| `soldado.tres`, `portador.tres`, `hechicero.tres` | quieto, andar, correr (en Alarma), atacar, derribado; el portador, también aturdido |
+| `vampiro.tres` | quieto, andar, testigo, derribado |
+| `jinete.tres` | quieto, andar, cazar |
+| `ferid.tres` | quieto, correr, avisar, embestir |
+| `crowley.tres`, `guren.tres` | quieto, andar, avisar_tajo, avisar_carga, avisar_torbellino (Crowley), avisar_sombras (Guren), atacar_… (los mismos), recuperar, rendido |
+| `eco.tres` | flotar, bebido |
+| `yuu.tres` | quieto |
+
+Los retratos de las escenas con diálogo se dibujan en `Dialogo._dibujar_retrato` (una silueta por personaje): al tener arte, ese es el único sitio que cambia.
+
 ## Plan de construcción
 
 Cada paso queda jugable antes de empezar el siguiente, y el arte final no entra hasta el paso 9.

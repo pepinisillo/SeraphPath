@@ -38,8 +38,13 @@ var _hasta_golpe := 0.0
 var _silueta: Node2D # con Sentidos, se le ve tras las paredes
 
 
+var animador: Animador # el arte en 8 direcciones, cuando exista (ver animador.gd)
+
+
 func iniciar(p_mapa: Mapa) -> void:
 	mapa = p_mapa
+	if animador == null:
+		animador = Animador.crear(self, "jinete")
 	_silueta = Node2D.new()
 	_silueta.z_index = 50
 	_silueta.z_as_relative = false
@@ -166,7 +171,17 @@ func _ir_hacia(destino: Vector2, velocidad: float, delta: float) -> bool:
 
 
 func _draw() -> void:
-	Formas.capsula(self, ALTO_CAPSULA, ANCHO_CAPSULA, COLOR_CUERPO, COLOR_CONTORNO)
+	if animador:
+		animador.poner(estado_animacion(animador.se_mueve()), Formas.direccion_8(mirada))
+	if not (animador and animador.activo):
+		Formas.capsula(self, ALTO_CAPSULA, ANCHO_CAPSULA, COLOR_CUERPO, COLOR_CONTORNO)
 	if estado == Estado.ACUDE:
 		var fuente := ThemeDB.fallback_font
 		draw_string(fuente, Vector2(-10, -ALTO_CAPSULA - 14), "?", HORIZONTAL_ALIGNMENT_CENTER, 20, 28, Paleta.DETALLES)
+
+
+## Estado para el arte: cazar, andar o quieto.
+func estado_animacion(se_mueve: bool) -> String:
+	if estado == Estado.CAZA:
+		return "cazar"
+	return "andar" if se_mueve else "quieto"

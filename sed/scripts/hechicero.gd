@@ -44,3 +44,7 @@ func _draw() -> void:
 		return
 	# Un fajo de talismanes en la mano.
 	draw_rect(Rect2(ANCHO_CAPSULA * 0.35, -ALTO_CAPSULA * 0.55, 10, 16), COLOR_PAPEL)
+
+
+func nombre_arte() -> String:
+	return "hechicero"

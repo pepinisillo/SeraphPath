@@ -50,8 +50,13 @@ var _donde := Vector2.ZERO # dónde manda la alarma (Mika o, si vio un cuerpo, e
 var _silueta: Node2D # con Sentidos, se le ve tras las paredes
 
 
+var animador: Animador # el arte en 8 direcciones, cuando exista (ver animador.gd)
+
+
 func iniciar(p_mapa: Mapa) -> void:
 	mapa = p_mapa
+	if animador == null:
+		animador = Animador.crear(self, "vampiro")
 	_silueta = Node2D.new()
 	_silueta.z_index = 50
 	_silueta.z_as_relative = false
@@ -222,12 +227,16 @@ func _girar_hacia(hacia: Vector2, delta: float) -> void:
 
 
 func _draw() -> void:
+	if animador:
+		animador.poner(estado_animacion(animador.se_mueve()), Formas.direccion_8(mirada))
 	if derribado:
 		draw_set_transform(Vector2.ZERO, PI / 2.0, Vector2(0.6, 1.0))
-		Formas.capsula(self, ALTO_CAPSULA * 0.5, ANCHO_CAPSULA, Color(COLOR_CUERPO, 0.6), COLOR_CONTORNO)
+		if not (animador and animador.activo):
+			Formas.capsula(self, ALTO_CAPSULA * 0.5, ANCHO_CAPSULA, Color(COLOR_CUERPO, 0.6), COLOR_CONTORNO)
 		draw_set_transform(Vector2.ZERO, 0.0, Vector2.ONE)
 		return
-	Formas.capsula(self, ALTO_CAPSULA, ANCHO_CAPSULA, COLOR_CUERPO, COLOR_CONTORNO)
+	if not (animador and animador.activo):
+		Formas.capsula(self, ALTO_CAPSULA, ANCHO_CAPSULA, COLOR_CUERPO, COLOR_CONTORNO)
 	if mapa and mapa.mika and mapa.mika.objetivo_silencioso == self:
 		var c := Vector2(0, -ALTO_CAPSULA - 46.0)
 		var rombo := PackedVector2Array([c + Vector2(0, -9), c + Vector2(9, 0), c + Vector2(0, 9), c + Vector2(-9, 0), c + Vector2(0, -9)])
@@ -239,3 +248,12 @@ func _draw() -> void:
 		var esquina := Vector2(-27, -ALTO_CAPSULA - 22.0)
 		draw_rect(Rect2(esquina, Vector2(54, 8)), Color(0.04, 0.05, 0.08, 0.85))
 		draw_rect(Rect2(esquina, Vector2(54 * aviso, 8)), COLOR_AVISO)
+
+
+## Estado para el arte: derribado, testigo, andar o quieto.
+func estado_animacion(se_mueve: bool) -> String:
+	if derribado:
+		return "derribado"
+	if estado == Estado.TESTIGO:
+		return "testigo"
+	return "andar" if se_mueve else "quieto"

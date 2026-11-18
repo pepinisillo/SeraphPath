@@ -70,12 +70,17 @@ var _destello := 0.0 # s que quedan de destello rojo al recibir un Tajo
 @onready var silueta: Node2D = $Silueta
 
 
+var animador: Animador # el arte en 8 direcciones, cuando exista (ver animador.gd)
+
+
 func _ready() -> void:
 	silueta.draw.connect(_dibujar_silueta)
 
 
 func iniciar(p_mapa: Mapa) -> void:
 	mapa = p_mapa
+	if animador == null:
+		animador = Animador.crear(self, nombre_arte())
 	if ruta.is_empty():
 		push_warning("%s no tiene ruta" % name)
 		return
@@ -406,6 +411,8 @@ func _color_estado() -> Color:
 
 
 func _draw() -> void:
+	if animador:
+		animador.poner(estado_animacion(animador.se_mueve()), Formas.direccion_8(mirada))
 	if derribado:
 		var color := COLOR_CUERPO.darkened(0.55) if bebido else COLOR_CUERPO.darkened(0.25)
 		if _destello > 0.0:
@@ -415,7 +422,8 @@ func _draw() -> void:
 			draw_string(ThemeDB.fallback_font, Vector2(-60.0, -46.0), "Beber (E)", HORIZONTAL_ALIGNMENT_CENTER, 120.0, 18, COLOR_SANGRE)
 		return
 	Formas.mirada(self, mirada, COLOR_MIRADA)
-	Formas.capsula(self, ALTO_CAPSULA, ANCHO_CAPSULA, COLOR_CUERPO, COLOR_CONTORNO)
+	if not (animador and animador.activo):
+		Formas.capsula(self, ALTO_CAPSULA, ANCHO_CAPSULA, COLOR_CUERPO, COLOR_CONTORNO)
 
 	# Rombo sobre la cabeza: Mika puede derribarlo ahora con un Golpe silencioso.
 	if mapa and mapa.mika and mapa.mika.objetivo_silencioso == self:
@@ -458,3 +466,19 @@ func _dibujar_silueta() -> void:
 		Formas.caido(silueta, ALTO_CAPSULA * 0.8, ANCHO_CAPSULA * 0.8, Color(color, 0.15), color)
 	else:
 		Formas.capsula(silueta, ALTO_CAPSULA, ANCHO_CAPSULA, Color(color, 0.15), color)
+
+
+## Nombre del arte de este tipo de soldado (arte/personajes/<nombre>.tres).
+func nombre_arte() -> String:
+	return "soldado"
+
+
+## Estado para el arte: derribado, atacar, correr (en Alarma), andar o quieto.
+func estado_animacion(se_mueve: bool) -> String:
+	if derribado:
+		return "derribado"
+	if estado == Estado.ALARMA and _enfriamiento_ataque > Config.SOLDADO_GOLPE_INTERVALO - 0.3:
+		return "atacar"
+	if se_mueve:
+		return "correr" if estado == Estado.ALARMA else "andar"
+	return "quieto"

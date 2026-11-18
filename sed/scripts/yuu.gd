@@ -8,7 +8,11 @@ const ANCHO_CAPSULA := 40.0
 var _tiempo := 0.0
 
 
+var animador: Animador # el arte en 8 direcciones, cuando exista (ver animador.gd)
+
+
 func iniciar(celda: Vector2i) -> void:
+	animador = Animador.crear(self, "yuu")
 	position = Iso.a_pantalla(Vector2(celda) + Vector2(0.5, 0.5))
 
 
@@ -18,9 +22,17 @@ func _process(delta: float) -> void:
 
 
 func _draw() -> void:
+	if animador:
+		animador.poner(estado_animacion(animador.se_mueve()), Formas.direccion_8(Vector2(1, 1)))
 	var brillo := 0.5 + 0.2 * sin(_tiempo * 2.0)
 	draw_set_transform(Vector2.ZERO, 0.0, Vector2(1.0, 0.5))
 	draw_circle(Vector2.ZERO, 46.0, Color(Paleta.TURQUESA, brillo * 0.4))
 	draw_set_transform(Vector2.ZERO, 0.0, Vector2.ONE)
-	Formas.capsula(self, ALTO_CAPSULA, ANCHO_CAPSULA, Color(Paleta.BLANCO_HUESO, 0.9), Paleta.TURQUESA)
+	if not (animador and animador.activo):
+		Formas.capsula(self, ALTO_CAPSULA, ANCHO_CAPSULA, Color(Paleta.BLANCO_HUESO, 0.9), Paleta.TURQUESA)
 	draw_string(ThemeDB.fallback_font, Vector2(-40, -ALTO_CAPSULA - 14), "Yuu", HORIZONTAL_ALIGNMENT_CENTER, 80, 18, Paleta.TURQUESA)
+
+
+## Estado para el arte: quieto (espera a Mika al fondo de la prueba).
+func estado_animacion(_se_mueve: bool) -> String:
+	return "quieto"

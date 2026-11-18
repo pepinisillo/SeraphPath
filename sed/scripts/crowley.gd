@@ -51,6 +51,9 @@ var _sombras: Array[Vector2] = [] # Mahiru: dónde caen las sombras
 
 ## Los números de este jefe (Crowley: los CROWLEY_* de config.gd). Otro jefe de combate (Guren)
 ## hereda de este y da los suyos.
+var animador: Animador # el arte en 8 direcciones, cuando exista (ver animador.gd)
+
+
 func parametros() -> Dictionary:
 	return {
 		"VIDA": Config.CROWLEY_VIDA, "DANO": Config.CROWLEY_DANO, "VELOCIDAD": Config.CROWLEY_VELOCIDAD,
@@ -73,6 +76,8 @@ func ataque_de_fase2() -> Ataque:
 
 func iniciar(p_mapa: Mapa, celda: Vector2i) -> void:
 	mapa = p_mapa
+	if animador == null:
+		animador = Animador.crear(self, nombre_arte())
 	_p = parametros()
 	vida = _p.VIDA
 	pos = Vector2(celda) + Vector2(0.5, 0.5)
@@ -269,6 +274,8 @@ func _decir_de(clave: String, numero: int) -> void:
 
 
 func _draw() -> void:
+	if animador:
+		animador.poner(estado_animacion(animador.se_mueve()), Formas.direccion_8(mirada))
 	if estado == Estado.AVISA:
 		var f := clampf(_tiempo / _aviso(), 0.0, 1.0)
 		var color := Color(COLOR_AVISO, 0.25 + 0.45 * f)
@@ -297,9 +304,30 @@ func _draw() -> void:
 	var cuerpo := color_cuerpo.lerp(Paleta.BLANCO_HUESO, 0.6) if _destello > 0.0 else color_cuerpo
 	if estado == Estado.RECUPERA:
 		cuerpo = cuerpo.darkened(0.3) # se ve que está expuesto
-	Formas.capsula(self, ALTO_CAPSULA, ANCHO_CAPSULA, cuerpo, COLOR_CONTORNO)
+	if not (animador and animador.activo):
+		Formas.capsula(self, ALTO_CAPSULA, ANCHO_CAPSULA, cuerpo, COLOR_CONTORNO)
 	if frase != "":
 		var fuente := ThemeDB.fallback_font
 		var ancho := fuente.get_string_size(frase, HORIZONTAL_ALIGNMENT_LEFT, -1, 16).x + 20
 		draw_rect(Rect2(-ancho / 2.0, -ALTO_CAPSULA - 58, ancho, 26), Color(0.04, 0.05, 0.08, 0.85))
 		draw_string(fuente, Vector2(-ancho / 2.0, -ALTO_CAPSULA - 40), frase, HORIZONTAL_ALIGNMENT_CENTER, ancho, 16, Paleta.BLANCO_HUESO)
+
+
+## Nombre del arte de este jefe (arte/personajes/<nombre>.tres).
+func nombre_arte() -> String:
+	return "crowley"
+
+
+## Estado para el arte: andar, quieto, avisar_<ataque>, atacar_<ataque>, recuperar o rendido.
+func estado_animacion(se_mueve: bool) -> String:
+	var cual: String = ["tajo", "carga", "torbellino", "sombras"][ataque]
+	match estado:
+		Estado.AVISA:
+			return "avisar_" + cual
+		Estado.ATACA:
+			return "atacar_" + cual
+		Estado.RECUPERA:
+			return "recuperar"
+		Estado.RENDIDO:
+			return "rendido"
+	return "andar" if se_mueve else "quieto"

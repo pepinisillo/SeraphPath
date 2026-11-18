@@ -39,8 +39,13 @@ var _mika_antes := Vector2.ZERO
 var velocidad_mika := Vector2.ZERO # casillas/s, medida por Ferid fotograma a fotograma
 
 
+var animador: Animador # el arte en 8 direcciones, cuando exista (ver animador.gd)
+
+
 func iniciar(p_mapa: Mapa, celda: Vector2i) -> void:
 	mapa = p_mapa
+	if animador == null:
+		animador = Animador.crear(self, "ferid")
 	pos = Vector2(celda) + Vector2(0.5, 0.5)
 	inicio = pos
 	frases = Guion.jefe_durante("Ferid Bathory")
@@ -195,6 +200,8 @@ func _decir_de(clave: String, numero: int) -> void:
 
 
 func _draw() -> void:
+	if animador:
+		animador.poner(estado_animacion(animador.se_mueve()), Formas.direccion_8(mirada))
 	# La línea de la embestida, en el suelo (coordenadas del mapa, relativas a Ferid).
 	var linea := linea_de_embestida()
 	if not linea.is_empty():
@@ -203,9 +210,22 @@ func _draw() -> void:
 		var f := clampf(_tiempo / (Config.FERID_FASE2_PAUSA if _segunda else Config.FERID_EMBESTIDA_AVISO), 0.0, 1.0)
 		draw_line(a, b, Color(COLOR_AVISO, 0.3 + 0.5 * f), 10.0 + 8.0 * f)
 		draw_circle(b, 14.0 + 10.0 * f, Color(COLOR_AVISO, 0.4 + 0.4 * f))
-	Formas.capsula(self, ALTO_CAPSULA, ANCHO_CAPSULA, COLOR_CUERPO, COLOR_CONTORNO)
+	if not (animador and animador.activo):
+		Formas.capsula(self, ALTO_CAPSULA, ANCHO_CAPSULA, COLOR_CUERPO, COLOR_CONTORNO)
 	if frase != "":
 		var fuente := ThemeDB.fallback_font
 		var ancho := fuente.get_string_size(frase, HORIZONTAL_ALIGNMENT_LEFT, -1, 16).x + 20
 		draw_rect(Rect2(-ancho / 2.0, -ALTO_CAPSULA - 58, ancho, 26), Color(0.04, 0.05, 0.08, 0.85))
 		draw_string(fuente, Vector2(-ancho / 2.0, -ALTO_CAPSULA - 40), frase, HORIZONTAL_ALIGNMENT_CENTER, ancho, 16, Paleta.BLANCO_HUESO)
+
+
+## Estado para el arte: quieto (espera), correr, avisar o embestir.
+func estado_animacion(_se_mueve: bool) -> String:
+	match estado:
+		Estado.PERSIGUE:
+			return "correr"
+		Estado.AVISA:
+			return "avisar"
+		Estado.EMBISTE:
+			return "embestir"
+	return "quieto"
