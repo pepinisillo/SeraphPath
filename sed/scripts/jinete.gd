@@ -35,10 +35,17 @@ var _volviendo := false # tras acudir, vuelve a su ruta
 var _hasta_golpe := 0.0
 
 @onready var cono: ConoVision = $Cono
+var _silueta: Node2D # con Sentidos, se le ve tras las paredes
 
 
 func iniciar(p_mapa: Mapa) -> void:
 	mapa = p_mapa
+	_silueta = Node2D.new()
+	_silueta.z_index = 50
+	_silueta.z_as_relative = false
+	_silueta.visible = false
+	_silueta.draw.connect(func() -> void: Formas.capsula(_silueta, ALTO_CAPSULA, ANCHO_CAPSULA, Color(Paleta.ROJO, 0.08), Color(Paleta.ROJO, 0.5)))
+	add_child(_silueta)
 	if ruta.is_empty():
 		push_warning("%s no tiene ruta" % name)
 		return
@@ -68,6 +75,9 @@ func _physics_process(delta: float) -> void:
 		Estado.CAZA:
 			_cazar(delta)
 	position = Iso.a_pantalla(pos)
+	var sentidos := mapa.mika != null and mapa.mika.revelando()
+	_silueta.visible = sentidos
+	cono.z_index = 49 if sentidos and mapa.mika.tiene_filo(Filos.CAZADOR) else -1
 	cono.actualizar(mapa, pos, mirada, COLOR_CAZA if estado == Estado.CAZA else COLOR_CONO, Config.JINETE_ANGULO, Config.JINETE_VISION)
 	queue_redraw()
 

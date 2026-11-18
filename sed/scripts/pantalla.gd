@@ -92,3 +92,8 @@ func estado_expedicion() -> void:
 		for id in e.mejoras:
 			nombres.append(Mejoras.nombre(id))
 		texto("Sangre: " + " · ".join(nombres), Paleta.ROJO, 16)
+	if not e.filos.is_empty():
+		var de_filos := PackedStringArray()
+		for id in e.filos:
+			de_filos.append(Filos.nombre(id))
+		texto("Filos: " + " · ".join(de_filos), Paleta.BLANCO_HUESO, 16)

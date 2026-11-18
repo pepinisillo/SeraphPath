@@ -41,6 +41,8 @@ func construir() -> void:
 		texto("Bebiste sangre humana. Elige una mejora:", Paleta.ROJO)
 		for id in mejoras_ofrecidas:
 			boton("%s — %s" % [Mejoras.nombre(id), Mejoras.descripcion(id)], _elegir_mejora.bind(id))
+	elif opcion.efectos.get("filo", false):
+		boton("Elegir el filo", expedicion.ofrecer_filo.bind(expedicion.completar_parada))
 	else:
 		boton("Continuar", expedicion.completar_parada)
 

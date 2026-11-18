@@ -117,6 +117,24 @@ const PRUEBA_ECO_VOZ := 3.0 # casillas a las que se oye lo que dice un eco
 const PRUEBA_SED_FALLIDA := 90 # sed con la que despierta si la prueba falla
 const ECO_CAMBIO_FRASE := 5.0 # s que un eco dice la misma frase
 
+# --- Sentidos y «Espada, bebe mi sangre» ---
+const SENTIDOS_DURACION := 4.0 # s que revela a los enemigos tras las paredes
+const SENTIDOS_ENFRIAMIENTO := 12.0
+const ESPADA_COSTE := 3 # vida
+const ESPADA_COSTE_SEDIENTO := 2 # con el Filo sediento
+const ESPADA_DURACION := 6.0 # s de daño doble y más alcance
+const ESPADA_ALCANCE := 1.5 # el Tajo alcanza esto más (multiplica)
+const ESPADA_OLFATO := 4.0 # casillas a las que un vampiro huele la espada activa (y lo delata)
+
+# --- Filos ---
+const FILOS_MAX := 3
+const FILO_ARTERIAL_SED := -5
+const FILO_LARGO_ANGULO := 30.0 # grados del arco del tramo largo (en línea recta)
+const FILO_SOMBRA_VELOCIDAD := 2.0 # casillas/s más
+const FILO_SOMBRA_DURACION := 3.0
+const FILO_DOBLE_DISTANCIA := 1.6 # casillas del primero al segundo
+const FILO_KRUL_VIAL := -55
+
 # --- Vampiro común (no ataca a Mika; lo delata si lo ve hacer algo prohibido) ---
 const VAMPIRO_VIDA := 8
 const VAMPIRO_VELOCIDAD := 2.4 # casillas/s patrullando

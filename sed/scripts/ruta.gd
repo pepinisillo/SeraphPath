@@ -2,7 +2,7 @@ extends Pantalla
 ## Mapa de paradas de la zona: qué se ha hecho, dónde está Mika, la bifurcación y lo que viene.
 
 const DESCRIPCIONES := {
-	"emboscada": "La primera infiltración de la zona, pero empieza en Alarma. (Su recompensa, un filo, llegará cuando existan los filos.)",
+	"emboscada": "La primera infiltración de la zona, pero empieza en Alarma. Si sales, eliges un filo para la espada.",
 	"evento": "Una decisión, sin mapa.",
 	"refugio": "Un lugar seguro para recuperarse.",
 	"prueba": "Dentro de tu mente. Llega hasta Yuu sin beber.",

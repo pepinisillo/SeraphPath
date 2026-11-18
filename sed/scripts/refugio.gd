@@ -27,8 +27,9 @@ func construir() -> void:
 		texto("Descansaste. La vida vuelve a estar completa.", Paleta.TURQUESA)
 		boton("Continuar", expedicion.completar_parada)
 		return
+	texto("Una cosa u otra: descansar o cuidar la espada.", Paleta.DETALLES, 16)
 	boton("Curar toda la vida", _curar)
-	boton("Mejorar la espada (los filos aún no existen)", func() -> void: pass, false)
+	boton("Mejorar la espada: elegir un filo", expedicion.ofrecer_filo.bind(expedicion.completar_parada))
 
 
 func _curar() -> void:

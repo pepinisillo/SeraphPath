@@ -444,7 +444,10 @@ func _draw() -> void:
 ## Con la mejora Olfato, Mika ve a los humanos a través de las paredes.
 func _actualizar_silueta() -> void:
 	var olfato := mapa.mika != null and mapa.mika.tiene_mejora(Mejoras.OLFATO)
-	silueta.visible = (olfato or mapa.patrullas_visibles) and not bebido
+	var sentidos := mapa.mika != null and mapa.mika.revelando()
+	silueta.visible = (olfato or sentidos or mapa.patrullas_visibles) and not bebido
+	# Filo del cazador: con Sentidos, los conos se ven también por encima de los muros.
+	cono.z_index = 49 if sentidos and mapa.mika.tiene_filo(Filos.CAZADOR) else -1
 	if silueta.visible:
 		silueta.queue_redraw()
 

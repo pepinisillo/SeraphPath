@@ -71,11 +71,11 @@ func _initialize():
 	expe.elegir_ruta("arriesgada")
 	comprobar("ruta arriesgada", expe.paradas(), ["infiltracion", "emboscada", "infiltracion", "prueba", "jefe"])
 	var ids := Eventos.de_zona(1).map(func(e): return e.id)
-	comprobar("eventos de la zona 1 (sin los que dependen de sistemas que faltan)", ids, ["doncella", "lacus_rene", "copa_ferid", "carta"])
+	comprobar("eventos de la zona 1", ids, ["doncella", "lacus_rene", "copa_ferid", "carta", "filo_exigente"])
 	var salidos := []
-	for i in 4: salidos.append(expe.elegir_evento())
+	for i in 5: salidos.append(expe.elegir_evento())
 	salidos.sort()
-	comprobar("no se repiten hasta agotarlos", salidos, ["carta", "copa_ferid", "doncella", "lacus_rene"])
+	comprobar("no se repiten hasta agotarlos", salidos, ["carta", "copa_ferid", "doncella", "filo_exigente", "lacus_rene"])
 
 	print("B) Efectos de los eventos")
 	expe.nueva()
@@ -195,7 +195,12 @@ func _initialize():
 	s = await saltar_dialogos(s)
 	if not s.mejoras_ofrecidas.is_empty():
 		pulsar(s, Mejoras.nombre(s.mejoras_ofrecidas[0]))
-	pulsar(s, "Continuar")
+	if botones(s).any(func(b): return b.text.begins_with("Elegir el filo")):
+		pulsar(s, "Elegir el filo") # «El filo exigente»
+		s = await escena()
+		pulsar(s, "No coger ninguno")
+	else:
+		pulsar(s, "Continuar")
 	s = await escena()
 	pulsar(s, "Entrar: Prueba de la sed")
 	s = await saltar_dialogos(await escena())

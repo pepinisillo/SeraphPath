@@ -5,6 +5,8 @@ extends Node2D
 ## - atacar a un vampiro (o ver a un vampiro derribado),
 ## - robar un vial,
 ## - entrar en una zona prohibida (las casillas `x` del plano) y quedarse en ella.
+## Además huele la espada activa («Espada, bebe mi sangre») a menos de ESPADA_OLFATO casillas,
+## aunque no lo vea.
 ## Al verlo se detiene, lo mira y, si en VAMPIRO_AVISO s nadie lo calla (derribándolo), da la
 ## alarma: los soldados del mapa van a por Mika. Mientras está avisando, Mika puede derribarlo
 ## con un Tajo o un Golpe silencioso, pero si otro vampiro lo ve, ese también lo delata.
@@ -45,10 +47,17 @@ var _cuerpos_vistos: Array = []
 var _donde := Vector2.ZERO # dónde manda la alarma (Mika o, si vio un cuerpo, el cuerpo)
 
 @onready var cono: ConoVision = $Cono
+var _silueta: Node2D # con Sentidos, se le ve tras las paredes
 
 
 func iniciar(p_mapa: Mapa) -> void:
 	mapa = p_mapa
+	_silueta = Node2D.new()
+	_silueta.z_index = 50
+	_silueta.z_as_relative = false
+	_silueta.visible = false
+	_silueta.draw.connect(func() -> void: Formas.capsula(_silueta, ALTO_CAPSULA, ANCHO_CAPSULA, Color(Paleta.ROJO, 0.08), Color(Paleta.ROJO, 0.5)))
+	add_child(_silueta)
 	azar.seed = Soldado.generador(name).seed
 	if ruta.is_empty():
 		push_warning("%s no tiene ruta" % name)
@@ -84,6 +93,9 @@ func _physics_process(delta: float) -> void:
 			if not mapa.alerta.activa:
 				estado = Estado.CALMA
 	position = Iso.a_pantalla(pos)
+	var sentidos := mapa.mika != null and mapa.mika.revelando()
+	_silueta.visible = sentidos
+	cono.z_index = 49 if sentidos and mapa.mika.tiene_filo(Filos.CAZADOR) else -1
 	cono.actualizar(mapa, pos, mirada, COLOR_AVISO if estado == Estado.TESTIGO else COLOR_CONO)
 	queue_redraw()
 
@@ -93,6 +105,9 @@ func _vigilar(delta: float) -> void:
 	if mapa.vampiros_callados:
 		return
 	var mika := mapa.mika
+	if mika and mika.espada_activa() and pos.distance_to(mika.pos) <= Config.ESPADA_OLFATO:
+		presenciar("espada") # huele la espada bebiendo sangre
+		return
 	if mika and not mika.caida and mapa.es_prohibida(mika.celda()) and puede_ver(mika.pos):
 		_en_prohibida += delta
 		if _en_prohibida >= Config.VAMPIRO_PROHIBIDA:

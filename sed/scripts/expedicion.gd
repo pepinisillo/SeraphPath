@@ -17,6 +17,7 @@ const ESCENA_REFUGIO := "res://escenas/refugio.tscn"
 const ESCENA_RECUERDO := "res://escenas/recuerdo.tscn"
 const ESCENA_INICIO := "res://escenas/inicio.tscn"
 const ESCENA_ESCENA := "res://escenas/escena.tscn"
+const ESCENA_FILO := "res://escenas/filo.tscn"
 const ESCENA_FINAL := "res://escenas/final.tscn"
 const ESCENA_INFILTRACION := "res://escenas/mapa_puesto_control.tscn"
 const ESCENA_TUNELES := "res://escenas/mapa_tuneles.tscn"
@@ -109,6 +110,10 @@ var siguiente_jinete_suelto := false # evento «El Jinete dormido»
 var saltar_siguiente := false # evento «El desertor» (confiar)
 var siguiente_prueba_cerca := false # evento «El escuadrón de Yuu»
 var finales_vistos: Array[String] = []
+var filos: Array[String] = [] # filos de la espada que lleva Mika en esta expedición
+var filo_pendiente := false # superó una emboscada: al salir, elige un filo
+var filos_ofrecidos: Array[String] = []
+var _tras_filo: Callable
 var _tras_escena: Callable
 var rng := RandomNumberGenerator.new()
 
@@ -155,6 +160,8 @@ func nueva() -> void:
 	siguiente_jinete_suelto = false
 	saltar_siguiente = false
 	siguiente_prueba_cerca = false
+	filos = []
+	filo_pendiente = false
 	rng.randomize()
 
 
@@ -267,7 +274,34 @@ func completar_parada() -> void:
 	saltar_siguiente = false
 	var golpes := escena_tras_parada
 	escena_tras_parada = []
+	if filo_pendiente:
+		filo_pendiente = false
+		ofrecer_filo(mostrar_escena.bind("", golpes, _tras_parada))
+		return
 	mostrar_escena("", golpes, _tras_parada)
+
+
+## Ofrece dos filos al azar (entre los que no lleva) y después llama a `despues`.
+func ofrecer_filo(despues: Callable) -> void:
+	filos_ofrecidos = Filos.dos_al_azar(filos, rng)
+	if filos_ofrecidos.is_empty():
+		despues.call()
+		return
+	_tras_filo = despues
+	_cambiar(ESCENA_FILO)
+
+
+## Se queda con `nuevo` (y, si ya lleva FILOS_MAX, deja `dejar`). Con `nuevo` vacío, no coge ninguno.
+func elegir_filo(nuevo: String, dejar := "") -> void:
+	if nuevo != "":
+		if dejar != "":
+			filos.erase(dejar)
+		if filos.size() < Config.FILOS_MAX and not nuevo in filos:
+			filos.append(nuevo)
+	filos_ofrecidos = []
+	var despues := _tras_filo
+	_tras_filo = Callable()
+	despues.call()
 
 
 func _tras_parada() -> void:
@@ -398,6 +432,7 @@ func aplicar_a_mapa(mapa: Mapa) -> void:
 	mika.humanidad = humanidad
 	mika.viales = viales
 	mika.mejoras.assign(mejoras)
+	mika.filos.assign(filos)
 	# Mejoras permanentes de los recuerdos.
 	if tiene_recuerdo(2):
 		mika.sed_por_golpe = 2
@@ -443,6 +478,8 @@ func al_terminar_mapa(mapa: Mapa, exito: bool, motivo: String) -> void:
 	humanidad = mika.humanidad
 	viales = mika.viales
 	mejoras.assign(mika.mejoras)
+	if exito and parada_actual() == "emboscada":
+		filo_pendiente = true # la recompensa de la emboscada
 	if not mika.salvacion_disponible and tiene_recuerdo(4):
 		salvacion_usada = true
 	recuerdo_nuevo = 0

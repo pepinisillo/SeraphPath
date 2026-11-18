@@ -78,7 +78,7 @@ func _initialize():
 	e.indice = 2
 	comprobar("la ruta arriesgada pasa por la estación", e.escena_infiltracion(), "res://escenas/mapa_estacion.tscn")
 	comprobar("el jefe es Crowley", [e.nombre_parada("jefe"), e.datos_zona().mapa_jefe], ["Jefe: Crowley Eusford", ESCENA])
-	comprobar("los eventos de la zona 2", Eventos.de_zona(2).map(func(ev): return ev.id), ["soldado_atrapado", "jinete_dormido", "clinica", "carta"])
+	comprobar("los eventos de la zona 2", Eventos.de_zona(2).map(func(ev): return ev.id), ["soldado_atrapado", "jinete_dormido", "clinica", "carta", "filo_exigente"])
 	e.indice = 5
 	comprobar("tras Crowley viene la zona 3", [e.zona_terminada(), e.ZONAS.has(3), e.ZONAS[3].nombre], [true, true, "Shibuya"])
 	e.activa = false

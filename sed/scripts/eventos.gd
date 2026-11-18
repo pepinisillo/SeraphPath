@@ -59,9 +59,9 @@ const TODOS := [
 		],
 	},
 	{
-		"id": "filo_exigente", "titulo": "El filo exigente", "zona": 0, "requiere": "filos",
+		"id": "filo_exigente", "titulo": "El filo exigente", "zona": 0,
 		"opciones": [
-			{"texto": "Dársela", "efectos": {"vida_max": -3, "pendiente": "elegir un filo entre dos"}},
+			{"texto": "Dársela", "efectos": {"vida_max": -3, "filo": true}},
 			{"texto": "Negarse", "efectos": {}},
 		],
 	},
@@ -120,6 +120,8 @@ static func describir(efectos: Dictionary) -> String:
 		partes.append("ves todas las patrullas de la zona")
 	if efectos.has("vampiro_extra"):
 		partes.append("el siguiente mapa tiene un vampiro más")
+	if efectos.has("filo"):
+		partes.append("eliges un filo entre dos")
 	if efectos.has("saltar_parada"):
 		partes.append("te saltas la siguiente parada (y su recompensa)")
 	if efectos.has("prueba_cerca"):

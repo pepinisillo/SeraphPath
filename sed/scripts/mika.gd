@@ -43,6 +43,7 @@ var sed := Config.SED_INICIAL
 var humanidad := Config.HUMANIDAD_INICIAL
 var viales := 0
 var mejoras: Array[String] = []
+var filos: Array[String] = [] # filos de la espada (como mucho Config.FILOS_MAX)
 var caida := false
 var rng := RandomNumberGenerator.new()
 
@@ -69,6 +70,10 @@ var _frenesi_restante := 0.0
 var _respiro := 0.0
 var _destello := 0.0 # s que quedan de destello rojo al recibir un golpe
 var _hasta_silueta := 0.0 # s hasta la próxima silueta del rastro del dash
+var _sentidos_restante := 0.0
+var _enfriamiento_sentidos := 0.0
+var _espada_restante := 0.0 # «Espada, bebe mi sangre»
+var _sombra_restante := 0.0 # Filo de sombra: velocidad tras un Golpe silencioso
 
 
 func iniciar(p_mapa: Mapa, p_pos: Vector2) -> void:
@@ -117,13 +122,71 @@ func tiene_mejora(id: String) -> bool:
 	return id in mejoras
 
 
+func tiene_filo(id: String) -> bool:
+	return id in filos
+
+
+## Sentidos activos: los enemigos se ven tras las paredes.
+func revelando() -> bool:
+	return _sentidos_restante > 0.0
+
+
+func espada_activa() -> bool:
+	return _espada_restante > 0.0
+
+
+func sentidos_listos() -> bool:
+	return _enfriamiento_sentidos <= 0.0 and sed < tramo_lento
+
+
+## Sentidos: revela a todos los enemigos tras las paredes unos segundos. Enfriamiento largo;
+## sediento no se puede usar.
+func usar_sentidos() -> bool:
+	if not sentidos_listos() or mapa.prueba_de_la_sed:
+		return false
+	_sentidos_restante = Config.SENTIDOS_DURACION * (2.0 if tiene_filo(Filos.CAZADOR) else 1.0)
+	_enfriamiento_sentidos = Config.SENTIDOS_ENFRIAMIENTO
+	return true
+
+
+func coste_espada() -> int:
+	return Config.ESPADA_COSTE_SEDIENTO if tiene_filo(Filos.SEDIENTO) else Config.ESPADA_COSTE
+
+
+## «Espada, bebe mi sangre»: paga vida y durante unos segundos el Tajo hace el doble de daño y
+## llega más lejos. Los vampiros cercanos la huelen. No mata a Mika: con poca vida no se puede.
+func activar_espada() -> bool:
+	if espada_activa() or vida <= coste_espada() or mapa.prueba_de_la_sed:
+		return false
+	vida -= coste_espada()
+	_espada_restante = Config.ESPADA_DURACION
+	_destello = Config.DESTELLO_DURACION
+	return true
+
 func velocidad() -> float:
 	var base := Config.VELOCIDAD_MIKA_SEDIENTO if sed >= tramo_lento else Config.VELOCIDAD_MIKA
-	return base + (Config.MEJORA_VELOCIDAD if tiene_mejora(Mejoras.VELOCIDAD) else 0.0)
+	base += Config.MEJORA_VELOCIDAD if tiene_mejora(Mejoras.VELOCIDAD) else 0.0
+	return base + (Config.FILO_SOMBRA_VELOCIDAD if _sombra_restante > 0.0 else 0.0)
 
 
 func dano_tajo() -> int:
-	return Config.TAJO_DANO + (Config.MEJORA_FUERZA if tiene_mejora(Mejoras.FUERZA) else 0)
+	var dano := Config.TAJO_DANO + (Config.MEJORA_FUERZA if tiene_mejora(Mejoras.FUERZA) else 0)
+	return dano * (2 if espada_activa() else 1)
+
+
+func alcance_tajo() -> float:
+	return Config.TAJO_ALCANCE * (Config.ESPADA_ALCANCE if espada_activa() else 1.0)
+
+
+## El Tajo alcanza al objetivo: en el arco normal o, con el Filo largo, el doble de lejos en
+## línea recta (un arco estrecho delante).
+func _alcanza_tajo(objetivo: Node2D) -> bool:
+	if _al_alcance(objetivo, alcance_tajo()):
+		return true
+	if not tiene_filo(Filos.LARGO) or objetivo.derribado:
+		return false
+	var hacia: Vector2 = objetivo.pos - pos
+	return hacia.length() <= alcance_tajo() * 2.0 and absf(angle_difference(mirada.angle(), hacia.angle())) <= deg_to_rad(Config.FILO_LARGO_ANGULO) / 2.0
 
 
 func _physics_process(delta: float) -> void:
@@ -135,6 +198,10 @@ func _physics_process(delta: float) -> void:
 	_tajo_restante -= delta
 	_respiro -= delta
 	_destello -= delta
+	_sentidos_restante -= delta
+	_enfriamiento_sentidos -= delta
+	_espada_restante -= delta
+	_sombra_restante -= delta
 	_actualizar_sed(delta)
 	_actualizar_regeneracion(delta)
 	if mapa.prueba_de_la_sed:
@@ -184,6 +251,10 @@ func _control(delta: float) -> void:
 		golpe_silencioso()
 	elif Input.is_action_just_pressed("vial"):
 		tomar_vial()
+	elif Input.is_action_just_pressed("sentidos"):
+		usar_sentidos()
+	elif Input.is_action_just_pressed("espada"):
+		activar_espada()
 	elif Input.is_action_pressed("beber"):
 		empezar_a_beber()
 
@@ -202,6 +273,8 @@ func _actualizar_sed(delta: float) -> void:
 	var ritmo := 1.0 / Config.SED_INTERVALO # puntos por segundo
 	if mapa.prueba_de_la_sed:
 		ritmo = (1.0 + ecos_cerca()) / Config.PRUEBA_SED_INTERVALO
+	elif tiene_filo(Filos.PACIENTE) and mapa.es_sombra(celda()):
+		ritmo = 0.0 # Filo paciente: en sombra la sed no sube
 	_acumulado_sed += delta * ritmo
 	while _acumulado_sed >= 1.0:
 		_acumulado_sed -= 1.0
@@ -352,7 +425,7 @@ func _seguir_con_vial(delta: float) -> void:
 	if _vial_restante <= 0.0:
 		_vial_restante = 0.0
 		viales -= 1
-		sumar_sed(Config.VIAL_SED)
+		sumar_sed(Config.FILO_KRUL_VIAL if tiene_filo(Filos.KRUL) else Config.VIAL_SED)
 		mapa.efectos.trago(pos, Paleta.TURQUESA)
 
 
@@ -408,11 +481,13 @@ func tajo() -> bool:
 	var conecto := false
 	var a_un_vampiro := false
 	for soldado in mapa.atacables():
-		if _al_alcance(soldado, Config.TAJO_ALCANCE) and not soldado.derribado:
+		if _alcanza_tajo(soldado) and not soldado.derribado:
 			a_un_vampiro = a_un_vampiro or soldado is Vampiro
 			soldado.recibir_dano(dano_tajo())
 			if soldado.derribado:
 				mapa.estadisticas.derribados_con_tajo += 1
+				if soldado is Soldado and tiene_filo(Filos.ARTERIAL):
+					sumar_sed(Config.FILO_ARTERIAL_SED) # bebe la espada: no cuesta Humanidad
 			if conecto:
 				mapa.efectos.salpicar(soldado.pos, Paleta.ROJO, 18)
 			else:
@@ -420,7 +495,8 @@ func tajo() -> bool:
 			conecto = true
 	if a_un_vampiro:
 		mapa.acto_prohibido("ataque")
-	mapa.hacer_ruido(pos)
+	if not tiene_filo(Filos.MUDO):
+		mapa.hacer_ruido(pos)
 	return true
 
 
@@ -432,11 +508,24 @@ func golpe_silencioso() -> bool:
 	if objetivo == null:
 		return false
 	_enfriamiento_golpe = Config.GOLPE_SILENCIOSO_ENFRIAMIENTO
-	objetivo.recibir_golpe_silencioso()
-	mapa.estadisticas.derribados_en_silencio += 1
-	if objetivo is Vampiro:
-		mapa.acto_prohibido("ataque")
-	mapa.efectos.derribo_silencioso(objetivo.pos)
+	var golpeados: Array = [objetivo]
+	if tiene_filo(Filos.DOBLE):
+		# Filo doble: también al enemigo más cercano junto al primero, si admite el golpe.
+		var segundo: Node2D = null
+		for otro in mapa.atacables():
+			if otro != objetivo and otro.pos.distance_to(objetivo.pos) <= Config.FILO_DOBLE_DISTANCIA and otro.admite_golpe_silencioso():
+				if segundo == null or otro.pos.distance_to(objetivo.pos) < segundo.pos.distance_to(objetivo.pos):
+					segundo = otro
+		if segundo != null:
+			golpeados.append(segundo)
+	for golpeado in golpeados:
+		golpeado.recibir_golpe_silencioso()
+		mapa.estadisticas.derribados_en_silencio += 1
+		if golpeado is Vampiro:
+			mapa.acto_prohibido("ataque")
+		mapa.efectos.derribo_silencioso(golpeado.pos)
+	if tiene_filo(Filos.SOMBRA):
+		_sombra_restante = Config.FILO_SOMBRA_DURACION
 	return true
 
 
@@ -451,7 +540,8 @@ func impulso(entrada: Vector2) -> bool:
 	_enfriamiento_impulso = Config.IMPULSO_ENFRIAMIENTO
 	_hasta_silueta = 0.0
 	sumar_sed(sed_impulso)
-	mapa.hacer_ruido(pos)
+	if not tiene_filo(Filos.VELOZ):
+		mapa.hacer_ruido(pos)
 	return true
 
 

@@ -39,6 +39,8 @@ El pilar central es que **todo poder tiene precio**: la sangre humana hace fuert
 | Impulso | Espacio | A |
 | Beber sangre (mantener) | E | B |
 | Tomar un vial | Q | LB |
+| Sentidos | R | RB |
+| Espada, bebe mi sangre | F | Gatillo derecho |
 | Elegir mejora | Flechas e Intro, o clic | Cruceta y A |
 | Avanzar el diálogo | Intro, Espacio o clic | A |
 | Saltar el diálogo | Esc | B |
@@ -171,14 +173,12 @@ Infiltración ───┤                               ├── Prueba de la 
 - **Estado entre paradas:** Mika arrastra vida, sed, Humanidad, viales y mejoras de una parada a la siguiente. Si cae, la expedición termina y solo se conservan los recuerdos.
 - **Mapa de paradas:** muestra lo hecho, la parada actual y los avisos para el siguiente mapa (empieza en Sospecha o Alarma, la sed no sube, patrullas visibles). Sin el recuerdo 3, «El mapa», las dos rutas se ven como «? → ?».
 - **Infiltración:** el puesto de control (mapa grande).
-- **Emboscada:** el mismo puesto, empezando en Alarma. Su recompensa, un filo, llegará con los filos.
+- **Emboscada:** la primera infiltración de la zona, empezando en Alarma. Si Mika sale, elige un filo.
 - **Refugio:**
   - Al entrar, una línea del guion al azar según la Humanidad; las marcadas «Sed 60 o más» solo con esa sed. Las que van entre «» las dice Mika.
-  - Permite curar toda la vida.
-  - «Mejorar la espada» aparece desactivado hasta que existan los filos.
-- **Evento:** sale uno al azar de los de la zona 1 que no hayan salido en la expedición: «La doncella de Krul», «Lacus y René», «La copa de Ferid» y «La carta sin enviar».
-  - «El filo exigente» queda fuera hasta que existan los filos.
-  - Los efectos que dependen de vampiros aún no existen y la opción lo dice: «aún sin efecto».
+  - Una cosa u otra: curar toda la vida o mejorar la espada (elegir un filo entre dos).
+- **Evento:** sale uno al azar de los de la zona que no hayan salido en la expedición (los de «cualquier zona», «La carta sin enviar» y «El filo exigente», entran en todas).
+  - «El filo exigente» (darle sangre): −3 de vida máxima y elegir un filo entre dos.
   - Las opciones y sus efectos de los diez eventos están en `scripts/eventos.gd`; el texto, en el guion. Se ve la escena del evento, se elige y luego se ve lo que pasa con esa opción. Las líneas ◆ del otro Yuu solo salen con Humanidad 1 o más.
 - **Prueba de la sed:**
   - Antes del mapa, la entrada de la zona.
@@ -346,6 +346,27 @@ Un grupo (`scripts/aparicion.gd`, nodo `Aparicion` con soldados como hijos) no e
 - **Probabilidad:** con menos de 1, el grupo se sortea al empezar el mapa y en algunas partidas no sale nunca; su zona queda vacía.
 - **Azar propio:** cada soldado y cada grupo sortea con su propio generador, sacado de la semilla del mapa y de su nombre. Así, que salga un grupo no cambia lo que sortean los demás.
 - **Pruebas:** buscan la ruta sin ser visto grabando a los soldados fijos y, aparte, a cada grupo desde que sale. En la búsqueda, cada camino lleva cuándo salió cada grupo según por dónde pasó Mika. La planificación ve con margen (15° más de cono, media casilla más de alcance y todo lo que esté a menos de 1,2 casillas), porque solo mira cada 0,1 s. Ese margen la hace más prudente de la cuenta (las rutas que da son más lentas de lo necesario), así que solo se usa con grupos; `buscar_ruta` sigue sin margen. Para cada mapa nuevo con grupos, usar `buscar_ruta_con_apariciones` de `pruebas/comun.gd`.
+
+## Sentidos, «Espada, bebe mi sangre» y filos
+
+- **Sentidos** (R / RB): durante 4 s se ven todos los enemigos (soldados, vampiros, Jinetes) a través de las paredes, como siluetas. Enfriamiento de 12 s. Con sed 60 o más (Sediento) no se pueden usar. En la Prueba de la sed no hay.
+- **Espada, bebe mi sangre** (F / gatillo derecho): cuesta 3 de vida (no se puede con 3 o menos) y durante 6 s el Tajo hace el doble de daño y llega 1,5 veces más lejos. Los vampiros a 4 casillas o menos la huelen y delatan a Mika aunque no lo vean.
+- **Filos** (`scripts/filos.gd`): los diez de `contenido.md`. Mika lleva como mucho 3 durante la expedición. Se ganan al superar una emboscada, en el refugio (en lugar de curar) y en «El filo exigente»; siempre se elige uno entre dos al azar de los que no lleva, o ninguno. Con tres, elegir uno nuevo obliga a dejar otro (`filo.tscn`).
+
+| Filo | Efecto en el juego |
+| --- | --- |
+| Mudo | El Tajo no hace ruido |
+| Largo | El Tajo llega el doble de lejos en un arco estrecho delante (30°) |
+| Arterial | Derribar a un humano con el Tajo baja la sed 5 (no cuesta Humanidad) |
+| De sombra | Tras un Golpe silencioso, +2 casillas/s durante 3 s |
+| Doble | El Golpe silencioso derriba también al enemigo más cercano a 1,6 casillas del primero, si admite el golpe |
+| Veloz | El Impulso no hace ruido |
+| Del cazador | Sentidos dura el doble y los conos se ven por encima de los muros |
+| Sediento | La espada cuesta 2 de vida |
+| Paciente | En sombra, la sed no sube |
+| De Krul | Cada vial baja la sed 55 |
+
+- **Prueba:** `prueba_filos.gd`.
 
 ## Vampiros comunes
 

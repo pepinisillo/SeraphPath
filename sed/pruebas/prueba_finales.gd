@@ -23,7 +23,7 @@ func _initialize():
 	e.indice = 2
 	comprobar("la ruta arriesgada entra por el río", e.escena_infiltracion(), "res://escenas/mapa_rio.tscn")
 	comprobar("el jefe pelea en el patio", e.datos_zona().mapa_jefe, "res://escenas/mapa_patio.tscn")
-	comprobar("los eventos de la zona 3", Eventos.de_zona(3).map(func(ev): return ev.id), ["carta", "desertor", "escuadron_yuu"])
+	comprobar("los eventos de la zona 3", Eventos.de_zona(3).map(func(ev): return ev.id), ["carta", "filo_exigente", "desertor", "escuadron_yuu"])
 	e.indice = 5
 	comprobar("tras Guren se acaba la expedición", [e.zona_terminada(), e.ZONAS.has(4)], [true, false])
 

@@ -100,7 +100,8 @@ func _dibujar() -> void:
 	_dibujar_vida_del_jefe(fuente, tam)
 
 	# Panel de estado, arriba a la izquierda.
-	lienzo.draw_rect(Rect2(MARGEN - 12, MARGEN - 12, ANCHO_BARRA + 24, 150), COLOR_FONDO)
+	var con_habilidades := not mapa.prueba_de_la_sed
+	lienzo.draw_rect(Rect2(MARGEN - 12, MARGEN - 12, ANCHO_BARRA + 24, 194 if con_habilidades else 150), COLOR_FONDO)
 	var y := MARGEN
 	_texto(fuente, Vector2(MARGEN, y + 12), "Vida %d/%d" % [mika.vida, mika.vida_max], COLOR_TEXTO)
 	y += 18
@@ -116,6 +117,19 @@ func _dibujar() -> void:
 		_rombo(Vector2(MARGEN + 118 + i * 24, y + 9), i < mika.humanidad)
 	y += 26
 	_texto(fuente, Vector2(MARGEN, y + 14), "Viales de Krul: %d" % mika.viales, COLOR_TEXTO)
+	if con_habilidades:
+		y += 22
+		_texto(fuente, Vector2(MARGEN, y + 14), "Sentidos (R): %s" % _estado_sentidos(), COLOR_TEXTO if mika.revelando() or mika.sentidos_listos() else COLOR_TENUE)
+		y += 20
+		var espada := "activa %.0f s" % mika._espada_restante if mika.espada_activa() else "%d de vida" % mika.coste_espada()
+		_texto(fuente, Vector2(MARGEN, y + 14), "Espada, bebe (F): %s" % espada, COLOR_SED if mika.espada_activa() else COLOR_TEXTO)
+
+	# Filos de la espada, abajo a la izquierda, encima de las mejoras de sangre.
+	if not mika.filos.is_empty():
+		var de_filos := PackedStringArray()
+		for id in mika.filos:
+			de_filos.append(Filos.nombre(id))
+		_texto(fuente, Vector2(MARGEN, tam.y - MARGEN - (22 if not mika.mejoras.is_empty() else 0)), "Filos: " + " · ".join(de_filos), COLOR_TEXTO)
 
 	# Mejoras de sangre, abajo a la izquierda.
 	if not mika.mejoras.is_empty():
@@ -194,6 +208,16 @@ func _dibujar_voz(fuente: Font, tam: Vector2) -> void:
 	var caja := Rect2((tam.x - ancho) / 2.0, MARGEN + 46, ancho, 38)
 	lienzo.draw_rect(caja, COLOR_FONDO)
 	lienzo.draw_string(fuente, Vector2(caja.position.x, caja.position.y + 26), voz_frenesi, HORIZONTAL_ALIGNMENT_CENTER, ancho, 22, COLOR_SED)
+
+
+func _estado_sentidos() -> String:
+	if mika.revelando():
+		return "activos %.0f s" % mika._sentidos_restante
+	if mika.sed >= mika.tramo_lento:
+		return "no, con esta sed"
+	if mika._enfriamiento_sentidos > 0.0:
+		return "%.0f s" % mika._enfriamiento_sentidos
+	return "listos"
 
 
 func _tramo_sed() -> String:
