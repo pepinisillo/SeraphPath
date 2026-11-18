@@ -4,9 +4,9 @@ Lo que falta por construir, de lo más difícil a lo más sencillo. Lo que ya ex
 
 ## Muy difícil
 
-1. **Generar mapas automáticamente.** Ya existe (generador con grupos y talismanes, y herramienta que valida; los usa la emboscada). Falta variedad de formas: salas que no sean rectángulos, varios caminos.
+1. **Generar mapas automáticamente.** Ya existe (generador con grupos y talismanes, y herramienta que valida; los usa la emboscada). Ya hay salas en L y atajos; falta que no todos vayan de izquierda a derecha y usarlos en más paradas.
 2. **Jefes con fases.** Ya existen los tres (Ferid, Crowley, Guren). Falta ajustarlos jugando.
-3. **Enemigos con reglas sociales.** Ya existen todos (vampiro, Jinete, hechicero, portador). Falta que el Jinete pueda pelear con Mika si lo ataca y que la espada activa se huela.
+3. **Enemigos con reglas sociales.** Ya existen todos (vampiro, Jinete, hechicero, portador). Falta que el Jinete pueda pelear con Mika si lo ataca (los vampiros ya huelen la espada).
 4. **El final «La sangre de Yuu».** Ya existe la escena dirigida (botón Beber obligatorio, el color que vuelve). Falta la música: no hay hasta que Mika muerde.
 
 ## Difícil
@@ -19,7 +19,7 @@ Lo que falta por construir, de lo más difícil a lo más sencillo. Lo que ya ex
 
 ## Medio
 
-10. **Sistema de escenas con diálogo.** Hecho para el inicio y los recuerdos (texto poco a poco, pantalla en negro, avanzar y saltar). Falta: retratos, y usarlo en las Pruebas de la sed, eventos, refugios, jefes y finales del guion nuevo.
+10. **Sistema de escenas con diálogo.** Hecho y usado en todo el guion (inicio, recuerdos, Pruebas de la sed, eventos, refugios, jefes y finales). Falta el arte de los retratos.
 11. **Finales.** Ya existen los cuatro. Falta la música de «La sangre de Yuu».
 12. **Guardar a mitad de expedición.** Ya existe (cerrar dentro de una parada cuenta como caída).
 13. **Animaciones en 8 direcciones.** Ya conectadas (`animador.gd`): falta el arte.
