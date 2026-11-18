@@ -15,6 +15,7 @@ func dar_alarma(posicion: Vector2) -> void:
 	if not activa:
 		activa = true
 		get_parent().estadisticas.alarmas += 1
+		get_parent().sonar("alarma")
 		_hasta_refuerzo = Config.ALARMA_REFUERZO_INTERVALO
 	vista(posicion)
 

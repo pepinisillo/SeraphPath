@@ -18,6 +18,7 @@ func _init() -> void:
 	Soldado.patrullas_al_azar = false
 	Aparicion.forzar = true
 	Mapa.escenas_de_jefe = false
+	Sonido.silencio = true
 
 
 ## Saca a todos los grupos del mapa a la vez, como si Mika hubiera pisado sus zonas.

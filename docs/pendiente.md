@@ -23,7 +23,7 @@ Lo que falta por construir, de lo más difícil a lo más sencillo. Lo que ya ex
 11. **Finales.** Ya existen los cuatro. Falta la música de «La sangre de Yuu».
 12. **Guardar a mitad de expedición.** Ya existe (cerrar dentro de una parada cuenta como caída).
 13. **Animaciones en 8 direcciones.** Ya conectadas (`animador.gd`): falta el arte.
-14. **Sonido y música por capas.** Que la música cambie con el estado de alerta y con la sed.
+14. **Sonido y música por capas.** Ya funciona con sonidos generados por código. Falta la música y los efectos de verdad (propios), y la música del final.
 
 ## Sencillo
 

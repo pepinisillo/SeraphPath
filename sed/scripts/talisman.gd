@@ -32,6 +32,7 @@ func _physics_process(delta: float) -> void:
 	if mapa.mika.celda() == celda and not mapa.mika.caida:
 		activo = false
 		mapa.estadisticas.talismanes_pisados += 1
+		mapa.sonar("talisman")
 		mapa.alerta.dar_alarma(mapa.mika.pos)
 		mapa.efectos.salpicar(Vector2(celda) + Vector2(0.5, 0.5), COLOR_TINTA, 14)
 	queue_redraw()

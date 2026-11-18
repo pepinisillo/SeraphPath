@@ -646,6 +646,15 @@ Combate contra un arma maldita. Escena `mapa_patio.tscn` (22 × 16), script `scr
 - **El escuadrón de Yuu** (quedarse mirando): la siguiente Prueba de la sed empieza más cerca de la salida (`inicio_cerca` del mapa, (6,6)).
 - **La escena del fondo de la zona 3** («En el suelo»): aparece el botón Beber. Se puede seguir sin beber; si se bebe, la prueba queda **cedida**: pierde el recuerdo recién ganado y 1 de Humanidad, la sed baja a 0, gana una mejora al azar y se ve el texto de cedida de la zona 3.
 
+## Sonido (provisional)
+
+`scripts/sonido.gd`, uno por mapa. Todo se genera por código, como las cápsulas son arte provisional: no hay archivos de audio.
+
+- **Efectos:** Tajo (silbido), Golpe silencioso (golpe sordo), Impulso, golpe recibido, alarma (dos tonos), sospecha (un aviso corto), beber (latido grave), vial (cristal) y talismán (campana).
+- **Música por capas**, que suben y bajan poco a poco: un acorde grave de fondo siempre; un pulso lento mientras algún enemigo sospecha (o un vampiro es testigo); un pulso rápido en Alarma; y un latido que crece a partir de sed 40 y, en el Frenesí, lo tapa todo.
+- **Música de verdad:** basta con cambiar el `stream` de cada capa por un archivo.
+- Las pruebas lo apagan (`Sonido.silencio`). Prueba: `prueba_sonido.gd`.
+
 ## Controles táctiles (móvil)
 
 `scripts/controles_tactiles.gd`. Solo aparecen en pantallas táctiles: un joystick a la izquierda (donde se apoye el pulgar) y, a la derecha, Tajo, Golpe, Impulso, Beber (se mantiene), Vial, Sentidos, Espada y Pausa. Pulsan las mismas acciones que el teclado y el mando, con la fuerza del joystick, así que el juego no distingue de dónde vienen. En los menús y escenas, Godot convierte los toques en clics. Falta probarlos en un teléfono y exportar para Android. Prueba: `prueba_tactil.gd`.

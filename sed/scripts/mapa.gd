@@ -50,6 +50,7 @@ var punto_de_control := 0 # el último que pasó Mika
 var vampiros_callados := false # evento «Lacus y René»: los vampiros de este mapa no lo delatan
 var celdas_prohibidas: Array[Vector2i] = []
 var ferid: Ferid
+var sonido: Sonido
 var jefe_combate: Crowley # Crowley o Guren: el jefe con el que se pelea
 
 var filas: PackedStringArray = []
@@ -120,6 +121,10 @@ func _ready() -> void:
 	var hud := get_node_or_null("HUD")
 	if hud:
 		hud.iniciar(self)
+	sonido = Sonido.new()
+	sonido.name = "Sonido"
+	add_child(sonido)
+	sonido.iniciar(self)
 	var menu := MenuPausa.new()
 	menu.name = "MenuPausa"
 	add_child(menu)
@@ -233,6 +238,12 @@ func talismanes_activos() -> Array[Vector2i]:
 		if soldado is Hechicero:
 			lista.append_array(soldado.talismanes_activos())
 	return lista
+
+
+## Suena un efecto (ver Sonido.efecto).
+func sonar(nombre: String) -> void:
+	if sonido:
+		sonido.efecto(nombre)
 
 
 func es_prohibida(celda: Vector2i) -> bool:

@@ -308,6 +308,8 @@ func _alarma(ve: bool, delta: float) -> void:
 
 
 func _investigar(punto: Vector2) -> void:
+	if estado == Estado.OCULTO:
+		mapa.sonar("sospecha")
 	estado = Estado.SOSPECHA
 	_punto_investigado = punto
 	_buscando = false

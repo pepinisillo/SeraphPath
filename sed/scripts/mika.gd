@@ -317,6 +317,7 @@ func recibir_golpe(dano: int) -> void:
 		salvacion_disponible = false
 	_destello = Config.DESTELLO_DURACION
 	mapa.efectos.golpe_recibido(pos)
+	mapa.sonar("golpe")
 	if vida <= 0:
 		vida = 0
 		caida = true
@@ -349,6 +350,7 @@ func empezar_a_beber(forzado := false) -> bool:
 	_bebiendo = fuente
 	_beber_forzado = forzado
 	_bebido = 0.0
+	mapa.sonar("beber")
 	if _bebiendo.pos.distance_to(pos) > 0.01:
 		mirada = (_bebiendo.pos - pos).normalized()
 	return true
@@ -424,6 +426,7 @@ func tomar_vial() -> bool:
 	if viales <= 0 or _vial_restante > 0.0:
 		return false
 	_vial_restante = Config.VIAL_DURACION
+	mapa.sonar("vial")
 	return true
 
 
@@ -502,6 +505,7 @@ func tajo() -> bool:
 			conecto = true
 	if a_un_vampiro:
 		mapa.acto_prohibido("ataque")
+	mapa.sonar("tajo")
 	if not tiene_filo(Filos.MUDO):
 		mapa.hacer_ruido(pos)
 	return true
@@ -533,6 +537,7 @@ func golpe_silencioso() -> bool:
 		mapa.efectos.derribo_silencioso(golpeado.pos)
 	if tiene_filo(Filos.SOMBRA):
 		_sombra_restante = Config.FILO_SOMBRA_DURACION
+	mapa.sonar("silencioso")
 	return true
 
 
@@ -547,6 +552,7 @@ func impulso(entrada: Vector2) -> bool:
 	_enfriamiento_impulso = Config.IMPULSO_ENFRIAMIENTO
 	_hasta_silueta = 0.0
 	sumar_sed(sed_impulso)
+	mapa.sonar("impulso")
 	if not tiene_filo(Filos.VELOZ):
 		mapa.hacer_ruido(pos)
 	return true
