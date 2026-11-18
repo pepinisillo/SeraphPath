@@ -184,7 +184,7 @@ Infiltración ───┤                               ├── Prueba de la 
   - Superada: desbloquea el siguiente recuerdo y lo enseña.
   - Fallida: el siguiente mapa empieza en Alarma.
 - **Jefe:** Ferid Bathory aún no existe. Llegar a él termina, por ahora, la expedición.
-- **Inicio:** antes de la primera expedición se ve la escena con Krul, una sola vez (queda apuntado en `user://recuerdos.cfg`).
+- **Inicio:** antes de la primera expedición se ve la escena con Krul, una sola vez (queda apuntado en `user://recuerdos.cfg`). En las siguientes sale solo la línea de la caja de Krul (sección «Cada expedición» del guion), donde `{viales}` se cambia por el número de viales en letra: «dos», o «cuatro» con el recuerdo 1.
 - **Recuerdos:** se guardan en disco (`user://recuerdos.cfg`) y se pueden releer desde el título.
   - Se ganan en orden. El 7, «Lo que nunca dije», no se gana con Humanidad 0.
   - El comentario del otro Yuu depende de la Humanidad: «hambriento» con 3, «lleno» con 2 o 1, y con 0 un silencio de 3 s. En la galería del título se leen como con Humanidad 3.

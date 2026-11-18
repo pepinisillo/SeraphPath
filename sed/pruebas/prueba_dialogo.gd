@@ -18,6 +18,14 @@ de un pasillo.
 
 ---
 
+## Cada expedición
+
+*(Nota.)*
+
+Dentro había {viales} viales.
+
+---
+
 ## Recuerdos
 
 ### 1. El primero
@@ -53,6 +61,9 @@ func _initialize():
 	var inicio := Guion.inicio()
 	comprobar("inicio: acotación fuera, párrafo de dos líneas unido, corta en ---", inicio.map(func(g): return [g.tipo, g.texto]),
 		[["narracion", "Mika despertó en el suelo de un pasillo."], ["dialogo", "—Tres —dijo una voz—. Tres días."]])
+	comprobar("cada expedición: viales en letra", [Guion.cada_expedicion(2)[0].texto, Guion.cada_expedicion(4)[0].texto],
+		["Dentro había dos viales.", "Dentro había cuatro viales."])
+	comprobar("el inicio no se come la sección siguiente", Guion.inicio().size(), 2)
 	var r1 := Guion.recuerdo(1)
 	comprobar("recuerdo 1: tipos", r1.map(func(g): return g.tipo), ["narracion", "negro", "dialogo", "ahora", "otro_yuu", "otro_yuu"])
 	comprobar("negritas fuera", r1[2].texto, "—Hola —dijo Mika.")
@@ -105,6 +116,13 @@ func _initialize():
 	comprobar("con Humanidad 0 no se gana la confesión", [expe.ganar_recuerdo(), expe.recuerdos.size()], [0, 6])
 	expe.humanidad = 1
 	comprobar("con Humanidad 1 sí", expe.ganar_recuerdo(), 7)
+
+	print("E) Escena antes de la expedición")
+	expe.inicio_visto = false
+	expe.nueva()
+	comprobar("la primera vez, el inicio completo", expe.escena_de_inicio().size(), 2)
+	expe.inicio_visto = true
+	comprobar("después, la caja con 4 viales (tiene el recuerdo 1)", expe.escena_de_inicio()[0].texto, "Dentro había cuatro viales.")
 	DirAccess.remove_absolute(ProjectSettings.globalize_path(expe.archivo_recuerdos))
 
 	DirAccess.remove_absolute(ProjectSettings.globalize_path(CARPETA.path_join(Guion.ARCHIVO_INICIO)))

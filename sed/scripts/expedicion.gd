@@ -118,13 +118,18 @@ func toca_elegir_ruta() -> bool:
 	return indice == 1 and ruta == ""
 
 
-## Empieza una expedición nueva. La primera vez, antes, la escena del inicio (si hay guion).
+## Empieza una expedición nueva. Antes, la escena del inicio: la completa la primera vez y la
+## línea corta de la caja de Krul las siguientes (si hay guion).
 func empezar() -> void:
 	nueva()
-	if not inicio_visto and not Guion.inicio().is_empty():
+	if not escena_de_inicio().is_empty():
 		_cambiar(ESCENA_INICIO)
 	else:
 		ir_a_ruta()
+
+
+func escena_de_inicio() -> Array[Dictionary]:
+	return Guion.cada_expedicion(viales) if inicio_visto else Guion.inicio()
 
 
 func marcar_inicio_visto() -> void:

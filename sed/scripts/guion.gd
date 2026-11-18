@@ -71,6 +71,19 @@ static func inicio() -> Array[Dictionary]:
 	return seccion(ARCHIVO_INICIO, "Inicio")
 
 
+## La línea corta del inicio de las demás expediciones, con {viales} cambiado por el número en letra.
+static func cada_expedicion(viales: int) -> Array[Dictionary]:
+	var golpes := seccion(ARCHIVO_INICIO, "Cada expedición")
+	for g in golpes:
+		g.texto = g.texto.replace("{viales}", en_letra(viales))
+	return golpes
+
+
+static func en_letra(n: int) -> String:
+	const NUMEROS := ["ningún", "un", "dos", "tres", "cuatro", "cinco", "seis", "siete", "ocho", "nueve", "diez"]
+	return NUMEROS[n] if n >= 0 and n < NUMEROS.size() else str(n)
+
+
 ## Título del recuerdo `n` según el guion ("" si no hay guion).
 static func titulo_recuerdo(n: int) -> String:
 	for linea in _lineas(ARCHIVO_INICIO):
