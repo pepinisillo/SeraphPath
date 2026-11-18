@@ -28,6 +28,8 @@ const COLOR_PROHIBIDA := Paleta.VAMPIROS
 @export var entrada_refuerzos := Vector2i(9, 0)
 ## Ruta del vampiro de más que trae el evento «La doncella de Krul» (vacía: no cabe en este mapa).
 @export var ruta_vampiro_extra: Array[Vector2i] = []
+## Ruta del Jinete que suelta el evento «El Jinete dormido» (vacía: no cabe en este mapa).
+@export var ruta_jinete_suelto: Array[Vector2i] = []
 
 @export_group("Jefe")
 ## Nombre del jefe en el guion («Ferid Bathory»); vacío si el mapa no es de jefe.
@@ -46,6 +48,7 @@ var punto_de_control := 0 # el último que pasó Mika
 var vampiros_callados := false # evento «Lacus y René»: los vampiros de este mapa no lo delatan
 var celdas_prohibidas: Array[Vector2i] = []
 var ferid: Ferid
+var crowley: Crowley
 
 var filas: PackedStringArray = []
 var ancho := 0
@@ -87,6 +90,8 @@ func _ready() -> void:
 		soldado.iniciar(self)
 	for vampiro in vampiros():
 		vampiro.iniciar(self)
+	for jinete in jinetes():
+		jinete.iniciar(self)
 	for aparicion in apariciones():
 		aparicion.iniciar(self)
 	for i in celdas_eco.size():
@@ -105,6 +110,10 @@ func _ready() -> void:
 		ferid = load("res://escenas/ferid.tscn").instantiate()
 		add_child(ferid)
 		ferid.iniciar(self, inicio_jefe)
+	elif jefe == "Crowley Eusford" and inicio_jefe.x >= 0:
+		crowley = load("res://escenas/crowley.tscn").instantiate()
+		add_child(crowley)
+		crowley.iniciar(self, inicio_jefe)
 	var hud := get_node_or_null("HUD")
 	if hud:
 		hud.iniciar(self)
@@ -338,6 +347,32 @@ func apariciones() -> Array[Aparicion]:
 	return lista
 
 
+func jinetes() -> Array[Jinete]:
+	var lista: Array[Jinete] = []
+	for hijo in get_children():
+		if hijo is Jinete:
+			lista.append(hijo)
+	return lista
+
+
+## Evento «El Jinete dormido» (atraerlo): 2 soldados menos y un Jinete suelto, si el mapa tiene sitio.
+func soltar_jinete() -> void:
+	var quitados := 0
+	for soldado in soldados():
+		if quitados >= 2:
+			break
+		soldado.queue_free()
+		remove_child(soldado)
+		quitados += 1
+	if ruta_jinete_suelto.is_empty():
+		return
+	var jinete: Jinete = load("res://escenas/jinete.tscn").instantiate()
+	jinete.name = "JineteSuelto"
+	jinete.ruta = ruta_jinete_suelto
+	add_child(jinete)
+	jinete.iniciar(self)
+
+
 func vampiros() -> Array[Vampiro]:
 	var lista: Array[Vampiro] = []
 	for hijo in get_children():
@@ -346,11 +381,13 @@ func vampiros() -> Array[Vampiro]:
 	return lista
 
 
-## Lo que Mika puede atacar: soldados y vampiros.
+## Lo que Mika puede atacar: soldados, vampiros y el jefe con el que se pelea (Crowley).
 func atacables() -> Array:
 	var lista: Array = [] # sin tipo: soldados y vampiros juntos
 	lista.append_array(soldados())
 	lista.append_array(vampiros())
+	if crowley:
+		lista.append(crowley)
 	return lista
 
 
@@ -388,6 +425,9 @@ func hacer_ruido(origen: Vector2) -> void:
 	for soldado in soldados():
 		if soldado.pos.distance_to(origen) <= Config.RUIDO_RADIO:
 			soldado.oir(origen)
+	for jinete in jinetes():
+		if jinete.pos.distance_to(origen) <= Config.JINETE_OIDO:
+			jinete.oir(origen)
 	var onda := OndaRuido.new()
 	onda.position = Iso.a_pantalla(origen)
 	add_child(onda)

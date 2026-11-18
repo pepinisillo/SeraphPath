@@ -9,4 +9,5 @@ const VAMPIROS := Color("7a5fa8") # violeta frío
 const TURQUESA := Color("4fb8a8") # viales y salida
 const AMBAR := Color("e0a83a") # sospecha
 const ROJO := Color("c8323c") # sangre, sed y alarma
+const JINETES := Color("3a3f4d") # gris pizarra, con borde blanco hueso para que se vea
 const CALMA := Color("9eccff") # cono en calma, vida y avisos neutros (azul frío)

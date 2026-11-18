@@ -123,6 +123,19 @@ const VAMPIRO_VELOCIDAD := 2.4 # casillas/s patrullando
 const VAMPIRO_AVISO := 1.5 # s desde que ve algo prohibido hasta que delata (si no lo callan)
 const VAMPIRO_PROHIBIDA := 0.5 # s viendo a Mika en una zona prohibida antes de reaccionar
 
+# --- Jinete del Apocalipsis (caza humanos, ignora a los vampiros y a Mika) ---
+const JINETE_VIDA := 14 # (aún no se le puede atacar)
+const JINETE_DANO := 5 # derriba a un soldado de un golpe
+const JINETE_VELOCIDAD := 1.6 # casillas/s vagando
+const JINETE_VELOCIDAD_ACUDE := 3.0 # casillas/s yendo a un ruido
+const JINETE_VELOCIDAD_CAZA := 4.0 # casillas/s persiguiendo a un soldado
+const JINETE_OIDO := 8.0 # casillas: oye los ruidos desde más lejos que un soldado
+const JINETE_VISION := 6.0 # casillas
+const JINETE_ANGULO := 120.0 # grados
+const JINETE_ALCANCE := 0.9 # casillas para golpear
+const JINETE_GOLPE_INTERVALO := 0.8
+const JINETE_PAUSA := 1.5 # s quieto en cada punto de su ruta
+
 # --- Ferid Bathory (jefe de la zona 1: no se le vence, se le escapa) ---
 const FERID_VELOCIDAD := 6.5 # casillas/s persiguiendo: más que Mika (5,5; sediento, 3,5), no basta con correr
 const FERID_ATRAPA := 0.6 # casillas: a esta distancia atrapa a Mika
@@ -140,6 +153,28 @@ const FERID_RECUPERACION := 0.8 # s quieto tras embestir: la ventana para ganarl
 const FERID_REINICIO := 6.0 # casillas por detrás del punto de control al que vuelve Mika
 const FERID_FRASE := 4.0 # s entre frases de Ferid
 const FERID_FRASE_OTRO_YUU := 9.0 # s entre frases del otro Yuu (Humanidad 1 o más)
+
+# --- Crowley Eusford (jefe de la zona 2: combate abierto; se rinde al llegar a 0) ---
+const CROWLEY_VIDA := 30
+const CROWLEY_DANO := 6
+const CROWLEY_VELOCIDAD := 3.2 # casillas/s acercándose
+const CROWLEY_AVISO := 0.7 # s de aviso del tajo y la carga
+const CROWLEY_AVISO_TORBELLINO := 0.9
+const CROWLEY_RECUPERACION := 0.9 # s expuesto tras cada ataque
+const CROWLEY_DANO_EN_GUARDIA := 0.25 # fuera de la recuperación, solo le entra esta parte del daño
+const CROWLEY_PAUSA_ENTRE_ATAQUES := 0.6 # s acercándose antes de poder atacar otra vez
+const CROWLEY_TAJO_ALCANCE := 2.2 # casillas (más que el Tajo de Mika: hay que entrar a pegarle)
+const CROWLEY_TAJO_ANGULO := 140.0 # grados del abanico
+const CROWLEY_CARGA_ALCANCE := 7.0 # desde esta distancia carga
+const CROWLEY_CARGA_MINIMA := 3.5 # más cerca, prefiere el tajo
+const CROWLEY_CARGA_DISTANCIA := 9.0
+const CROWLEY_CARGA_DURACION := 0.3
+const CROWLEY_CARGA_ANCHO := 0.7 # casillas a cada lado de la línea
+const CROWLEY_TORBELLINO_RADIO := 2.6
+const CROWLEY_FASE2_VIDA := 0.5 # fracción de vida a la que empieza la segunda fase
+const CROWLEY_FASE2_AVISO := 0.75 # los avisos duran esto (fracción) en la segunda fase
+const CROWLEY_FASE2_VELOCIDAD := 1.3
+const CROWLEY_POCA_VIDA := 0.25 # fracción a la que dice su frase de «con poca vida»
 
 # --- Escenas con diálogo ---
 const DIALOGO_LETRAS_POR_S := 55.0 # velocidad del texto que aparece poco a poco

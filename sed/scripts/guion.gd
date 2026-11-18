@@ -292,9 +292,10 @@ static func jefe_despues(jefe: String) -> Array[Dictionary]:
 	return sin_notas(seccion(ARCHIVO_JEFES, "Después", jefe))
 
 
-## Frases de un jefe durante el combate: {persigue, atrapa, otro_yuu}, cada una una lista de textos.
+## Frases de un jefe durante el combate: {persigue, atrapa, otro_yuu, fase2, poca_vida}, cada una
+## una lista de textos («persigue»: las de siempre; «poca_vida»: las marcadas «Con poca vida»).
 static func jefe_durante(jefe: String) -> Dictionary:
-	var frases_de := {"persigue": PackedStringArray(), "atrapa": PackedStringArray(), "otro_yuu": PackedStringArray(), "fase2": PackedStringArray()}
+	var frases_de := {"persigue": PackedStringArray(), "atrapa": PackedStringArray(), "otro_yuu": PackedStringArray(), "fase2": PackedStringArray(), "poca_vida": PackedStringArray()}
 	for grupo in grupos(ARCHIVO_JEFES, "Durante", jefe):
 		var nota: String = grupo.nota.to_lower()
 		var clave := "persigue"
@@ -306,7 +307,8 @@ static func jefe_durante(jefe: String) -> Dictionary:
 			clave = "fase2"
 		for e in grupo.elementos:
 			if not e.golpes.is_empty():
-				frases_de[clave].append(sin_comillas(e.golpes[0].texto))
+				var de: String = "poca_vida" if e.condicion.to_lower().contains("poca vida") else clave
+				frases_de[de].append(sin_comillas(e.golpes[0].texto))
 	return frases_de
 
 

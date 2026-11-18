@@ -97,6 +97,7 @@ func _dibujar() -> void:
 	if mika.sin_control():
 		_dibujar_frenesi(fuente, tam)
 	_dibujar_voz(fuente, tam)
+	_dibujar_vida_del_jefe(fuente, tam)
 
 	# Panel de estado, arriba a la izquierda.
 	lienzo.draw_rect(Rect2(MARGEN - 12, MARGEN - 12, ANCHO_BARRA + 24, 150), COLOR_FONDO)
@@ -170,6 +171,20 @@ func decir(frase: String) -> void:
 func _decir(frase: String) -> void:
 	voz_frenesi = frase
 	_voz_restante = Config.VOZ_FRENESI_DURACION
+
+
+## Barra de vida del jefe de combate (Crowley), abajo en el centro.
+func _dibujar_vida_del_jefe(fuente: Font, tam: Vector2) -> void:
+	var jefe := mapa.crowley
+	if jefe == null:
+		return
+	var ancho := minf(560.0, tam.x - 2 * MARGEN)
+	var x := (tam.x - ancho) / 2.0
+	var y := tam.y - MARGEN - 18.0
+	lienzo.draw_string(fuente, Vector2(x, y - 8), mapa.jefe, HORIZONTAL_ALIGNMENT_LEFT, ancho, 18, COLOR_TEXTO)
+	lienzo.draw_rect(Rect2(x - 2, y - 2, ancho + 4, 14), COLOR_FONDO)
+	lienzo.draw_rect(Rect2(x, y, ancho * float(jefe.vida) / Config.CROWLEY_VIDA, 10), Paleta.VAMPIROS)
+	lienzo.draw_rect(Rect2(x + ancho * Config.CROWLEY_FASE2_VIDA - 1, y - 2, 2, 14), COLOR_TEXTO) # dónde empieza la segunda fase
 
 
 func _dibujar_voz(fuente: Font, tam: Vector2) -> void:

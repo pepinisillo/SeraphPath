@@ -1,0 +1,84 @@
+[gd_scene format=3]
+
+[ext_resource type="Script" path="res://scripts/mapa.gd" id="1_mapa"]
+[ext_resource type="TileSet" path="res://recursos/casillas.tres" id="2_casillas"]
+[ext_resource type="PackedScene" path="res://escenas/mika.tscn" id="3_mika"]
+[ext_resource type="PackedScene" path="res://escenas/soldado.tscn" id="4_soldado"]
+[ext_resource type="Script" path="res://scripts/alerta.gd" id="5_alerta"]
+[ext_resource type="PackedScene" path="res://escenas/hud.tscn" id="6_hud"]
+[ext_resource type="Script" path="res://scripts/muros.gd" id="7_muros"]
+[ext_resource type="Script" path="res://scripts/aparicion.gd" id="8_aparicion"]
+[ext_resource type="PackedScene" path="res://escenas/vampiro.tscn" id="9_vampiro"]
+[ext_resource type="PackedScene" path="res://escenas/jinete.tscn" id="10_jinete"]
+
+[node name="MapaShinjuku" type="Node2D"]
+y_sort_enabled = true
+script = ExtResource("1_mapa")
+plano = "##..#######..#######..######..##
+......#.........s.......#......E
+......s.........#.......s.......
+##..#######..#######..######..##
+##..#######..#######..xxxx##..##
+##..#######s########..xxVx##s###
+##..#######..#######..xxxx##..##
+##..#######..#######..######..##
+##..#######..#######..######..##
+.......s.................#......
+.......#.................s......
+##..#######..s........######..##
+##..#######...........######..##
+##s########.........s#######s###
+##..#######...........######..##
+##..#######........s..######..##
+......s.........#.......s.......
+......#.........s.......#.......
+M#..#######..#######..######..##
+##..#######..#######..######..##"
+nombre = "Ruinas de Shinjuku"
+entrada_refuerzos = Vector2i(31, 9)
+ruta_vampiro_extra = Array[Vector2i]([Vector2i(3, 2), Vector2i(10, 2)])
+ruta_jinete_suelto = Array[Vector2i]([Vector2i(13, 2), Vector2i(19, 2)])
+
+[node name="Alerta" type="Node" parent="."]
+script = ExtResource("5_alerta")
+
+[node name="Suelo" type="TileMapLayer" parent="."]
+z_index = -2
+tile_set = ExtResource("2_casillas")
+
+[node name="Muros" type="TileMapLayer" parent="."]
+y_sort_enabled = true
+tile_set = ExtResource("2_casillas")
+script = ExtResource("7_muros")
+
+[node name="Mika" parent="." instance=ExtResource("3_mika")]
+
+[node name="K1" parent="." instance=ExtResource("4_soldado")]
+ruta = Array[Vector2i]([Vector2i(19, 9), Vector2i(3, 9)])
+en_bucle = false
+
+[node name="K2" parent="." instance=ExtResource("4_soldado")]
+ruta = Array[Vector2i]([Vector2i(11, 3), Vector2i(11, 15)])
+en_bucle = false
+
+[node name="K3" parent="." instance=ExtResource("4_soldado")]
+ruta = Array[Vector2i]([Vector2i(31, 16), Vector2i(17, 16)])
+en_bucle = false
+
+[node name="VS1" parent="." instance=ExtResource("9_vampiro")]
+ruta = Array[Vector2i]([Vector2i(21, 3), Vector2i(21, 8)])
+en_bucle = false
+
+[node name="J1" parent="." instance=ExtResource("10_jinete")]
+ruta = Array[Vector2i]([Vector2i(14, 12), Vector2i(18, 12), Vector2i(18, 14), Vector2i(14, 14)])
+
+[node name="GrupoAzotea" type="Node2D" parent="."]
+script = ExtResource("8_aparicion")
+zonas = Array[Rect2i]([Rect2i(20, 1, 4, 2), Rect2i(28, 9, 2, 4)])
+probabilidad = 1.0
+
+[node name="G1" parent="GrupoAzotea" instance=ExtResource("4_soldado")]
+ruta = Array[Vector2i]([Vector2i(31, 2), Vector2i(25, 2)])
+en_bucle = false
+
+[node name="HUD" parent="." instance=ExtResource("6_hud")]

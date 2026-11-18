@@ -9,17 +9,18 @@ var _cerca := PackedVector2Array() # puntos del borde de la zona cercana
 var _color := Color.WHITE
 
 
-func actualizar(mapa: Mapa, origen: Vector2, mirada: Vector2, color: Color) -> void:
+## `angulo` y `alcance`: los del enemigo (por defecto, los de soldados y vampiros).
+func actualizar(mapa: Mapa, origen: Vector2, mirada: Vector2, color: Color, angulo_total := Config.VISION_ANGULO, alcance := Config.VISION_ALCANCE) -> void:
 	_lejos = PackedVector2Array()
 	_cerca = PackedVector2Array()
 	_color = color
 	var origen_pantalla := Iso.a_pantalla(origen)
-	var medio := deg_to_rad(Config.VISION_ANGULO) / 2.0
+	var medio := deg_to_rad(angulo_total) / 2.0
 	var base := mirada.angle()
 	for i in Config.VISION_RAYOS + 1:
 		var angulo := base - medio + 2.0 * medio * i / Config.VISION_RAYOS
 		var dir := Vector2.from_angle(angulo)
-		var largo := mapa.distancia_hasta_muro(origen, dir, Config.VISION_ALCANCE)
+		var largo := mapa.distancia_hasta_muro(origen, dir, alcance)
 		var corto := minf(largo, Config.DETECCION_DISTANCIA_CERCA)
 		_lejos.append(Iso.a_pantalla(origen + dir * largo) - origen_pantalla)
 		_cerca.append(Iso.a_pantalla(origen + dir * corto) - origen_pantalla)

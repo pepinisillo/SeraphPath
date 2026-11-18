@@ -38,10 +38,10 @@ const TODOS := [
 		],
 	},
 	{
-		"id": "jinete_dormido", "titulo": "El Jinete dormido", "zona": 2, "requiere": "jinetes",
+		"id": "jinete_dormido", "titulo": "El Jinete dormido", "zona": 2,
 		"opciones": [
 			{"texto": "Rodearlo", "efectos": {"sed": 10}},
-			{"texto": "Atraerlo al puesto humano", "efectos": {"pendiente": "el siguiente mapa tendrá 2 soldados menos y un Jinete suelto"}},
+			{"texto": "Atraerlo al puesto humano", "efectos": {"jinete_suelto": true}},
 		],
 	},
 	{
@@ -120,6 +120,8 @@ static func describir(efectos: Dictionary) -> String:
 		partes.append("ves todas las patrullas de la zona")
 	if efectos.has("vampiro_extra"):
 		partes.append("el siguiente mapa tiene un vampiro más")
+	if efectos.has("jinete_suelto"):
+		partes.append("el siguiente mapa tiene 2 soldados menos y un Jinete suelto")
 	if efectos.has("vampiros_callados"):
 		partes.append("los vampiros del siguiente mapa no te delatan")
 	if efectos.has("pendiente"):

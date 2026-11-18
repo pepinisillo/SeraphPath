@@ -5,8 +5,8 @@ Lo que falta por construir, de lo más difícil a lo más sencillo. Lo que ya ex
 ## Muy difícil
 
 1. **Generar mapas automáticamente.** Crear mapas de infiltración al azar y quedarse solo con los que se pueden cruzar sin ser visto y exigen esconderse. La búsqueda de rutas de `sed/pruebas/comun.gd` ya sirve para validarlos.
-2. **Jefes con fases.** Ferid Bathory ya existe (persecución con embestidas anunciadas). Faltan Crowley Eusford (combate abierto) y Guren Ichinose (arma maldita).
-3. **Enemigos con reglas sociales.** El vampiro común ya existe. Faltan el hechicero de talismanes, el portador de arma maldita y el Jinete del Apocalipsis, y que convivan todos.
+2. **Jefes con fases.** Ferid Bathory y Crowley Eusford ya existen. Falta Guren Ichinose (arma maldita, zona 3).
+3. **Enemigos con reglas sociales.** El vampiro común y el Jinete del Apocalipsis ya existen. Faltan el hechicero de talismanes y el portador de arma maldita.
 4. **El final «La sangre de Yuu».** Escena dirigida:
    - El jugador pulsa el botón de Beber que evitó toda la partida, y esta vez no cuesta Humanidad.
    - No hay música hasta la última línea de Yuu.
@@ -14,7 +14,7 @@ Lo que falta por construir, de lo más difícil a lo más sencillo. Lo que ya ex
 
 ## Difícil
 
-5. **Zonas 2 y 3 completas.** Ruinas de Shinjuku y Shibuya, con sus mapas, enemigos, eventos y jefes.
+5. **Zona 3 completa.** Shibuya, con sus mapas, enemigos (hechicero, portador de arma maldita), eventos y Guren. La zona 2 ya existe.
 6. **Romance repartido por la partida.** Que la palabra «familia» cambie solo en el final con Humanidad 3, y que los eventos de Yuu conecten con las Pruebas de la sed. Es delicado sobre todo por el tono.
 7. **Filos y habilidades que faltan.** Los diez filos, Sentidos y «Espada, bebe mi sangre», combinables sin romper el equilibrio.
 8. **Ajustar la dificultad con jugadores automáticos.** Medir tiempos, sed gastada y caídas en muchas partidas simuladas, y ajustar los números con esos datos.

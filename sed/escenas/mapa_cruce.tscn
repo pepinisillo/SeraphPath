@@ -1,0 +1,51 @@
+[gd_scene format=3]
+
+[ext_resource type="Script" path="res://scripts/mapa.gd" id="1_mapa"]
+[ext_resource type="TileSet" path="res://recursos/casillas.tres" id="2_casillas"]
+[ext_resource type="PackedScene" path="res://escenas/mika.tscn" id="3_mika"]
+[ext_resource type="PackedScene" path="res://escenas/soldado.tscn" id="4_soldado"]
+[ext_resource type="Script" path="res://scripts/alerta.gd" id="5_alerta"]
+[ext_resource type="PackedScene" path="res://escenas/hud.tscn" id="6_hud"]
+[ext_resource type="Script" path="res://scripts/muros.gd" id="7_muros"]
+[ext_resource type="Script" path="res://scripts/aparicion.gd" id="8_aparicion"]
+[ext_resource type="PackedScene" path="res://escenas/vampiro.tscn" id="9_vampiro"]
+[ext_resource type="PackedScene" path="res://escenas/jinete.tscn" id="10_jinete"]
+
+[node name="MapaCruce" type="Node2D"]
+y_sort_enabled = true
+script = ExtResource("1_mapa")
+plano = "......................
+......................
+......................
+....s##s..............
+............s#####s...
+......................
+......................
+......................
+.M.......s#...........
+..................#...
+......................
+......................
+....s##s........#s....
+......................
+......................
+......................"
+nombre = "El cruce"
+jefe = "Crowley Eusford"
+inicio_jefe = Vector2i(15, 6)
+
+[node name="Alerta" type="Node" parent="."]
+script = ExtResource("5_alerta")
+
+[node name="Suelo" type="TileMapLayer" parent="."]
+z_index = -2
+tile_set = ExtResource("2_casillas")
+
+[node name="Muros" type="TileMapLayer" parent="."]
+y_sort_enabled = true
+tile_set = ExtResource("2_casillas")
+script = ExtResource("7_muros")
+
+[node name="Mika" parent="." instance=ExtResource("3_mika")]
+
+[node name="HUD" parent="." instance=ExtResource("6_hud")]

@@ -23,14 +23,35 @@ const ESCENA_TUNELES := "res://escenas/mapa_tuneles.tscn"
 const ESCENA_PRUEBA := "res://escenas/mapa_prueba_sed.tscn"
 const ESCENA_JEFE := "res://escenas/mapa_hangar.tscn"
 
-## Zona 1: infiltración, dos rutas de dos paradas, Prueba de la sed y jefe.
+## Las zonas de la expedición, en orden: nombre, mapas (la primera infiltración, la de la ruta
+## arriesgada y el del jefe) y cómo se describen en el mapa de paradas. Al escapar del jefe de
+## una zona se pasa a la siguiente; tras la última, el final.
+const ZONAS := {
+	1: {
+		"nombre": "Sanguinem", "jefe": "Ferid Bathory",
+		"infiltracion": ESCENA_INFILTRACION, "arriesgada": ESCENA_TUNELES, "mapa_jefe": ESCENA_JEFE,
+		"texto_infiltracion": "Cruza el puesto de control hasta la salida.",
+		"texto_arriesgada": "Cruza los túneles de abastecimiento hasta la salida.",
+		"texto_jefe": "No se le vence: se le escapa. Llega a la rampa del avión mientras te persigue.",
+	},
+	2: {
+		"nombre": "Ruinas de Shinjuku", "jefe": "Crowley Eusford",
+		"infiltracion": "res://escenas/mapa_shinjuku.tscn", "arriesgada": "res://escenas/mapa_estacion.tscn",
+		"mapa_jefe": "res://escenas/mapa_cruce.tscn",
+		"texto_infiltracion": "Cruza las ruinas de Shinjuku, entre soldados y Jinetes.",
+		"texto_arriesgada": "Cruza la estación hundida hasta la salida.",
+		"texto_jefe": "Combate abierto. Aguanta hasta que se rinda.",
+	},
+}
+
+## Cada zona: infiltración, dos rutas de dos paradas, Prueba de la sed y jefe.
 const RUTAS := {
 	"segura": ["refugio", "evento"],
 	"arriesgada": ["emboscada", "infiltracion"],
 }
 const NOMBRES := {
 	"infiltracion": "Infiltración", "emboscada": "Emboscada", "evento": "Evento",
-	"refugio": "Refugio", "prueba": "Prueba de la sed", "jefe": "Jefe: Ferid Bathory",
+	"refugio": "Refugio", "prueba": "Prueba de la sed", "jefe": "Jefe",
 }
 const TOTAL_RECUERDOS := 7
 const RECUERDO_CONFESION := 7 # solo se gana con Humanidad 1 o más (Mika necesita a quién decírselo)
@@ -71,6 +92,7 @@ var escena_golpes: Array[Dictionary] = []
 var escena_tras_parada: Array[Dictionary] = []
 var siguiente_vampiro_extra := false # evento «La doncella de Krul»
 var siguiente_vampiros_callados := false # evento «Lacus y René»
+var siguiente_jinete_suelto := false # evento «El Jinete dormido»
 var _tras_escena: Callable
 var rng := RandomNumberGenerator.new()
 
@@ -114,6 +136,7 @@ func nueva() -> void:
 	escena_tras_parada = []
 	siguiente_vampiro_extra = false
 	siguiente_vampiros_callados = false
+	siguiente_jinete_suelto = false
 	rng.randomize()
 
 
@@ -155,14 +178,37 @@ func elegir_ruta(p_ruta: String) -> void:
 	ruta = p_ruta
 
 
-## Al mapa de paradas; tras la última parada de la zona (el jefe), al final de la zona.
+## Al mapa de paradas; tras la última parada de la zona (el jefe), a la zona siguiente o, si
+## era la última, al final.
 func ir_a_ruta() -> void:
+	if zona_terminada() and ZONAS.has(zona + 1):
+		pasar_de_zona()
 	_cambiar(ESCENA_FINAL if zona_terminada() else ESCENA_RUTA)
 
 
 ## Ya se pasó la última parada de la zona.
 func zona_terminada() -> bool:
 	return indice >= paradas().size()
+
+
+## Empieza la zona siguiente: paradas nuevas; lo que duraba toda la zona se acaba.
+func pasar_de_zona() -> void:
+	zona += 1
+	ruta = ""
+	indice = 0
+	patrullas_visibles = false
+
+
+## Datos de la zona actual (ver ZONAS).
+func datos_zona() -> Dictionary:
+	return ZONAS[zona]
+
+
+## Nombre de una parada para enseñarlo («Jefe: Ferid Bathory»).
+func nombre_parada(parada: String) -> String:
+	if parada == "jefe":
+		return "Jefe: " + datos_zona().jefe
+	return NOMBRES[parada]
 
 
 ## Entra en la parada actual.
@@ -172,7 +218,7 @@ func entrar() -> void:
 			_cambiar(escena_infiltracion())
 		"emboscada":
 			siguiente_empieza = "alarma" # una emboscada empieza en Alarma
-			_cambiar(ESCENA_INFILTRACION)
+			_cambiar(datos_zona().infiltracion)
 		"evento":
 			evento_actual = elegir_evento()
 			_cambiar(ESCENA_EVENTO)
@@ -186,12 +232,13 @@ func entrar() -> void:
 			else:
 				mostrar_escena("Prueba de la sed", Guion.prueba_entrada(zona), _cambiar.bind(ESCENA_PRUEBA))
 		"jefe":
-			_cambiar(ESCENA_JEFE)
+			_cambiar(datos_zona().mapa_jefe)
 
 
-## La primera infiltración de la zona es el puesto de control; la de la ruta arriesgada, los túneles.
+## La primera infiltración de la zona y la de la ruta arriesgada (en la zona 1, el puesto de
+## control y los túneles).
 func escena_infiltracion() -> String:
-	return ESCENA_INFILTRACION if indice == 0 else ESCENA_TUNELES
+	return datos_zona().infiltracion if indice == 0 else datos_zona().arriesgada
 
 
 ## Pasa a la siguiente parada y vuelve al mapa de paradas (o enseña antes el recuerdo ganado).
@@ -281,6 +328,8 @@ func aplicar_efectos(efectos: Dictionary) -> Array[String]:
 		siguiente_vampiro_extra = true
 	if efectos.get("vampiros_callados", false):
 		siguiente_vampiros_callados = true
+	if efectos.get("jinete_suelto", false):
+		siguiente_jinete_suelto = true
 	if efectos.get("mejora", false):
 		return opciones_de_mejora()
 	return []
@@ -340,6 +389,9 @@ func aplicar_a_mapa(mapa: Mapa) -> void:
 	if not mapa.prueba_de_la_sed:
 		if siguiente_vampiro_extra:
 			mapa.poner_vampiro_extra()
+		if siguiente_jinete_suelto:
+			mapa.soltar_jinete()
+		siguiente_jinete_suelto = false
 		mapa.vampiros_callados = siguiente_vampiros_callados
 		siguiente_vampiro_extra = false
 		siguiente_vampiros_callados = false

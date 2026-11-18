@@ -2,18 +2,16 @@ extends Pantalla
 ## Mapa de paradas de la zona: qué se ha hecho, dónde está Mika, la bifurcación y lo que viene.
 
 const DESCRIPCIONES := {
-	"infiltracion": "Cruza el puesto de control hasta la salida.",
-	"emboscada": "El mismo puesto, pero empieza en Alarma. (Su recompensa, un filo, llegará cuando existan los filos.)",
+	"emboscada": "La primera infiltración de la zona, pero empieza en Alarma. (Su recompensa, un filo, llegará cuando existan los filos.)",
 	"evento": "Una decisión, sin mapa.",
 	"refugio": "Un lugar seguro para recuperarse.",
 	"prueba": "Dentro de tu mente. Llega hasta Yuu sin beber.",
-	"jefe": "No se le vence: se le escapa. Llega a la rampa del avión mientras te persigue.",
 }
 
 
 func construir() -> void:
 	var e := expedicion
-	titulo("Zona %d · Sanguinem" % e.zona)
+	titulo("Zona %d · %s" % [e.zona, e.datos_zona().nombre])
 	estado_expedicion()
 	texto("Recuerdos: %d/%d" % [e.recuerdos.size(), e.TOTAL_RECUERDOS], Paleta.TURQUESA, 16)
 	espacio()
@@ -28,7 +26,7 @@ func construir() -> void:
 			continue
 		var marca := "✓" if i < e.indice else ("▶" if i == e.indice else "·")
 		var color := Paleta.DETALLES if i < e.indice else (Paleta.TURQUESA if i == e.indice else Paleta.BLANCO_HUESO)
-		texto("%s  %s" % [marca, e.NOMBRES[lista[i]]], color, 20)
+		texto("%s  %s" % [marca, e.nombre_parada(lista[i])], color, 20)
 
 	espacio()
 	for aviso in _avisos():
@@ -38,11 +36,15 @@ func construir() -> void:
 		boton("Ruta arriesgada: %s" % _contenido("arriesgada"), _elegir.bind("arriesgada"))
 	else:
 		var actual := e.parada_actual()
-		var descripcion: String = DESCRIPCIONES[actual]
-		if actual == "infiltracion" and e.indice > 0:
-			descripcion = "Cruza los túneles de abastecimiento hasta la salida."
+		var zona := e.datos_zona()
+		var descripcion: String = DESCRIPCIONES.get(actual, "")
+		match actual:
+			"infiltracion":
+				descripcion = zona.texto_infiltracion if e.indice == 0 else zona.texto_arriesgada
+			"jefe":
+				descripcion = zona.texto_jefe
 		texto(descripcion, Paleta.DETALLES, 16)
-		boton("Entrar: %s" % e.NOMBRES[actual], e.entrar)
+		boton("Entrar: %s" % e.nombre_parada(actual), e.entrar)
 	espacio()
 	boton("Abandonar la expedición", e.volver_al_titulo)
 
@@ -53,7 +55,7 @@ func _contenido(ruta: String) -> String:
 		return "? → ?"
 	var nombres := PackedStringArray()
 	for parada in EstadoExpedicion.RUTAS[ruta]:
-		nombres.append(EstadoExpedicion.NOMBRES[parada])
+		nombres.append(expedicion.nombre_parada(parada))
 	return " → ".join(nombres)
 
 

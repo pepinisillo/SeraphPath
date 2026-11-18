@@ -9,8 +9,8 @@ var _escena_vista := false
 func construir() -> void:
 	var e := expedicion
 	if e.activa and e.zona_terminada():
-		titulo("Fin de la zona 1", Paleta.TURQUESA)
-		texto("Mika escapó de Sanguinem en el avión de carga. Las zonas 2 y 3 todavía no existen: aquí termina, por ahora, la expedición.", Paleta.BLANCO_HUESO)
+		titulo("Fin de la zona %d" % e.zona, Paleta.TURQUESA)
+		texto("Mika dejó atrás %s. Las zonas siguientes todavía no existen: aquí termina, por ahora, la expedición." % e.datos_zona().nombre, Paleta.BLANCO_HUESO)
 		espacio()
 		estado_expedicion()
 	else:

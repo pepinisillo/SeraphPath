@@ -159,7 +159,7 @@ Todo esto es dibujo y ritmo del tiempo; no cambia ninguna regla. Los valores est
 
 ### Expedición
 
-El juego empieza en la pantalla de título. Una expedición recorre hoy la **zona 1** completa:
+El juego empieza en la pantalla de título. Una expedición recorre hoy las **zonas 1 y 2** (`ZONAS` en `scripts/expedicion.gd`); cada una tiene la misma estructura:
 
 ```
                 ┌─ Refugio ──── Evento ─────────┐
@@ -187,7 +187,8 @@ Infiltración ───┤                               ├── Prueba de la 
   - Cedida: el texto de cedida. Fallida: el de fallida, y el siguiente mapa empieza en Alarma.
   - **Sin voz:** con Humanidad 0 no hay prueba ni recuerdo; se ve el texto «Sin voz» y se sigue a la siguiente parada (regla del guion).
 - **Voz en el Frenesí:** al perder el control sale arriba una frase del guion al azar durante 3 s; si el Frenesí pasa sin que beba, la de devolver el control.
-- **Jefe: Ferid Bathory** (ver más abajo). Escapar de él da un recuerdo y termina la zona 1, que es, por ahora, el final del juego.
+- **Jefe:** Ferid Bathory en la zona 1 y Crowley Eusford en la zona 2 (ver más abajo). Superarlo da un recuerdo y lleva a la zona siguiente; tras la zona 2, por ahora, se acaba el juego.
+- **Zonas:** al pasar de zona empiezan paradas nuevas (se vuelve a elegir ruta) y se acaba lo que duraba toda la zona (ver las patrullas). Mika conserva vida, sed, Humanidad, viales y mejoras. La Prueba de la sed usa el mismo mapa en todas las zonas, con la entrada, el fondo y la salida de su zona en el guion.
 - **Final «Caído»:** al caer, la escena del guion: entera la primera vez (se cuentan las caídas en `user://recuerdos.cfg`) y después una línea de Krul al azar, otra del otro Yuu (Humanidad 1 o más) y el texto final; con Humanidad 0, su versión.
 - **Inicio:** antes de la primera expedición se ve la escena con Krul, una sola vez (queda apuntado en `user://recuerdos.cfg`). En las siguientes sale solo la línea de la caja de Krul (sección «Cada expedición» del guion), donde `{viales}` se cambia por el número de viales en letra: «dos», o «cuatro» con el recuerdo 1.
 - **Recuerdos:** se guardan en disco (`user://recuerdos.cfg`) y se pueden releer desde el título.
@@ -358,6 +359,91 @@ Al verlo se queda quieto mirándolo, con un «!» y una barra roja. Si en 1,5 s 
 - **Eventos:** «La doncella de Krul» (aceptar) pone un vampiro de más en el siguiente mapa, en su `ruta_vampiro_extra` (en los barracones del Puesto, en la sala norte de los Túneles). «Lacus y René» (ir y fingir) hace que los vampiros del siguiente mapa no lo delaten. Los dos duran un solo mapa y no cuentan la Prueba de la sed. En la zona 1, los eventos están en la ruta segura, justo antes de la Prueba, así que su «siguiente mapa» es el hangar de Ferid, que no tiene vampiros: tendrán efecto de verdad cuando haya más zonas.
 - **Pruebas:** `prueba_vampiros.gd`. La búsqueda de ruta sin ser visto graba también a los vampiros, pero solo cuentan en zonas prohibidas y en la casilla de un vial.
 
+## Jinete del Apocalipsis
+
+`scripts/jinete.gd`, `escenas/jinete.tscn`. Gris pizarra con borde blanco hueso, más grande que los demás. Caza humanos e **ignora a los vampiros y a Mika**: es una herramienta, no un enemigo.
+
+- **Vaga** despacio (1,6 casillas/s) por su ruta, mirando con un cono de 120° y 6 casillas.
+- **Acude a los ruidos** (a 3 casillas/s) desde 8 casillas, el doble que un soldado. El Tajo, el Impulso o cualquier ruido de Mika sirven de cebo.
+- **Caza** al soldado que vea (a 4 casillas/s) y lo derriba de un golpe, sin alarma: queda un cuerpo que otra patrulla puede descubrir y del que Mika puede beber.
+- Los ataques de Mika aún no le hacen nada (vida 14, para cuando se pueda).
+- **Evento «El Jinete dormido»** (atraerlo al puesto humano): el siguiente mapa tiene 2 soldados menos y un Jinete suelto, en su `ruta_jinete_suelto`.
+- **Prueba:** `prueba_jinete.gd`.
+
+## Zona 2: Ruinas de Shinjuku
+
+### «Ruinas de Shinjuku» (primera infiltración)
+
+`mapa_shinjuku.tscn`, 32 × 20: calles de dos casillas entre edificios, escombros que cubren, una plaza con un Jinete y un patio vampiro prohibido con un vial.
+
+```
+##..#######..#######..######..##
+......#.........s.......#......E
+......s.........#.......s.......
+##..#######..#######..######..##
+##..#######..#######..xxxx##..##
+##..#######s########..xxVx##s###
+##..#######..#######..xxxx##..##
+##..#######..#######..######..##
+##..#######..#######..######..##
+.......s.................#......
+.......#.................s......
+##..#######..s........######..##
+##..#######...........######..##
+##s########.........s#######s###
+##..#######...........######..##
+##..#######........s..######..##
+......s.........#.......s.......
+......#.........s.......#.......
+M#..#######..#######..######..##
+##..#######..#######..######..##
+```
+
+| Quién | Ruta |
+| --- | --- |
+| K1 | Vaivén por la calle de la fila 9, de (19,9) a (3,9): viene de frente |
+| K2 | Vaivén por la calle de la columna 11, de (11,3) a (11,15) |
+| K3 | Vaivén por la calle de la fila 16, de (31,16) a (17,16) |
+| VS1 | Vampiro. Vaivén por la columna 21, junto al patio prohibido |
+| J1 | Jinete. Bucle por la plaza |
+| G1 | Grupo de la azotea (siempre). Sale al llegar a la calle de arriba o a la columna 28; vaivén por la fila 2 junto a la salida |
+
+La ruta sin ser visto tarda unos 18 s (8,6 s yendo directo). Al principio también vigilaba K4 la calle de la salida, pero con G1 no quedaba hueco.
+
+### «La estación hundida» (ruta arriesgada)
+
+`mapa_estacion.tscn`, 30 × 14: dos andenes con columnas, las vías con trenes descarrilados (penumbra solo pegada a los vagones) y escaleras en las columnas 5, 14 y 23. La salida es una puerta estrecha a la que solo se entra por (28,1).
+
+```
+............................##
+....#.....#...........#......E
+................#...........##
+..............................
+#####..#######..#######..#####
+.......sssssss...#####..s...s.
+........#####....#####..s...s.
+........#####...sssssss..###..
+.......sssssss...........###..
+#####..#######..#######..#####
+..............................
+....#...........#..........#..
+M.........#...........#...xxxx
+..........................xxVx
+```
+
+| Quién | Ruta |
+| --- | --- |
+| P1 | Andén de arriba, fila 3, de (12,3) a (28,3) |
+| P2 | Andén de abajo, fila 10, de (6,10) a (20,10) |
+| P3 | Andén de arriba, fila 0, de (1,0) a (13,0) |
+| P4 | Vías, fila 8, de (23,8) a (1,8) |
+| P5 | Centinela de la puerta, columna 27, de (27,0) a (27,3) |
+| VE1 | Vampiro, junto al almacén prohibido del andén de abajo |
+| J1 | Jinete, encerrado detrás del último tren, en la columna 28: solo sale si lo atrae un ruido |
+| A1 | Grupo del andén (mitad de las partidas). Sale al subir por las escaleras de la columna 23 |
+
+La ruta sin ser visto tarda unos 12 s (7,2 s yendo directo). Al principio las vías eran todas sombra y se cruzaban corriendo, y el Jinete, suelto por ellas, se comía a los soldados de los andenes.
+
 ## Jefe de la zona 1: Ferid Bathory, en el hangar
 
 No se le vence: se le escapa. Escena `mapa_hangar.tscn` (40 × 12), script `scripts/ferid.gd`.
@@ -384,6 +470,40 @@ M.......##...##......##......##........E
 - **Atrapar:** a 0,6 casillas atrapa a Mika: le quita 3 de vida, lo devuelve al último punto de control (columnas 0, 15 y 27) y espera 1,5 s lejos de él. Si se queda sin vida, cae.
 - **Escenas:** el «antes» del guion se ve sobre el propio hangar, con el juego en pausa. Mientras persigue, Ferid dice sus frases (bocadillo) y, con Humanidad 1 o más, el otro Yuu las suyas (arriba). Al llegar a la rampa, el «después» y un recuerdo.
 - **Prueba:** `prueba_ferid.gd` comprueba cada parte y que sea justo con dos jugadores automáticos: el que corre sin esquivar acaba atrapado (pierde 3 de vida); el que se aparta de la línea llega limpio en unos 8 s.
+
+## Jefe de la zona 2: Crowley Eusford, en el cruce
+
+Combate abierto. Escena `mapa_cruce.tscn` (22 × 16, el autobús quemado y escombros), script `scripts/crowley.gd`.
+
+```
+......................
+......................
+......................
+....s##s..............
+............s#####s...
+......................
+......................
+......................
+.M.......s#...........
+..................#...
+......................
+......................
+....s##s........#s....
+......................
+......................
+......................
+```
+
+- **Vida 30, daño 6** (los de jefe de zona de `diseno.md`). Barra de vida abajo, con la marca de la segunda fase.
+- **Ataques, siempre anunciados en rojo en el suelo:**
+  - **Tajo:** de cerca (2,2 casillas, más que el Tajo de Mika), un abanico de 140° delante de él; 0,7 s de aviso.
+  - **Carga:** de 3,5 a 7 casillas, una línea que apunta adonde va a estar Mika; 0,7 s de aviso.
+  - **Torbellino** (solo en la segunda fase, uno de cada dos ataques de cerca): un círculo de 2,6 casillas; 0,9 s de aviso.
+- **Guardia y recuperación:** tras cada ataque se queda 0,9 s recuperándose (se le ve más oscuro). Solo entonces le entra el Tajo entero; el resto del tiempo para los golpes y le entra una cuarta parte.
+- **Segunda fase** a media vida: un 30 % más rápido y avisos un 25 % más cortos.
+- **Rendición:** cuando su vida llega a 0 se rinde («no me ganaste»): escena de después y un recuerdo.
+- **Frases:** las del guion mientras pelea, la de la segunda fase, la de «con poca vida» (a un cuarto de vida) y las del otro Yuu (Humanidad 1 o más).
+- **Prueba:** `prueba_crowley.gd`. Un jugador automático que solo se queda pegando cae con Crowley aún a 18; uno que sale de lo marcado y pega en la recuperación gana sin perder vida en unos 13 s.
 
 ## Plan de construcción
 

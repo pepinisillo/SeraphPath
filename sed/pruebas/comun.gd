@@ -78,7 +78,7 @@ func paso(m: Mapa, segundos: float = DT) -> void:
 				ok = false
 				print("FALLO: ", s.name, " dentro de muro en ", s.pos)
 		for h in m.get_children():
-			if h is Vial or h is Eco or h is Aparicion or h is Ferid or h is Vampiro:
+			if h is Vial or h is Eco or h is Aparicion or h is Ferid or h is Vampiro or h is Jinete or h is Crowley:
 				h._physics_process(DT)
 
 
@@ -402,3 +402,56 @@ func tiempo_directo(m: Mapa, inicio: Vector2i, meta: Vector2i) -> float:
 func terminar() -> void:
 	print("RESULTADO: ", "OK" if ok else "FALLO")
 	quit()
+
+
+## Las comprobaciones de todo mapa de infiltración: rutas sin muros, inicio seguro, que exista
+## una ruta sin ser visto (con los grupos saliendo al pisar su zona) que tarde al menos 1,4 veces
+## lo directo y llegue al reproducirla, y que correr directo te delate.
+func probar_infiltracion(escena: String, inicio: Vector2i, meta: Vector2i) -> void:
+	var m: Mapa = await cargar_mapa(escena)
+	comprobar("inicio y salida", [m.inicio_mika, m.celda_salida], [inicio, meta])
+	aparecer_todos(m)
+	var con_ruta: Array = []
+	con_ruta.append_array(m.soldados())
+	con_ruta.append_array(m.vampiros())
+	con_ruta.append_array(m.jinetes())
+	for s in con_ruta:
+		var n: int = s.ruta.size()
+		for i in (n if s.en_bucle else n - 1):
+			var a := Vector2(s.ruta[i]) + Vector2(0.5, 0.5)
+			var b := Vector2(s.ruta[(i + 1) % n]) + Vector2(0.5, 0.5)
+			if m.es_muro(s.ruta[i]) or (not s is Jinete and not m.hay_linea_de_vision(a, b)):
+				ok = false
+				print("FALLO: el tramo %s → %s de %s cruza un muro" % [s.ruta[i], s.ruta[(i + 1) % n], s.name])
+	comprobar("hay camino de la M a la E", m.camino(Vector2(inicio) + Vector2(0.5, 0.5), Vector2(meta) + Vector2(0.5, 0.5)).is_empty(), false)
+	m.queue_free()
+
+	m = await cargar_mapa(escena)
+	aparecer_todos(m)
+	var maximo := 0.0
+	for i in roundi(60.0 / DT):
+		paso(m)
+		m.mika.sed = 0
+		for s in m.soldados():
+			maximo = maxf(maximo, s.medidor)
+	comprobar("nadie ve a Mika quieto en el inicio en 60 s (con todos los grupos)", maximo, 0.0)
+	m.queue_free()
+
+	var ruta: Array = await buscar_ruta_con_apariciones(escena, inicio, meta)
+	comprobar("existe una ruta de la M a la E sin que nadie lo vea", ruta.is_empty(), false)
+	m = await cargar_mapa(escena)
+	var directo := tiempo_directo(m, inicio, meta)
+	m.queue_free()
+	if not ruta.is_empty():
+		print("    llega en %.1f s (yendo directo sin esperar: %.1f s)" % [ruta[-1][1], directo])
+		comprobar("no basta con correr (al menos 1,4 veces el tiempo directo)", ruta[-1][1] >= directo * 1.4, true)
+		m = await cargar_mapa(escena)
+		reproducir(m, ruta)
+		comprobar("al reproducirla llega a la salida", m.terminado, true)
+		comprobar("sin alarmas", m.estadisticas.alarmas, 0)
+		m.queue_free()
+		paused = false
+	m = await cargar_mapa(escena)
+	comprobar("ir directo sin esperar no llega sin ser visto", reproducir(m, ruta_directa(m, inicio, meta), false), false)
+	m.queue_free()
+	paused = false

@@ -201,6 +201,7 @@ Hades usa modelos 3D convertidos a sprites 2D. Para una sola persona hay dos cam
 | Viales y salida | Turquesa | #4FB8A8 |
 | Sospecha | Ámbar | #E0A83A |
 | Sangre, sed y alarma | Rojo | #C8323C |
+| Jinetes del Apocalipsis | Gris pizarra (con borde blanco hueso) | #3A3F4D |
 
 ### Sensación al jugar
 

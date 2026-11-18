@@ -1,0 +1,87 @@
+[gd_scene format=3]
+
+[ext_resource type="Script" path="res://scripts/mapa.gd" id="1_mapa"]
+[ext_resource type="TileSet" path="res://recursos/casillas.tres" id="2_casillas"]
+[ext_resource type="PackedScene" path="res://escenas/mika.tscn" id="3_mika"]
+[ext_resource type="PackedScene" path="res://escenas/soldado.tscn" id="4_soldado"]
+[ext_resource type="Script" path="res://scripts/alerta.gd" id="5_alerta"]
+[ext_resource type="PackedScene" path="res://escenas/hud.tscn" id="6_hud"]
+[ext_resource type="Script" path="res://scripts/muros.gd" id="7_muros"]
+[ext_resource type="Script" path="res://scripts/aparicion.gd" id="8_aparicion"]
+[ext_resource type="PackedScene" path="res://escenas/vampiro.tscn" id="9_vampiro"]
+[ext_resource type="PackedScene" path="res://escenas/jinete.tscn" id="10_jinete"]
+
+[node name="MapaEstacion" type="Node2D"]
+y_sort_enabled = true
+script = ExtResource("1_mapa")
+plano = "............................##
+....#.....#...........#......E
+................#...........##
+..............................
+#####..#######..#######..#####
+.......sssssss...#####..s...s.
+........#####....#####..s...s.
+........#####...sssssss..###..
+.......sssssss...........###..
+#####..#######..#######..#####
+..............................
+....#...........#..........#..
+M.........#...........#...xxxx
+..........................xxVx"
+nombre = "La estación hundida"
+entrada_refuerzos = Vector2i(25, 0)
+ruta_vampiro_extra = Array[Vector2i]([Vector2i(1, 2), Vector2i(9, 2)])
+ruta_jinete_suelto = Array[Vector2i]([Vector2i(13, 12), Vector2i(21, 12)])
+
+[node name="Alerta" type="Node" parent="."]
+script = ExtResource("5_alerta")
+
+[node name="Suelo" type="TileMapLayer" parent="."]
+z_index = -2
+tile_set = ExtResource("2_casillas")
+
+[node name="Muros" type="TileMapLayer" parent="."]
+y_sort_enabled = true
+tile_set = ExtResource("2_casillas")
+script = ExtResource("7_muros")
+
+[node name="Mika" parent="." instance=ExtResource("3_mika")]
+
+[node name="P1" parent="." instance=ExtResource("4_soldado")]
+ruta = Array[Vector2i]([Vector2i(12, 3), Vector2i(28, 3)])
+en_bucle = false
+
+[node name="P2" parent="." instance=ExtResource("4_soldado")]
+ruta = Array[Vector2i]([Vector2i(6, 10), Vector2i(20, 10)])
+en_bucle = false
+
+[node name="P3" parent="." instance=ExtResource("4_soldado")]
+ruta = Array[Vector2i]([Vector2i(1, 0), Vector2i(13, 0)])
+en_bucle = false
+
+[node name="P4" parent="." instance=ExtResource("4_soldado")]
+ruta = Array[Vector2i]([Vector2i(23, 8), Vector2i(1, 8)])
+en_bucle = false
+
+[node name="P5" parent="." instance=ExtResource("4_soldado")]
+ruta = Array[Vector2i]([Vector2i(27, 0), Vector2i(27, 3)])
+en_bucle = false
+
+[node name="VE1" parent="." instance=ExtResource("9_vampiro")]
+ruta = Array[Vector2i]([Vector2i(24, 11), Vector2i(24, 13)])
+en_bucle = false
+
+[node name="J1" parent="." instance=ExtResource("10_jinete")]
+ruta = Array[Vector2i]([Vector2i(28, 5), Vector2i(28, 8)])
+en_bucle = false
+
+[node name="GrupoAnden" type="Node2D" parent="."]
+script = ExtResource("8_aparicion")
+zonas = Array[Rect2i]([Rect2i(23, 4, 2, 1), Rect2i(23, 9, 2, 1)])
+probabilidad = 0.5
+
+[node name="A1" parent="GrupoAnden" instance=ExtResource("4_soldado")]
+ruta = Array[Vector2i]([Vector2i(19, 0), Vector2i(26, 0)])
+en_bucle = false
+
+[node name="HUD" parent="." instance=ExtResource("6_hud")]
