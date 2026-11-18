@@ -5,7 +5,7 @@ Lo que falta por construir, de lo más difícil a lo más sencillo. Lo que ya ex
 ## Muy difícil
 
 1. **Generar mapas automáticamente.** Crear mapas de infiltración al azar y quedarse solo con los que se pueden cruzar sin ser visto y exigen esconderse. La búsqueda de rutas de `sed/pruebas/comun.gd` ya sirve para validarlos.
-2. **Jefes con fases.** Ferid Bathory (no se le vence: se le escapa), Crowley Eusford (combate abierto) y Guren Ichinose (arma maldita), con ataques anunciados que se sientan justos.
+2. **Jefes con fases.** Ferid Bathory ya existe (persecución con embestidas anunciadas). Faltan Crowley Eusford (combate abierto) y Guren Ichinose (arma maldita).
 3. **Enemigos con reglas sociales.** El vampiro común no ataca a Mika, pero lo delata si lo ve atacar vampiros, robar viales o entrar en zonas prohibidas: cada enemigo tiene que recordar qué vio y qué significa. Además, que convivan con el hechicero de talismanes, el portador de arma maldita y el Jinete del Apocalipsis.
 4. **El final «La sangre de Yuu».** Escena dirigida:
    - El jugador pulsa el botón de Beber que evitó toda la partida, y esta vez no cuesta Humanidad.
@@ -23,7 +23,7 @@ Lo que falta por construir, de lo más difícil a lo más sencillo. Lo que ya ex
 ## Medio
 
 10. **Sistema de escenas con diálogo.** Hecho para el inicio y los recuerdos (texto poco a poco, pantalla en negro, avanzar y saltar). Falta: retratos, y usarlo en las Pruebas de la sed, eventos, refugios, jefes y finales del guion nuevo.
-11. **Los otros tres finales.** «En el límite», «Vampiro completo» y «Caído», como escenas cortas.
+11. **Los otros finales.** «Caído» ya existe. Faltan «En el límite» y «Vampiro completo», que llegan al final de la zona 3.
 12. **Guardar a mitad de expedición.** Que cerrar el juego no pierda la partida, sin permitir trampas con la muerte permanente.
 13. **Animaciones en 8 direcciones.** Conectar los estados de cada personaje (quieto, correr, Tajo, beber, derribado…) con sus animaciones, listo para el arte final.
 14. **Sonido y música por capas.** Que la música cambie con el estado de alerta y con la sed.

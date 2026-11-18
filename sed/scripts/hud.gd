@@ -162,6 +162,11 @@ func _actualizar_voz(delta: float) -> void:
 		voz_frenesi = ""
 
 
+## Una frase arriba, en rojo, durante VOZ_FRENESI_DURACION s (la voz del Frenesí, el otro Yuu en un jefe).
+func decir(frase: String) -> void:
+	_decir(frase)
+
+
 func _decir(frase: String) -> void:
 	voz_frenesi = frase
 	_voz_restante = Config.VOZ_FRENESI_DURACION

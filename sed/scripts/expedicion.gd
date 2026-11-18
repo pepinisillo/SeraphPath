@@ -21,6 +21,7 @@ const ESCENA_FINAL := "res://escenas/final.tscn"
 const ESCENA_INFILTRACION := "res://escenas/mapa_puesto_control.tscn"
 const ESCENA_TUNELES := "res://escenas/mapa_tuneles.tscn"
 const ESCENA_PRUEBA := "res://escenas/mapa_prueba_sed.tscn"
+const ESCENA_JEFE := "res://escenas/mapa_hangar.tscn"
 
 ## Zona 1: infiltración, dos rutas de dos paradas, Prueba de la sed y jefe.
 const RUTAS := {
@@ -63,6 +64,7 @@ var recuerdo_nuevo := 0 # recuerdo ganado en la última parada (0 si ninguno)
 var recuerdos: Array[int] = []
 var inicio_visto := false
 var fondos_vistos: Array[int] = [] # zonas cuya escena del fondo de la Prueba de la sed ya se vio entera
+var caidas := 0 # veces que Mika ha caído, en todas las partidas (el final «Caído» cambia tras la primera)
 ## Escena del guion en curso (ver mostrar_escena) y la que toca al salir de la parada actual.
 var escena_titulo := ""
 var escena_golpes: Array[Dictionary] = []
@@ -149,8 +151,14 @@ func elegir_ruta(p_ruta: String) -> void:
 	ruta = p_ruta
 
 
+## Al mapa de paradas; tras la última parada de la zona (el jefe), al final de la zona.
 func ir_a_ruta() -> void:
-	_cambiar(ESCENA_RUTA)
+	_cambiar(ESCENA_FINAL if zona_terminada() else ESCENA_RUTA)
+
+
+## Ya se pasó la última parada de la zona.
+func zona_terminada() -> bool:
+	return indice >= paradas().size()
 
 
 ## Entra en la parada actual.
@@ -174,7 +182,7 @@ func entrar() -> void:
 			else:
 				mostrar_escena("Prueba de la sed", Guion.prueba_entrada(zona), _cambiar.bind(ESCENA_PRUEBA))
 		"jefe":
-			_cambiar(ESCENA_FINAL)
+			_cambiar(ESCENA_JEFE)
 
 
 ## La primera infiltración de la zona es el puesto de control; la de la ruta arriesgada, los túneles.
@@ -218,6 +226,14 @@ func terminar_escena() -> void:
 func caer() -> void:
 	activa = false
 	_cambiar(ESCENA_FINAL)
+
+
+## La escena del final «Caído» (del guion). Cuenta la caída: la primera vez se ve entera.
+func escena_caido() -> Array[Dictionary]:
+	var golpes := Guion.caido(humanidad, caidas == 0, rng)
+	caidas += 1
+	guardar_recuerdos()
+	return golpes
 
 
 func volver_al_titulo() -> void:
@@ -342,6 +358,9 @@ func al_terminar_mapa(mapa: Mapa, exito: bool, motivo: String) -> void:
 		elif motivo == "fallida":
 			siguiente_empieza = "alarma"
 		escena_tras_parada = escena_salida_prueba(resultado)
+	elif mapa.jefe != "" and exito:
+		recuerdo_nuevo = ganar_recuerdo() # cada jefe superado da un recuerdo
+		escena_tras_parada = Guion.segun_humanidad(Guion.jefe_despues(mapa.jefe), humanidad)
 
 
 ## Lo que se ve al salir de la Prueba de la sed: si se superó, la escena del fondo (entera la
@@ -385,6 +404,7 @@ func guardar_recuerdos() -> void:
 	cfg.set_value("recuerdos", "ganados", recuerdos)
 	cfg.set_value("recuerdos", "inicio_visto", inicio_visto)
 	cfg.set_value("recuerdos", "fondos_vistos", fondos_vistos)
+	cfg.set_value("recuerdos", "caidas", caidas)
 	cfg.save(archivo_recuerdos)
 
 
@@ -393,7 +413,9 @@ func cargar_recuerdos() -> void:
 	recuerdos = []
 	inicio_visto = false
 	fondos_vistos = []
+	caidas = 0
 	if cfg.load(archivo_recuerdos) == OK:
+		caidas = cfg.get_value("recuerdos", "caidas", 0)
 		fondos_vistos.assign(cfg.get_value("recuerdos", "fondos_vistos", []))
 		recuerdos.assign(cfg.get_value("recuerdos", "ganados", []))
 		inicio_visto = cfg.get_value("recuerdos", "inicio_visto", false)

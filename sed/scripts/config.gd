@@ -117,6 +117,24 @@ const PRUEBA_ECO_VOZ := 3.0 # casillas a las que se oye lo que dice un eco
 const PRUEBA_SED_FALLIDA := 90 # sed con la que despierta si la prueba falla
 const ECO_CAMBIO_FRASE := 5.0 # s que un eco dice la misma frase
 
+# --- Ferid Bathory (jefe de la zona 1: no se le vence, se le escapa) ---
+const FERID_VELOCIDAD := 6.5 # casillas/s persiguiendo: más que Mika (5,5; sediento, 3,5), no basta con correr
+const FERID_ATRAPA := 0.6 # casillas: a esta distancia atrapa a Mika
+const FERID_DANO := 3 # vida que pierde Mika cada vez que la atrapa
+const FERID_EMBESTIDA_ALCANCE := 7.0 # casillas: desde aquí puede embestir, si ve a Mika
+const FERID_EMBESTIDA_AVISO := 0.6 # s que se marca en el suelo la línea de la embestida
+const FERID_EMBESTIDA_DISTANCIA := 9.0 # casillas que puede recorrer, como mucho, embistiendo
+const FERID_EMBESTIDA_DE_MAS := 1.5 # casillas que se pasa del punto al que apunta
+const FERID_EMBESTIDA_DURACION := 0.25 # s que tarda
+const FERID_EMBESTIDA_ENFRIAMIENTO := 2.0 # s entre embestidas
+const FERID_FASE2_PAUSA := 0.35 # s entre las dos embestidas de la segunda fase
+const FERID_ESPERA := 1.5 # s que espera tras atrapar a Mika, antes de volver a perseguirlo
+const FERID_ESPERA_INICIAL := 0.5 # s que espera al empezar
+const FERID_RECUPERACION := 0.8 # s quieto tras embestir: la ventana para ganarle distancia
+const FERID_REINICIO := 6.0 # casillas por detrás del punto de control al que vuelve Mika
+const FERID_FRASE := 4.0 # s entre frases de Ferid
+const FERID_FRASE_OTRO_YUU := 9.0 # s entre frases del otro Yuu (Humanidad 1 o más)
+
 # --- Escenas con diálogo ---
 const DIALOGO_LETRAS_POR_S := 55.0 # velocidad del texto que aparece poco a poco
 const DIALOGO_NEGRO := 2.5 # s de pantalla en negro (sin contar los fundidos)

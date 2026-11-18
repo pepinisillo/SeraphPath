@@ -25,6 +25,22 @@ const ATLAS_SALIDA := Vector2i(3, 0)
 ## Casilla por la que llegan los refuerzos durante la alarma.
 @export var entrada_refuerzos := Vector2i(9, 0)
 
+@export_group("Jefe")
+## Nombre del jefe en el guion («Ferid Bathory»); vacío si el mapa no es de jefe.
+@export var jefe := ""
+## Casilla donde empieza el jefe.
+@export var inicio_jefe := Vector2i(-1, -1)
+## Puntos de control, de izquierda a derecha: al atraparlo, Mika vuelve al último que pasó.
+@export var puntos_de_control: Array[Vector2i] = []
+## Desde qué punto de control empieza la segunda fase del jefe.
+@export var fase2_desde := 2
+
+## Las pruebas lo apagan: sin escena del guion antes del jefe.
+static var escenas_de_jefe := true
+
+var punto_de_control := 0 # el último que pasó Mika
+var ferid: Ferid
+
 var filas: PackedStringArray = []
 var ancho := 0
 var alto := 0
@@ -77,6 +93,10 @@ func _ready() -> void:
 		var vial: Vial = load("res://escenas/vial.tscn").instantiate()
 		add_child(vial)
 		vial.iniciar(self, celda)
+	if jefe == "Ferid Bathory" and inicio_jefe.x >= 0:
+		ferid = load("res://escenas/ferid.tscn").instantiate()
+		add_child(ferid)
+		ferid.iniciar(self, inicio_jefe)
 	var hud := get_node_or_null("HUD")
 	if hud:
 		hud.iniciar(self)
@@ -84,12 +104,33 @@ func _ready() -> void:
 		mika.derrotada.connect(_al_caer_mika)
 		if EstadoExpedicion.en_curso():
 			EstadoExpedicion.actual().aplicar_a_mapa(self)
+	if jefe != "" and escenas_de_jefe:
+		_escena_antes_del_jefe()
+
+
+## La escena «antes» del guion, sobre el propio mapa, con el juego en pausa.
+func _escena_antes_del_jefe() -> void:
+	var humanidad := mika.humanidad if mika else Config.HUMANIDAD_INICIAL
+	var golpes := Guion.segun_humanidad(Guion.jefe_antes(jefe), humanidad)
+	if golpes.is_empty():
+		return
+	var dialogo := Dialogo.new()
+	dialogo.sobre_mapa = true
+	dialogo.name = "DialogoJefe"
+	add_child(dialogo)
+	dialogo.terminado.connect(func() -> void: get_tree().paused = false)
+	get_tree().paused = true
+	dialogo.empezar(golpes)
 
 
 func _physics_process(delta: float) -> void:
 	if Engine.is_editor_hint() or terminado:
 		return
 	estadisticas.tiempo += delta
+	if mika and not puntos_de_control.is_empty():
+		for i in range(punto_de_control + 1, puntos_de_control.size()):
+			if mika.pos.x >= puntos_de_control[i].x:
+				punto_de_control = i
 	if mika:
 		muros.actualizar_transparencia(mika.pos, Mika.ALTO_CAPSULA, Mika.ANCHO_CAPSULA)
 
@@ -233,6 +274,31 @@ func frases_ecos() -> PackedStringArray:
 	if not _frases_ecos.has(humanidad):
 		_frases_ecos[humanidad] = Guion.frases_ecos(humanidad)
 	return _frases_ecos[humanidad]
+
+
+## Devuelve a Mika al último punto de control que pasó (lo atrapó el jefe).
+func volver_al_punto_de_control() -> void:
+	if puntos_de_control.is_empty():
+		return
+	mika.pos = Vector2(puntos_de_control[punto_de_control]) + Vector2(0.5, 0.5)
+	mika.position = Iso.a_pantalla(mika.pos)
+
+
+## El centro de la casilla sin muro más cercana a `p`, dentro del mapa.
+func casilla_libre_cerca(p: Vector2) -> Vector2:
+	var objetivo := Vector2i(clampi(floori(p.x), 0, ancho - 1), clampi(floori(p.y), 0, alto - 1))
+	var mejor := Vector2i(-1, -1)
+	var mejor_distancia := INF
+	for f in alto:
+		for c in ancho:
+			var celda := Vector2i(c, f)
+			if es_muro(celda):
+				continue
+			var d := Vector2(celda - objetivo).length()
+			if d < mejor_distancia:
+				mejor_distancia = d
+				mejor = celda
+	return Vector2(mejor) + Vector2(0.5, 0.5)
 
 
 ## Grupos de soldados que aparecen cuando Mika entra en su zona.

@@ -7,7 +7,7 @@ const DESCRIPCIONES := {
 	"evento": "Una decisión, sin mapa.",
 	"refugio": "Un lugar seguro para recuperarse.",
 	"prueba": "Dentro de tu mente. Llega hasta Yuu sin beber.",
-	"jefe": "No se le vence: se le escapa. (Aún no existe: aquí termina, por ahora, la expedición.)",
+	"jefe": "No se le vence: se le escapa. Llega a la rampa del avión mientras te persigue.",
 }
 
 

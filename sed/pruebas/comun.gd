@@ -16,6 +16,7 @@ var _con_margen := false # solo la búsqueda con grupos planifica con margen
 func _init() -> void:
 	Soldado.patrullas_al_azar = false
 	Aparicion.forzar = true
+	Mapa.escenas_de_jefe = false
 
 
 ## Saca a todos los grupos del mapa a la vez, como si Mika hubiera pisado sus zonas.
@@ -77,7 +78,7 @@ func paso(m: Mapa, segundos: float = DT) -> void:
 				ok = false
 				print("FALLO: ", s.name, " dentro de muro en ", s.pos)
 		for h in m.get_children():
-			if h is Vial or h is Eco or h is Aparicion:
+			if h is Vial or h is Eco or h is Aparicion or h is Ferid:
 				h._physics_process(DT)
 
 

@@ -50,6 +50,7 @@ var _raiz: Control
 
 func _ready() -> void:
 	layer = 5
+	process_mode = Node.PROCESS_MODE_ALWAYS # también con el juego en pausa (escenas sobre un mapa)
 	_raiz = Control.new()
 	_raiz.set_anchors_preset(Control.PRESET_FULL_RECT)
 	_raiz.mouse_filter = Control.MOUSE_FILTER_IGNORE
@@ -225,6 +226,9 @@ func _mostrar(g: Dictionary) -> void:
 			_etiqueta.add_theme_color_override("font_color", Paleta.TURQUESA)
 		"otro_yuu":
 			_etiqueta.add_theme_color_override("font_color", Paleta.ROJO)
+		"final":
+			_etiqueta.add_theme_color_override("font_color", Paleta.TURQUESA)
+			tamano = 24
 		_:
 			_etiqueta.add_theme_color_override("font_color", Paleta.BLANCO_HUESO)
 	_etiqueta.add_theme_font_size_override("font_size", tamano)

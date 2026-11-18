@@ -164,10 +164,78 @@ Resultado A.
 """
 
 
+const JEFES := """# Jefes
+
+## Ferid Bathory — el hangar (zona 1)
+
+### Antes
+
+Antes uno.
+
+**◆ El otro Yuu:** «Antes rombo.»
+
+### Durante
+
+*(Frases de Ferid mientras persigue.)*
+
+1. «Persigue uno.»
+2. «Persigue dos.»
+
+*(Si Ferid lo atrapa: Mika pierde vida.)*
+
+- «Atrapa uno.»
+
+*(◆ El otro Yuu, durante.)*
+
+- «Otro uno.»
+
+### Después
+
+Después uno.
+
+**◆ El otro Yuu** narración rombo.
+
+—Después rombo.
+
+---
+"""
+
+const FINALES := """# Finales
+
+## Caído (Mika cae antes de llegar)
+
+### La primera vez
+
+Primera uno.
+
+**Texto final.** «Final caído.»
+
+### Las siguientes veces
+
+*(Una al azar.)*
+
+1. —Krul uno.
+
+2. —Krul dos.
+
+*(◆ El otro Yuu, después. Una al azar.)*
+
+1. «Otro después.»
+
+### Caído con Humanidad 0
+
+Sin humanidad uno.
+
+**Texto final.** «Final cero.»
+
+---
+"""
+
+
 func _initialize():
 	await process_frame
 	DirAccess.make_dir_recursive_absolute(ProjectSettings.globalize_path(CARPETA))
-	for par in [[Guion.ARCHIVO_INICIO, INICIO], [Guion.ARCHIVO_PRUEBAS, PRUEBAS], [Guion.ARCHIVO_EVENTOS, EVENTOS]]:
+	for par in [[Guion.ARCHIVO_INICIO, INICIO], [Guion.ARCHIVO_PRUEBAS, PRUEBAS], [Guion.ARCHIVO_EVENTOS, EVENTOS], [Guion.ARCHIVO_JEFES, JEFES], [Guion.ARCHIVO_FINALES, FINALES]]:
 		var f := FileAccess.open(CARPETA.path_join(par[0]), FileAccess.WRITE)
 		f.store_string(par[1])
 		f.close()
@@ -233,6 +301,20 @@ func _initialize():
 	comprobar("refugio con sed baja: solo la que no pide sed", vistos.keys(), ['["«Refugio uno.»"]'])
 	comprobar("el elemento sangrado sigue al de su número", Guion.refugio(3, 70, rng).size() in [1, 2], true)
 
+	print("E2) Jefes y final «Caído»")
+	comprobar("antes del jefe", Guion.jefe_antes("Ferid Bathory").map(func(g): return g.tipo), ["narracion", "otro_yuu"])
+	var durante := Guion.jefe_durante("Ferid Bathory")
+	comprobar("frases durante, por grupo", [durante.persigue, durante.atrapa, durante.otro_yuu],
+		[PackedStringArray(["Persigue uno.", "Persigue dos."]), PackedStringArray(["Atrapa uno."]), PackedStringArray(["Otro uno."])])
+	var despues := Guion.jefe_despues("Ferid Bathory")
+	comprobar("después: desde el ◆ sin dos puntos, todo es del otro Yuu", despues.map(func(g): return g.get("rombo", false)), [false, true, true])
+	comprobar("con Humanidad 0 se omite ese tramo", Guion.segun_humanidad(despues, 0).map(func(g): return g.texto), ["Después uno."])
+	comprobar("caído, la primera vez", Guion.caido(3, true, rng).map(func(g): return [g.tipo, g.texto]), [["narracion", "Primera uno."], ["final", "«Final caído.»"]])
+	var siguiente := Guion.caido(3, false, rng)
+	comprobar("caído, después: Krul al azar, el otro Yuu y el texto final", [siguiente.size(), siguiente[0].texto in ["—Krul uno.", "—Krul dos."], siguiente[1].tipo, siguiente[2].tipo], [3, true, "otro_yuu", "final"])
+	comprobar("caído con Humanidad 1: el otro Yuu sigue saliendo", Guion.caido(1, false, rng).size(), 3)
+	comprobar("caído con Humanidad 0", Guion.caido(0, false, rng).map(func(g): return g.texto), ["Sin humanidad uno.", "«Final cero.»"])
+
 	print("F) Avanzar, negro y saltar")
 	var d := Dialogo.new()
 	root.add_child(d)
@@ -291,7 +373,7 @@ func _initialize():
 	comprobar("cedida, sin fondo", expe.escena_salida_prueba("cedida").map(func(g): return g.texto), ["Texto de cedida."])
 	DirAccess.remove_absolute(ProjectSettings.globalize_path(expe.archivo_recuerdos))
 
-	for archivo in [Guion.ARCHIVO_INICIO, Guion.ARCHIVO_PRUEBAS, Guion.ARCHIVO_EVENTOS]:
+	for archivo in [Guion.ARCHIVO_INICIO, Guion.ARCHIVO_PRUEBAS, Guion.ARCHIVO_EVENTOS, Guion.ARCHIVO_JEFES, Guion.ARCHIVO_FINALES]:
 		DirAccess.remove_absolute(ProjectSettings.globalize_path(CARPETA.path_join(archivo)))
 	DirAccess.remove_absolute(ProjectSettings.globalize_path(CARPETA))
 	Guion.carpeta_pruebas = ""

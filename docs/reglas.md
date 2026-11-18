@@ -187,7 +187,8 @@ Infiltración ───┤                               ├── Prueba de la 
   - Cedida: el texto de cedida. Fallida: el de fallida, y el siguiente mapa empieza en Alarma.
   - **Sin voz:** con Humanidad 0 no hay prueba ni recuerdo; se ve el texto «Sin voz» y se sigue a la siguiente parada (regla del guion).
 - **Voz en el Frenesí:** al perder el control sale arriba una frase del guion al azar durante 3 s; si el Frenesí pasa sin que beba, la de devolver el control.
-- **Jefe:** Ferid Bathory aún no existe. Llegar a él termina, por ahora, la expedición.
+- **Jefe: Ferid Bathory** (ver más abajo). Escapar de él da un recuerdo y termina la zona 1, que es, por ahora, el final del juego.
+- **Final «Caído»:** al caer, la escena del guion: entera la primera vez (se cuentan las caídas en `user://recuerdos.cfg`) y después una línea de Krul al azar, otra del otro Yuu (Humanidad 1 o más) y el texto final; con Humanidad 0, su versión.
 - **Inicio:** antes de la primera expedición se ve la escena con Krul, una sola vez (queda apuntado en `user://recuerdos.cfg`). En las siguientes sale solo la línea de la caja de Krul (sección «Cada expedición» del guion), donde `{viales}` se cambia por el número de viales en letra: «dos», o «cuatro» con el recuerdo 1.
 - **Recuerdos:** se guardan en disco (`user://recuerdos.cfg`) y se pueden releer desde el título.
   - Se ganan en orden. El 7, «Lo que nunca dije», no se gana con Humanidad 0.
@@ -341,6 +342,33 @@ Un grupo (`scripts/aparicion.gd`, nodo `Aparicion` con soldados como hijos) no e
 - **Probabilidad:** con menos de 1, el grupo se sortea al empezar el mapa y en algunas partidas no sale nunca; su zona queda vacía.
 - **Azar propio:** cada soldado y cada grupo sortea con su propio generador, sacado de la semilla del mapa y de su nombre. Así, que salga un grupo no cambia lo que sortean los demás.
 - **Pruebas:** buscan la ruta sin ser visto grabando a los soldados fijos y, aparte, a cada grupo desde que sale. En la búsqueda, cada camino lleva cuándo salió cada grupo según por dónde pasó Mika. La planificación ve con margen (15° más de cono, media casilla más de alcance y todo lo que esté a menos de 1,2 casillas), porque solo mira cada 0,1 s. Ese margen la hace más prudente de la cuenta (las rutas que da son más lentas de lo necesario), así que solo se usa con grupos; `buscar_ruta` sigue sin margen. Para cada mapa nuevo con grupos, usar `buscar_ruta_con_apariciones` de `pruebas/comun.gd`.
+
+## Jefe de la zona 1: Ferid Bathory, en el hangar
+
+No se le vence: se le escapa. Escena `mapa_hangar.tscn` (40 × 12), script `scripts/ferid.gd`.
+
+```
+............##.......##..........##.....
+....##......##.......##..........##.....
+....##......##...##......##......##.....
+....##...........##......##.............
+........##.......##..........##.....#...
+........##...##......##......##........E
+M.......##...##......##......##........E
+........##.......##..........##.....#...
+....##...........##......##.............
+....##......##...##......##......##.....
+....##......##.......##..........##.....
+............##.......##..........##.....
+```
+
+- **Objetivo:** llegar a la rampa del avión (la `E`, al fondo) mientras Ferid persigue a Mika. Los ataques de Mika no le hacen nada.
+- **Persecución:** Ferid corre a 6,5 casillas/s, más que Mika (5,5), así que no basta con correr.
+- **Embestida anunciada:** si está a 7 casillas o menos, ve a Mika y tiene el camino libre, marca en el suelo una línea roja durante 0,6 s y luego la recorre en 0,25 s. Apunta adonde va a estar Mika al acabar el aviso si sigue moviéndose igual: correr recto no salva; apartarse de la línea, sí. Tras embestir se queda 0,8 s recuperándose (la ventana para ganarle distancia) y no vuelve a embestir hasta 2 s después.
+- **Segunda fase:** desde el segundo punto de control, embiste dos veces seguidas (la segunda con 0,35 s de aviso).
+- **Atrapar:** a 0,6 casillas atrapa a Mika: le quita 3 de vida, lo devuelve al último punto de control (columnas 0, 15 y 27) y espera 1,5 s lejos de él. Si se queda sin vida, cae.
+- **Escenas:** el «antes» del guion se ve sobre el propio hangar, con el juego en pausa. Mientras persigue, Ferid dice sus frases (bocadillo) y, con Humanidad 1 o más, el otro Yuu las suyas (arriba). Al llegar a la rampa, el «después» y un recuerdo.
+- **Prueba:** `prueba_ferid.gd` comprueba cada parte y que sea justo con dos jugadores automáticos: el que corre sin esquivar acaba atrapado (pierde 3 de vida); el que se aparta de la línea llega limpio en unos 8 s.
 
 ## Plan de construcción
 

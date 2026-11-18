@@ -1,15 +1,28 @@
 extends Pantalla
-## Final de una expedición: Mika cayó, o llegó al jefe de la zona 1 (donde termina, por ahora, el juego).
+## Final de una expedición: Mika cayó (final «Caído», con su escena del guion) o escapó de
+## Sanguinem tras el jefe de la zona 1, donde termina, por ahora, el juego.
+
+var dialogo: Dialogo
+var _escena_vista := false
 
 
 func construir() -> void:
 	var e := expedicion
-	if e.activa and e.parada_actual() == "jefe":
+	if e.activa and e.zona_terminada():
 		titulo("Fin de la zona 1", Paleta.TURQUESA)
-		texto("Ferid Bathory te espera al final de Sanguinem. El jefe y las zonas 2 y 3 todavía no existen: aquí termina, por ahora, la expedición.", Paleta.BLANCO_HUESO)
+		texto("Mika escapó de Sanguinem en el avión de carga. Las zonas 2 y 3 todavía no existen: aquí termina, por ahora, la expedición.", Paleta.BLANCO_HUESO)
 		espacio()
 		estado_expedicion()
 	else:
+		if not _escena_vista:
+			_escena_vista = true
+			var golpes := e.escena_caido()
+			if not golpes.is_empty():
+				dialogo = Dialogo.new()
+				add_child(dialogo)
+				dialogo.terminado.connect(rehacer)
+				dialogo.empezar(golpes)
+				return
 		titulo("Caído", Paleta.ROJO)
 		texto("Mika cae antes de llegar. Krul lo recoge, y despierta en Sanguinem con los recuerdos ganados.", Paleta.BLANCO_HUESO)
 	espacio()
