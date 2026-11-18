@@ -124,6 +124,10 @@ func _ready() -> void:
 	menu.name = "MenuPausa"
 	add_child(menu)
 	menu.iniciar(self)
+	if ControlesTactiles.hacen_falta():
+		var tactiles := ControlesTactiles.new()
+		tactiles.name = "ControlesTactiles"
+		add_child(tactiles)
 	if mika:
 		mika.derrotada.connect(_al_caer_mika)
 		if EstadoExpedicion.en_curso():
