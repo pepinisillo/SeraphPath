@@ -1,0 +1,85 @@
+[gd_scene format=3]
+
+[ext_resource type="Script" path="res://scripts/mapa.gd" id="1_mapa"]
+[ext_resource type="TileSet" path="res://recursos/casillas.tres" id="2_casillas"]
+[ext_resource type="PackedScene" path="res://escenas/mika.tscn" id="3_mika"]
+[ext_resource type="PackedScene" path="res://escenas/soldado.tscn" id="4_soldado"]
+[ext_resource type="Script" path="res://scripts/alerta.gd" id="5_alerta"]
+[ext_resource type="PackedScene" path="res://escenas/hud.tscn" id="6_hud"]
+[ext_resource type="Script" path="res://scripts/muros.gd" id="7_muros"]
+[ext_resource type="PackedScene" path="res://escenas/vampiro.tscn" id="9_vampiro"]
+[ext_resource type="PackedScene" path="res://escenas/jinete.tscn" id="10_jinete"]
+[ext_resource type="PackedScene" path="res://escenas/portador.tscn" id="11_portador"]
+[ext_resource type="PackedScene" path="res://escenas/hechicero.tscn" id="12_hechicero"]
+[ext_resource type="Script" path="res://scripts/aparicion.gd" id="8_aparicion"]
+
+[node name="MapaGenerado" type="Node2D"]
+y_sort_enabled = true
+script = ExtResource("1_mapa")
+plano = "#########################...E#
+##################s....##...s#
+##################....s##....#
+##################s....##..#.#
+###############...s#s......s.#
+#######.s..####..s.s.....s..s#
+#######s...####..#....s#######
+#######.#..##....#############
+#######.s..##...s#############
+#######..#.....#.#############
+#######..........#############
+.ss..####..###################
+....s####s.###################
+....s####..###################
+.....s.....###################
+.....ss.s..###################
+.....#########################
+M....#########################"
+nombre = "Ruinas sin nombre 3"
+entrada_refuerzos = Vector2i(28, 0)
+ruta_vampiro_extra = Array[Vector2i]([Vector2i(14, 7), Vector2i(13, 7)])
+ruta_jinete_suelto = Array[Vector2i]([Vector2i(14, 8), Vector2i(13, 8)])
+
+[node name="Alerta" type="Node" parent="."]
+script = ExtResource("5_alerta")
+
+[node name="Suelo" type="TileMapLayer" parent="."]
+z_index = -2
+tile_set = ExtResource("2_casillas")
+
+[node name="Muros" type="TileMapLayer" parent="."]
+y_sort_enabled = true
+tile_set = ExtResource("2_casillas")
+script = ExtResource("7_muros")
+
+[node name="Mika" parent="." instance=ExtResource("3_mika")]
+
+[node name="GrupoFinal" type="Node2D" parent="."]
+script = ExtResource("8_aparicion")
+zonas = Array[Rect2i]([Rect2i(18, 1, 5, 6)])
+probabilidad = 0.5
+
+[node name="G1" parent="." instance=ExtResource("4_soldado")]
+ruta = Array[Vector2i]([Vector2i(7, 5), Vector2i(7, 10)])
+en_bucle = false
+
+[node name="G2" parent="." instance=ExtResource("4_soldado")]
+ruta = Array[Vector2i]([Vector2i(13, 7), Vector2i(16, 7)])
+en_bucle = false
+
+[node name="G3" parent="." instance=ExtResource("4_soldado")]
+ruta = Array[Vector2i]([Vector2i(21, 1), Vector2i(21, 6)])
+en_bucle = false
+
+[node name="G4" parent="." instance=ExtResource("4_soldado")]
+ruta = Array[Vector2i]([Vector2i(25, 0), Vector2i(25, 4)])
+en_bucle = false
+
+[node name="J1" parent="." instance=ExtResource("10_jinete")]
+ruta = Array[Vector2i]([Vector2i(9, 7), Vector2i(9, 5)])
+en_bucle = false
+
+[node name="GF1" parent="GrupoFinal" instance=ExtResource("4_soldado")]
+ruta = Array[Vector2i]([Vector2i(26, 4), Vector2i(26, 0)])
+en_bucle = false
+
+[node name="HUD" parent="." instance=ExtResource("6_hud")]

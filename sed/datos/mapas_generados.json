@@ -1,78 +1,92 @@
 {
 	"1": [
 		{
-			"directo": 9.8,
+			"directo": 9.5,
 			"escena": "res://escenas/generados/mapa_gen_z1_1001.tscn",
 			"nombre": "Pasillos de Sanguinem 1",
-			"ruta": 16.2,
+			"ruta": 17.9,
 			"semilla": 1001
 		},
 		{
-			"directo": 11.3,
+			"directo": 8.5,
 			"escena": "res://escenas/generados/mapa_gen_z1_1002.tscn",
 			"nombre": "Pasillos de Sanguinem 2",
-			"ruta": 17.7,
+			"ruta": 12.8,
 			"semilla": 1002
 		},
 		{
-			"directo": 7.3,
-			"escena": "res://escenas/generados/mapa_gen_z1_1009.tscn",
+			"directo": 8.0,
+			"escena": "res://escenas/generados/mapa_gen_z1_1004.tscn",
 			"nombre": "Pasillos de Sanguinem 3",
-			"ruta": 10.5,
-			"semilla": 1009
+			"ruta": 14.2,
+			"semilla": 1004
+		},
+		{
+			"directo": 7.5,
+			"escena": "res://escenas/generados/mapa_gen_z1_1005.tscn",
+			"nombre": "Pasillos de Sanguinem 4",
+			"ruta": 13.8,
+			"semilla": 1005
 		}
 	],
 	"2": [
 		{
-			"directo": 8.9,
-			"escena": "res://escenas/generados/mapa_gen_z2_2010.tscn",
+			"directo": 8.3,
+			"escena": "res://escenas/generados/mapa_gen_z2_2004.tscn",
 			"nombre": "Ruinas sin nombre 1",
-			"ruta": 20.2,
-			"semilla": 2010
+			"ruta": 13.3,
+			"semilla": 2004
 		},
 		{
 			"directo": 7.7,
-			"escena": "res://escenas/generados/mapa_gen_z2_2016.tscn",
+			"escena": "res://escenas/generados/mapa_gen_z2_2009.tscn",
 			"nombre": "Ruinas sin nombre 2",
-			"ruta": 15.5,
-			"semilla": 2016
+			"ruta": 14.2,
+			"semilla": 2009
 		},
 		{
-			"directo": 8.8,
-			"escena": "res://escenas/generados/mapa_gen_z2_2037.tscn",
+			"directo": 7.8,
+			"escena": "res://escenas/generados/mapa_gen_z2_2015.tscn",
 			"nombre": "Ruinas sin nombre 3",
-			"ruta": 14.8,
-			"semilla": 2037
+			"ruta": 21.5,
+			"semilla": 2015
 		},
 		{
-			"directo": 7.9,
-			"escena": "res://escenas/generados/mapa_gen_z2_2050.tscn",
+			"directo": 7.4,
+			"escena": "res://escenas/generados/mapa_gen_z2_2032.tscn",
 			"nombre": "Ruinas sin nombre 4",
-			"ruta": 13.4,
-			"semilla": 2050
+			"ruta": 24.6,
+			"semilla": 2032
 		}
 	],
 	"3": [
 		{
-			"directo": 8.0,
-			"escena": "res://escenas/generados/mapa_gen_z3_3009.tscn",
+			"directo": 8.6,
+			"escena": "res://escenas/generados/mapa_gen_z3_3002.tscn",
 			"nombre": "Barracones de Shibuya 1",
-			"ruta": 13.2,
+			"ruta": 27.9,
+			"semilla": 3002
+		},
+		{
+			"directo": 11.5,
+			"escena": "res://escenas/generados/mapa_gen_z3_3006.tscn",
+			"nombre": "Barracones de Shibuya 2",
+			"ruta": 25.0,
+			"semilla": 3006
+		},
+		{
+			"directo": 9.0,
+			"escena": "res://escenas/generados/mapa_gen_z3_3009.tscn",
+			"nombre": "Barracones de Shibuya 3",
+			"ruta": 37.9,
 			"semilla": 3009
 		},
 		{
-			"directo": 8.4,
-			"escena": "res://escenas/generados/mapa_gen_z3_3012.tscn",
-			"nombre": "Barracones de Shibuya 3",
-			"ruta": 35.4,
-			"semilla": 3012
-		},
-		{
-			"directo": 8.4,
-			"escena": "res://escenas/generados/mapa_gen_z3_3018.tscn",
+			"directo": 7.3,
+			"escena": "res://escenas/generados/mapa_gen_z3_3011.tscn",
 			"nombre": "Barracones de Shibuya 4",
-			"ruta": 11.8,
-			"semilla": 3018
+			"ruta": 17.6,
+			"semilla": 3011
 		}
 	]
 }

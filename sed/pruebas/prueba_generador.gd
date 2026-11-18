@@ -48,6 +48,11 @@ func _initialize():
 		con_grupo += int(not dz.grupos.is_empty())
 		con_hechicero += int(dz.entidades.any(func(x): return x.tipo == "hechicero"))
 	comprobar("algunos tienen grupo que aparece y, en Shibuya, hechicero", [con_grupo > 3, con_hechicero > 10], [true, true])
+	var con_atajo := 0
+	for semilla in range(500, 530):
+		var dc := Generador.generar(semilla, 1)
+		con_atajo += int(not dc.is_empty() and dc.atajo)
+	comprobar("hay mapas con atajo (dos caminos que elegir)", con_atajo > 5, true)
 
 	print("B) La escena se carga")
 	var ruta := "user://mapa_gen_prueba.tscn"

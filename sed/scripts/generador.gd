@@ -1,5 +1,6 @@
 class_name Generador
-## Genera mapas de infiltración al azar: salas unidas por pasillos de dos casillas, cobertura
+## Genera mapas de infiltración al azar: salas (algunas en L) unidas por pasillos de dos casillas,
+## a veces con un atajo que se salta una sala (dos caminos que elegir), cobertura
 ## (pilares y cajas), sombras junto a las paredes, patrullas que van y vienen dentro de las
 ## salas y algún enemigo propio de la zona (un vampiro con su zona prohibida en Sanguinem, un
 ## Jinete en Shinjuku, un portador de arma maldita en Shibuya).
@@ -31,9 +32,20 @@ static func generar(semilla: int, zona: int) -> Dictionary:
 	var salas := _salas(rng)
 	for s in salas:
 		_rellenar(g, s, ".")
+	# Salas en L: a algunas se les pega un anexo (no a la de inicio ni a la de la salida).
+	for s in salas.slice(1, salas.size() - 1):
+		if rng.randf() < 0.5:
+			var anexo := Rect2i(s.position.x + rng.randi_range(0, maxi(0, s.size.x - 3)), s.end.y if s.end.y + 3 <= ALTO else s.position.y - 3, 3, 3)
+			if anexo.position.y >= 0 and anexo.end.y <= ALTO and anexo.end.x <= ANCHO:
+				_rellenar(g, anexo, ".")
 	# Pasillos: cada sala con la siguiente (ordenadas de izquierda a derecha), en L, de dos de ancho.
 	for i in range(1, salas.size()):
 		_pasillo(g, _centro(salas[i - 1]), _centro(salas[i]), rng)
+	# Atajo: a veces un pasillo más, saltándose una sala, para que haya caminos que elegir.
+	var atajo := salas.size() >= 4 and rng.randf() < 0.5
+	if atajo:
+		var i := rng.randi_range(0, salas.size() - 3)
+		_pasillo(g, _centro(salas[i]), _centro(salas[i + 2]), rng)
 	var inicial: Rect2i = salas[0]
 	var final: Rect2i = salas[-1]
 	var inicio := Vector2i(inicial.position.x, inicial.end.y - 1)
@@ -97,7 +109,7 @@ static func generar(semilla: int, zona: int) -> Dictionary:
 		plano.append("".join(fila))
 	var sala_media: Rect2i = salas[salas.size() / 2]
 	return {
-		"plano": "\n".join(plano), "inicio": inicio, "salida": salida, "entidades": entidades, "grupos": grupos,
+		"plano": "\n".join(plano), "inicio": inicio, "salida": salida, "entidades": entidades, "grupos": grupos, "atajo": atajo,
 		"ruta_vampiro_extra": _ruta_en_sala(g, sala_media, rng, true),
 		"ruta_jinete_suelto": _ruta_en_sala(g, sala_media, rng, true),
 		"entrada_refuerzos": salida,
