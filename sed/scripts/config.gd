@@ -117,6 +117,12 @@ const PRUEBA_ECO_VOZ := 3.0 # casillas a las que se oye lo que dice un eco
 const PRUEBA_SED_FALLIDA := 90 # sed con la que despierta si la prueba falla
 const ECO_CAMBIO_FRASE := 5.0 # s que un eco dice la misma frase
 
+# --- Vampiro común (no ataca a Mika; lo delata si lo ve hacer algo prohibido) ---
+const VAMPIRO_VIDA := 8
+const VAMPIRO_VELOCIDAD := 2.4 # casillas/s patrullando
+const VAMPIRO_AVISO := 1.5 # s desde que ve algo prohibido hasta que delata (si no lo callan)
+const VAMPIRO_PROHIBIDA := 0.5 # s viendo a Mika en una zona prohibida antes de reaccionar
+
 # --- Ferid Bathory (jefe de la zona 1: no se le vence, se le escapa) ---
 const FERID_VELOCIDAD := 6.5 # casillas/s persiguiendo: más que Mika (5,5; sediento, 3,5), no basta con correr
 const FERID_ATRAPA := 0.6 # casillas: a esta distancia atrapa a Mika

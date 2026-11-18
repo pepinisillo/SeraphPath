@@ -212,7 +212,7 @@ Infiltración ───┤                               ├── Prueba de la 
 
 ## Primer mapa: «Puesto de control»
 
-Cada carácter es una casilla: `#` muro · `.` suelo · `s` sombra · `M` inicio de Mika · `E` salida · `V` vial de Krul (opcional).
+Cada carácter es una casilla: `#` muro · `.` suelo · `s` sombra · `M` inicio de Mika · `E` salida · `V` vial de Krul (opcional) · `x` zona prohibida (ver Vampiros comunes).
 La columna 0 está a la izquierda y la fila 0 arriba, en coordenadas de casilla; en pantalla el mapa aparece girado en diagonal.
 
 Es un mapa grande, de 30 × 20 casillas, como los Túneles. El puesto original de 10 × 10 es ahora el **patio central**, con sus cuatro soldados, y alrededor hay salas nuevas:
@@ -286,7 +286,7 @@ Patrullas, en (columna, fila):
 
 Cada soldado empieza en el primer punto de su ruta, mirando hacia el segundo. La prueba del paso 7 busca una ruta de la `M` a la `E` en la que nadie vea nunca a Mika, la reproduce en el juego y comprueba que **no basta con correr**: la ruta debe tardar al menos 1,4 veces lo que se tarda yendo directo. Tarda unos 8 s (frente a 3,5 s yendo directo) y exige esperar al principio y esconderse en el pasillo de sombra de la columna 7 hasta que S4 se dé la vuelta.
 
-**Patrullas al azar** (en todos los mapas que se juegan): para que no baste con memorizar los tiempos, en cada partida cada soldado empieza en un punto al azar de su ruta (en vaivén, también en cualquier sentido) y se detiene en cada punto entre 0,4 y 1 s. Los soldados de los grupos empiezan siempre en el primer punto de su ruta. Las pruebas de los pasos tienen el azar apagado. `pruebas/prueba_patrullas.gd` prueba seis semillas en el Puesto de control y en los Túneles: todas empiezan seguras y todas tienen una ruta sin ser visto.
+**Patrullas al azar** (en todos los mapas que se juegan): para que no baste con memorizar los tiempos, en cada partida cada soldado empieza en un punto al azar de su ruta (en vaivén, también en cualquier sentido) y se detiene en cada punto entre 0,4 y 1 s. Los soldados de los grupos empiezan siempre en el primer punto de su ruta. Las pruebas de los pasos tienen el azar apagado. `pruebas/prueba_patrullas.gd` prueba tres semillas en el Puesto de control y en los Túneles: todas empiezan seguras y todas tienen una ruta sin ser visto.
 
 En la vista isométrica un muro tapa lo que tiene detrás, así que los muros que quedan entre la cámara y Mika se vuelven semitransparentes.
 
@@ -342,6 +342,21 @@ Un grupo (`scripts/aparicion.gd`, nodo `Aparicion` con soldados como hijos) no e
 - **Probabilidad:** con menos de 1, el grupo se sortea al empezar el mapa y en algunas partidas no sale nunca; su zona queda vacía.
 - **Azar propio:** cada soldado y cada grupo sortea con su propio generador, sacado de la semilla del mapa y de su nombre. Así, que salga un grupo no cambia lo que sortean los demás.
 - **Pruebas:** buscan la ruta sin ser visto grabando a los soldados fijos y, aparte, a cada grupo desde que sale. En la búsqueda, cada camino lleva cuándo salió cada grupo según por dónde pasó Mika. La planificación ve con margen (15° más de cono, media casilla más de alcance y todo lo que esté a menos de 1,2 casillas), porque solo mira cada 0,1 s. Ese margen la hace más prudente de la cuenta (las rutas que da son más lentas de lo necesario), así que solo se usa con grupos; `buscar_ruta` sigue sin margen. Para cada mapa nuevo con grupos, usar `buscar_ruta_con_apariciones` de `pruebas/comun.gd`.
+
+## Vampiros comunes
+
+`scripts/vampiro.gd`, `escenas/vampiro.tscn`. Patrullan como los soldados y ven igual (cono de 90°, 5 casillas, 2,5 en sombra), pero su cono es violeta y **no atacan a Mika ni les importa verlo pasar**: para ellos es uno de los suyos. Lo delatan si lo ven:
+
+- **en una zona prohibida** (casillas `x` del plano, marcadas con un rombo violeta) durante 0,5 s seguidos,
+- **robando un vial** (cogerlo a su vista),
+- **atacando a un vampiro** (Tajo o Golpe silencioso), o
+- **junto a un vampiro derribado** (la alarma va entonces al cuerpo).
+
+Al verlo se queda quieto mirándolo, con un «!» y una barra roja. Si en 1,5 s nadie lo calla, da la alarma y los soldados del mapa van a por Mika. Se le puede callar derribándolo (vida 8: dos Tajos, o un Golpe silencioso si no está mirando a Mika), pero si otro vampiro lo ve, ese también lo delata. Mientras dura la alarma no vuelve a delatar. Los vampiros no dan sangre y el Frenesí no va por ellos.
+
+- **Mapas:** VP1 recorre el almacén del Puesto de control (columna 24) y hay una franja prohibida en la boca del pasillo que sube a la puerta (filas 11 y 12). VT1 vigila la sala del vial de los Túneles, con el rincón del vial prohibido.
+- **Eventos:** «La doncella de Krul» (aceptar) pone un vampiro de más en el siguiente mapa, en su `ruta_vampiro_extra` (en los barracones del Puesto, en la sala norte de los Túneles). «Lacus y René» (ir y fingir) hace que los vampiros del siguiente mapa no lo delaten. Los dos duran un solo mapa y no cuentan la Prueba de la sed. En la zona 1, los eventos están en la ruta segura, justo antes de la Prueba, así que su «siguiente mapa» es el hangar de Ferid, que no tiene vampiros: tendrán efecto de verdad cuando haya más zonas.
+- **Pruebas:** `prueba_vampiros.gd`. La búsqueda de ruta sin ser visto graba también a los vampiros, pero solo cuentan en zonas prohibidas y en la casilla de un vial.
 
 ## Jefe de la zona 1: Ferid Bathory, en el hangar
 

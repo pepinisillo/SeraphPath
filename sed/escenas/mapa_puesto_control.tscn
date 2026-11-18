@@ -7,6 +7,7 @@
 [ext_resource type="Script" path="res://scripts/alerta.gd" id="5_alerta"]
 [ext_resource type="PackedScene" path="res://escenas/hud.tscn" id="6_hud"]
 [ext_resource type="Script" path="res://scripts/muros.gd" id="7_muros"]
+[ext_resource type="PackedScene" path="res://escenas/vampiro.tscn" id="9_vampiro"]
 [ext_resource type="Script" path="res://scripts/aparicion.gd" id="8_aparicion"]
 
 [node name="MapaPuestoControl" type="Node2D"]
@@ -23,8 +24,8 @@ plano = "#########............###.....E
 ######...#......#########..###
 ######.#.#.##s#.#########s.###
 ######.#.s.##s#.#########..###
-######...#......#########..###
-########s###.##.#####.......##
+######...#......#########xx###
+########s###.##.#####..xxxxx##
 .....#.......#V.#####..#....##
 ...s.#s##.##.##.#####.......##
 .....#s##.##......s.........##
@@ -33,6 +34,7 @@ plano = "#########............###.....E
 .M..#.###############.......##
 .....#########################"
 entrada_refuerzos = Vector2i(24, 0)
+ruta_vampiro_extra = Array[Vector2i]([Vector2i(9, 0), Vector2i(20, 0)])
 
 [node name="Alerta" type="Node" parent="."]
 script = ExtResource("5_alerta")
@@ -96,6 +98,10 @@ probabilidad = 0.5
 
 [node name="A1" parent="GrupoAlmacen" instance=ExtResource("4_soldado")]
 ruta = Array[Vector2i]([Vector2i(27, 14), Vector2i(21, 14)])
+en_bucle = false
+
+[node name="VP1" parent="." instance=ExtResource("9_vampiro")]
+ruta = Array[Vector2i]([Vector2i(24, 18), Vector2i(24, 12)])
 en_bucle = false
 
 [node name="HUD" parent="." instance=ExtResource("6_hud")]

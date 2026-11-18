@@ -78,7 +78,7 @@ func paso(m: Mapa, segundos: float = DT) -> void:
 				ok = false
 				print("FALLO: ", s.name, " dentro de muro en ", s.pos)
 		for h in m.get_children():
-			if h is Vial or h is Eco or h is Aparicion or h is Ferid:
+			if h is Vial or h is Eco or h is Aparicion or h is Ferid or h is Vampiro:
 				h._physics_process(DT)
 
 
@@ -120,6 +120,8 @@ func grabar_linea(m: Mapa) -> void:
 		var foto := []
 		for s in m.soldados():
 			foto.append([s, s.pos, s.mirada])
+		for v in m.vampiros():
+			foto.append([v, v.pos, v.mirada])
 		linea.append(foto)
 		paso(m, por_muestra * DT)
 		m.mika.sed = 0
@@ -270,12 +272,19 @@ func _visible_en(m: Mapa, punto: Vector2, k: int) -> bool:
 	if _visible_cache.has(clave):
 		return _visible_cache[clave]
 	var resultado := false
+	var celda := Vector2i(floori(punto.x), floori(punto.y))
+	var prohibida := m.es_prohibida(celda) or celda in m.celdas_vial # coger un vial a la vista es robar
 	for foto in linea[k]:
-		var s: Soldado = foto[0]
+		var s: Node2D = foto[0]
+		if s is Vampiro and not prohibida:
+			continue # a un vampiro solo le importa verlo en una zona prohibida
 		var antes := [s.pos, s.mirada]
 		s.pos = foto[1]
 		s.mirada = foto[2]
-		resultado = _ve_con_margen(m, s, punto) if _con_margen else s._puede_ver(punto)
+		if _con_margen:
+			resultado = _ve_con_margen(m, s, punto)
+		else:
+			resultado = s._puede_ver(punto) if s is Soldado else s.puede_ver(punto)
 		s.pos = antes[0]
 		s.mirada = antes[1]
 		if resultado:
@@ -291,8 +300,8 @@ const MARGEN_ALCANCE := 0.5 # casillas de más
 const MARGEN_CERCA := 1.2 # casillas: a esta distancia cuenta como visto, mire adonde mire
 
 
-func _ve_con_margen(m: Mapa, s: Soldado, punto: Vector2) -> bool:
-	var hacia := punto - s.pos
+func _ve_con_margen(m: Mapa, s: Node2D, punto: Vector2) -> bool:
+	var hacia: Vector2 = punto - s.pos
 	var distancia := hacia.length()
 	if distancia < MARGEN_CERCA:
 		return m.hay_linea_de_vision(s.pos, punto)
@@ -364,6 +373,12 @@ func reproducir(m: Mapa, ruta: Array, informar := true) -> bool:
 		m.mika.sed = 0
 		paso(m)
 		t += DT
+		for v in m.vampiros():
+			if v.estado != Vampiro.Estado.CALMA:
+				if informar:
+					ok = false
+					print("FALLO: el vampiro %s vio a Mika hacer algo prohibido en t=%.2f, en %s" % [v.name, t, m.mika.pos])
+				return false
 		for s in m.soldados():
 			if s.medidor >= Config.DETECCION_SOSPECHA:
 				if informar:

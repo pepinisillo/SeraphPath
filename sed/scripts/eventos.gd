@@ -3,6 +3,7 @@ class_name Eventos
 ## ver Guion.evento). Cada opción lleva sus efectos:
 ##   viales, sed (suma), sed_a (fija), vida (cura), vida_max (suma), humanidad (suma), mejora (elige una),
 ##   siguiente_empieza ("sospecha" o "alarma"), sed_congelada, patrullas_visibles,
+##   vampiro_extra (el siguiente mapa tiene un vampiro más), vampiros_callados (no lo delatan),
 ##   pendiente (texto de un efecto que depende de un sistema que aún no existe).
 ## `zona` 0 = cualquiera. `requiere` deja fuera eventos cuyo sistema principal aún no existe.
 
@@ -10,14 +11,14 @@ const TODOS := [
 	{
 		"id": "doncella", "titulo": "La doncella de Krul", "zona": 1,
 		"opciones": [
-			{"texto": "Aceptar", "efectos": {"viales": 1, "pendiente": "el siguiente mapa tendrá un vampiro más"}},
+			{"texto": "Aceptar", "efectos": {"viales": 1, "vampiro_extra": true}},
 			{"texto": "Rechazar", "efectos": {}},
 		],
 	},
 	{
 		"id": "lacus_rene", "titulo": "Lacus y René", "zona": 1,
 		"opciones": [
-			{"texto": "Ir y fingir", "efectos": {"sed": 15, "pendiente": "los vampiros del siguiente mapa no te delatarán"}},
+			{"texto": "Ir y fingir", "efectos": {"sed": 15, "vampiros_callados": true}},
 			{"texto": "Negarse", "efectos": {"siguiente_empieza": "sospecha"}},
 		],
 	},
@@ -117,6 +118,10 @@ static func describir(efectos: Dictionary) -> String:
 		partes.append("la sed no sube durante el siguiente mapa")
 	if efectos.has("patrullas_visibles"):
 		partes.append("ves todas las patrullas de la zona")
+	if efectos.has("vampiro_extra"):
+		partes.append("el siguiente mapa tiene un vampiro más")
+	if efectos.has("vampiros_callados"):
+		partes.append("los vampiros del siguiente mapa no te delatan")
 	if efectos.has("pendiente"):
 		partes.append("(aún sin efecto: %s)" % efectos.pendiente)
 	return " · ".join(partes) if not partes.is_empty() else "Nada"

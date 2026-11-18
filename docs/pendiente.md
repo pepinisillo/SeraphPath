@@ -6,7 +6,7 @@ Lo que falta por construir, de lo más difícil a lo más sencillo. Lo que ya ex
 
 1. **Generar mapas automáticamente.** Crear mapas de infiltración al azar y quedarse solo con los que se pueden cruzar sin ser visto y exigen esconderse. La búsqueda de rutas de `sed/pruebas/comun.gd` ya sirve para validarlos.
 2. **Jefes con fases.** Ferid Bathory ya existe (persecución con embestidas anunciadas). Faltan Crowley Eusford (combate abierto) y Guren Ichinose (arma maldita).
-3. **Enemigos con reglas sociales.** El vampiro común no ataca a Mika, pero lo delata si lo ve atacar vampiros, robar viales o entrar en zonas prohibidas: cada enemigo tiene que recordar qué vio y qué significa. Además, que convivan con el hechicero de talismanes, el portador de arma maldita y el Jinete del Apocalipsis.
+3. **Enemigos con reglas sociales.** El vampiro común ya existe. Faltan el hechicero de talismanes, el portador de arma maldita y el Jinete del Apocalipsis, y que convivan todos.
 4. **El final «La sangre de Yuu».** Escena dirigida:
    - El jugador pulsa el botón de Beber que evitó toda la partida, y esta vez no cuesta Humanidad.
    - No hay música hasta la última línea de Yuu.

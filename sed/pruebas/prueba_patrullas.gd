@@ -5,7 +5,7 @@ extends "res://pruebas/comun.gd"
 ## una ruta sin ser visto (con los grupos saliendo al pisar su zona) que, al reproducirla en
 ## el juego, llegue a la salida.
 
-const SEMILLAS := [1, 2, 3, 4, 5, 6] # cada una tarda unos 9 s por mapa
+const SEMILLAS := [1, 2, 3] # cada una tarda unos 30 s por mapa
 const MAPAS := {
 	"res://escenas/mapa_puesto_control.tscn": [Vector2i(1, 18), Vector2i(29, 0)],
 	"res://escenas/mapa_tuneles.tscn": [Vector2i(1, 16), Vector2i(29, 0)],

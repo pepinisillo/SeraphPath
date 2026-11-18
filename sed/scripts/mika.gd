@@ -28,7 +28,7 @@ var pos := Vector2.ZERO # casillas
 var mirada := Vector2(1, 1).normalized() # dirección en casillas
 var direccion := 0 # una de 8 direcciones de pantalla, 0 = derecha, en sentido horario
 ## Soldado al que derribaría ahora un Golpe silencioso (o null). Él dibuja la marca.
-var objetivo_silencioso: Soldado = null
+var objetivo_silencioso: Node2D = null # Soldado o Vampiro
 ## Cuerpo del que puede beber ahora (o null). Él dibuja el aviso.
 var objetivo_beber: Soldado = null
 ## En la Prueba de la sed: eco del que puede beber ahora (o null). Él dibuja el aviso.
@@ -406,8 +406,10 @@ func tajo() -> bool:
 	_enfriamiento_tajo = Config.TAJO_ENFRIAMIENTO
 	_tajo_restante = TAJO_VISIBLE
 	var conecto := false
-	for soldado in mapa.soldados():
-		if _al_alcance(soldado, Config.TAJO_ALCANCE):
+	var a_un_vampiro := false
+	for soldado in mapa.atacables():
+		if _al_alcance(soldado, Config.TAJO_ALCANCE) and not soldado.derribado:
+			a_un_vampiro = a_un_vampiro or soldado is Vampiro
 			soldado.recibir_dano(dano_tajo())
 			if soldado.derribado:
 				mapa.estadisticas.derribados_con_tajo += 1
@@ -416,11 +418,13 @@ func tajo() -> bool:
 			else:
 				mapa.efectos.tajo_conectado(soldado.pos) # una sola parada por Tajo
 			conecto = true
+	if a_un_vampiro:
+		mapa.acto_prohibido("ataque")
 	mapa.hacer_ruido(pos)
 	return true
 
 
-## Derriba sin ruido al soldado marcado. Sin objetivo válido no hace nada.
+## Derriba sin ruido al soldado (o vampiro) marcado. Sin objetivo válido no hace nada.
 func golpe_silencioso() -> bool:
 	if _enfriamiento_golpe > 0.0 or esta_impulsando():
 		return false
@@ -430,6 +434,8 @@ func golpe_silencioso() -> bool:
 	_enfriamiento_golpe = Config.GOLPE_SILENCIOSO_ENFRIAMIENTO
 	objetivo.derribar()
 	mapa.estadisticas.derribados_en_silencio += 1
+	if objetivo is Vampiro:
+		mapa.acto_prohibido("ataque")
 	mapa.efectos.derribo_silencioso(objetivo.pos)
 	return true
 
@@ -462,10 +468,10 @@ func _impulsar(delta: float) -> void:
 
 
 ## Soldado en pie, a menos de `alcance` casillas y dentro del arco de ataque delante de Mika.
-func _al_alcance(soldado: Soldado, alcance: float) -> bool:
+func _al_alcance(soldado: Node2D, alcance: float) -> bool:
 	if soldado.derribado:
 		return false
-	var hacia := soldado.pos - pos
+	var hacia: Vector2 = soldado.pos - pos
 	if hacia.length() > alcance:
 		return false
 	if hacia.length() < 0.3:
@@ -473,9 +479,9 @@ func _al_alcance(soldado: Soldado, alcance: float) -> bool:
 	return absf(angle_difference(mirada.angle(), hacia.angle())) <= deg_to_rad(Config.ATAQUE_ANGULO) / 2.0
 
 
-func _buscar_objetivo_silencioso() -> Soldado:
-	var mejor: Soldado = null
-	for soldado in mapa.soldados():
+func _buscar_objetivo_silencioso() -> Node2D:
+	var mejor: Node2D = null
+	for soldado in mapa.atacables():
 		if _al_alcance(soldado, Config.GOLPE_SILENCIOSO_ALCANCE) and soldado.admite_golpe_silencioso():
 			if mejor == null or pos.distance_to(soldado.pos) < pos.distance_to(mejor.pos):
 				mejor = soldado

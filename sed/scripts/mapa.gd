@@ -3,13 +3,15 @@ class_name Mapa
 extends Node2D
 ## Mapa construido a partir de un plano de texto. Cada carácter es una casilla:
 ## `#` muro · `.` suelo · `s` sombra · `M` inicio de Mika · `E` salida · `V` vial de Krul
-## · `e` eco (solo en la Prueba de la sed, donde la salida es Yuu).
+## · `e` eco (solo en la Prueba de la sed, donde la salida es Yuu)
+## · `x` zona prohibida (suelo; un vampiro que vea a Mika ahí lo delata).
 ## La lógica consulta la cuadrícula (es_muro, es_sombra); los TileMapLayer solo dibujan.
 
 const ATLAS_SUELO := Vector2i(0, 0)
 const ATLAS_SOMBRA := Vector2i(1, 0)
 const ATLAS_MURO := Vector2i(2, 0)
 const ATLAS_SALIDA := Vector2i(3, 0)
+const COLOR_PROHIBIDA := Paleta.VAMPIROS
 
 @export_multiline var plano: String = "":
 	set(valor):
@@ -24,6 +26,8 @@ const ATLAS_SALIDA := Vector2i(3, 0)
 @export var nombre := "Puesto de control"
 ## Casilla por la que llegan los refuerzos durante la alarma.
 @export var entrada_refuerzos := Vector2i(9, 0)
+## Ruta del vampiro de más que trae el evento «La doncella de Krul» (vacía: no cabe en este mapa).
+@export var ruta_vampiro_extra: Array[Vector2i] = []
 
 @export_group("Jefe")
 ## Nombre del jefe en el guion («Ferid Bathory»); vacío si el mapa no es de jefe.
@@ -39,6 +43,8 @@ const ATLAS_SALIDA := Vector2i(3, 0)
 static var escenas_de_jefe := true
 
 var punto_de_control := 0 # el último que pasó Mika
+var vampiros_callados := false # evento «Lacus y René»: los vampiros de este mapa no lo delatan
+var celdas_prohibidas: Array[Vector2i] = []
 var ferid: Ferid
 
 var filas: PackedStringArray = []
@@ -79,6 +85,8 @@ func _ready() -> void:
 	Soldado.preparar_azar()
 	for soldado in soldados():
 		soldado.iniciar(self)
+	for vampiro in vampiros():
+		vampiro.iniciar(self)
 	for aparicion in apariciones():
 		aparicion.iniciar(self)
 	for i in celdas_eco.size():
@@ -148,6 +156,7 @@ func _construir() -> void:
 	muros.clear()
 	celdas_vial.clear()
 	celdas_eco.clear()
+	celdas_prohibidas.clear()
 	for f in alto:
 		for c in ancho:
 			var celda := Vector2i(c, f)
@@ -168,6 +177,9 @@ func _construir() -> void:
 				"V":
 					celdas_vial.append(celda)
 					suelo.set_cell(celda, 0, ATLAS_SUELO)
+				"x":
+					celdas_prohibidas.append(celda)
+					suelo.set_cell(celda, 0, ATLAS_SUELO)
 				_:
 					suelo.set_cell(celda, 0, ATLAS_SUELO)
 
@@ -177,6 +189,7 @@ func _construir() -> void:
 	for f in alto:
 		for c in ancho:
 			_rejilla.set_point_solid(Vector2i(c, f), es_muro(Vector2i(c, f)))
+	queue_redraw()
 
 
 func caracter(celda: Vector2i) -> String:
@@ -191,6 +204,21 @@ func caracter(celda: Vector2i) -> String:
 ## Fuera del mapa cuenta como muro, para que nadie se salga.
 func es_muro(celda: Vector2i) -> bool:
 	return caracter(celda) == "#"
+
+
+func es_prohibida(celda: Vector2i) -> bool:
+	return caracter(celda) == "x"
+
+
+## Las zonas prohibidas: un rombo violeta tenue sobre el suelo de cada casilla.
+func _draw() -> void:
+	for celda in celdas_prohibidas:
+		var c := Iso.a_pantalla(Vector2(celda) + Vector2(0.5, 0.5))
+		var m := Vector2(Config.ANCHO_CASILLA / 2.0, Config.ALTO_CASILLA / 2.0) * 0.86
+		var rombo := PackedVector2Array([c + Vector2(0, -m.y), c + Vector2(m.x, 0), c + Vector2(0, m.y), c + Vector2(-m.x, 0)])
+		draw_colored_polygon(rombo, Color(COLOR_PROHIBIDA, 0.22))
+		rombo.append(rombo[0])
+		draw_polyline(rombo, Color(COLOR_PROHIBIDA, 0.6), 2.0)
 
 
 func es_sombra(celda: Vector2i) -> bool:
@@ -308,6 +336,43 @@ func apariciones() -> Array[Aparicion]:
 		if hijo is Aparicion:
 			lista.append(hijo)
 	return lista
+
+
+func vampiros() -> Array[Vampiro]:
+	var lista: Array[Vampiro] = []
+	for hijo in get_children():
+		if hijo is Vampiro:
+			lista.append(hijo)
+	return lista
+
+
+## Lo que Mika puede atacar: soldados y vampiros.
+func atacables() -> Array:
+	var lista: Array = [] # sin tipo: soldados y vampiros juntos
+	lista.append_array(soldados())
+	lista.append_array(vampiros())
+	return lista
+
+
+## Mika acaba de hacer algo prohibido ("ataque", "vial"): lo delata todo vampiro que lo vea.
+func acto_prohibido(motivo: String) -> void:
+	if mika == null:
+		return
+	for vampiro in vampiros():
+		if vampiro.puede_ver(mika.pos):
+			vampiro.presenciar(motivo)
+
+
+## Evento «La doncella de Krul»: un vampiro de más en este mapa, si tiene sitio para él.
+func poner_vampiro_extra() -> void:
+	if ruta_vampiro_extra.is_empty():
+		return
+	var vampiro: Vampiro = load("res://escenas/vampiro.tscn").instantiate()
+	vampiro.name = "VampiroExtra"
+	vampiro.ruta = ruta_vampiro_extra
+	vampiro.en_bucle = false
+	add_child(vampiro)
+	vampiro.iniciar(self)
 
 
 func ecos() -> Array[Eco]:

@@ -69,6 +69,8 @@ var caidas := 0 # veces que Mika ha caído, en todas las partidas (el final «Ca
 var escena_titulo := ""
 var escena_golpes: Array[Dictionary] = []
 var escena_tras_parada: Array[Dictionary] = []
+var siguiente_vampiro_extra := false # evento «La doncella de Krul»
+var siguiente_vampiros_callados := false # evento «Lacus y René»
 var _tras_escena: Callable
 var rng := RandomNumberGenerator.new()
 
@@ -110,6 +112,8 @@ func nueva() -> void:
 	evento_actual = ""
 	recuerdo_nuevo = 0
 	escena_tras_parada = []
+	siguiente_vampiro_extra = false
+	siguiente_vampiros_callados = false
 	rng.randomize()
 
 
@@ -273,6 +277,10 @@ func aplicar_efectos(efectos: Dictionary) -> Array[String]:
 		sed_congelada = true
 	if efectos.get("patrullas_visibles", false):
 		patrullas_visibles = true
+	if efectos.get("vampiro_extra", false):
+		siguiente_vampiro_extra = true
+	if efectos.get("vampiros_callados", false):
+		siguiente_vampiros_callados = true
 	if efectos.get("mejora", false):
 		return opciones_de_mejora()
 	return []
@@ -330,6 +338,11 @@ func aplicar_a_mapa(mapa: Mapa) -> void:
 	sed_congelada = false
 	mapa.patrullas_visibles = patrullas_visibles
 	if not mapa.prueba_de_la_sed:
+		if siguiente_vampiro_extra:
+			mapa.poner_vampiro_extra()
+		mapa.vampiros_callados = siguiente_vampiros_callados
+		siguiente_vampiro_extra = false
+		siguiente_vampiros_callados = false
 		match siguiente_empieza:
 			"alarma":
 				mapa.alerta.dar_alarma(mika.pos)

@@ -24,6 +24,7 @@ func _physics_process(delta: float) -> void:
 	if mapa.mika.pos.distance_to(pos) <= Config.VIAL_RADIO_RECOGER:
 		mapa.mika.viales += 1
 		mapa.estadisticas.viales_recogidos += 1
+		mapa.acto_prohibido("vial") # en Sanguinem, coger un vial ajeno es robar
 		queue_free()
 
 
