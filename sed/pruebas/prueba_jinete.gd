@@ -42,7 +42,27 @@ func _initialize():
 	comprobar("Mika puede beber del soldado cazado", m.mika.objetivo_beber == presa, true)
 	m.queue_free()
 
-	print("C) El Jinete dormido: 2 soldados menos y un Jinete suelto")
+	print("C) Si Mika lo ataca, va a por él")
+	m = await cargar_mapa(ESCENA)
+	j = m.get_node("J1")
+	for s in m.soldados():
+		s.free()
+	comprobar("no se le derriba por la espalda", j.admite_golpe_silencioso(), false)
+	m.mika.pos = j.pos + Vector2(-1.0, 0)
+	m.mika.mirada = Vector2(1, 0)
+	m.mika.tajo()
+	comprobar("el Tajo le quita vida y lo enfurece", [j.vida, j.estado, j.presa == m.mika], [Config.JINETE_VIDA - m.mika.dano_tajo(), Jinete.Estado.CAZA, true])
+	var vida := m.mika.vida
+	paso(m, 0.5)
+	comprobar("y le pega a Mika", m.mika.vida, vida - Config.JINETE_DANO)
+	m.mika.pos = Vector2(0.5, 17.5) # se aleja
+	paso(m, Config.JINETE_FURIA + 0.1)
+	comprobar("se le pasa la furia", [j.estado != Jinete.Estado.CAZA, j.presa == null], [true, true])
+	j.recibir_dano(100)
+	comprobar("con bastante daño, cae", j.derribado, true)
+	m.queue_free()
+
+	print("D) El Jinete dormido: 2 soldados menos y un Jinete suelto")
 	var e := EstadoExpedicion.actual()
 	e.nueva()
 	e.aplicar_efectos(Eventos.por_id("jinete_dormido").opciones[1].efectos)

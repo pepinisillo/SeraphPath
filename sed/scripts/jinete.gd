@@ -1,7 +1,7 @@
 class_name Jinete
 extends Node2D
 ## Jinete del Apocalipsis: un monstruo que caza humanos e ignora a los vampiros, y a Mika con
-## ellos. Mika no puede con él, pero puede usarlo: un ruido lo atrae (lo oye desde más lejos que
+## ellos (salvo que Mika lo ataque: entonces va a por él un rato; con vida JINETE_VIDA, cae). Mika no puede con él, pero puede usarlo: un ruido lo atrae (lo oye desde más lejos que
 ## un soldado) y, si al llegar ve a un soldado, lo persigue y lo derriba. El soldado queda en el
 ## suelo como cualquier otro derribado: otra patrulla puede descubrirlo y Mika puede beber de él.
 ## Su posición vive en casillas.
@@ -24,8 +24,11 @@ var mapa: Mapa
 var pos := Vector2.ZERO # casillas
 var mirada := Vector2(1, 0)
 var estado := Estado.VAGA
-var presa: Soldado = null
+var presa: Node2D = null # un soldado o, si Mika lo atacó, Mika
 var derribados := 0 # soldados que ha cazado en este mapa
+var vida := Config.JINETE_VIDA
+var derribado := false
+var furia := 0.0 # s que le quedan yendo a por Mika porque lo atacó
 
 var _indice := 0
 var _sentido := 1
@@ -64,7 +67,16 @@ func iniciar(p_mapa: Mapa) -> void:
 func _physics_process(delta: float) -> void:
 	if mapa == null or ruta.is_empty():
 		return
+	if derribado:
+		cono.visible = false
+		queue_redraw()
+		return
 	_hasta_golpe -= delta
+	furia -= delta
+	if estado == Estado.CAZA and presa == mapa.mika and furia <= 0.0:
+		presa = null # se le pasó la furia
+		estado = Estado.VAGA
+		_volviendo = true
 	if estado != Estado.CAZA:
 		var vista := _soldado_a_la_vista()
 		if vista != null:
@@ -87,6 +99,30 @@ func _physics_process(delta: float) -> void:
 	queue_redraw()
 
 
+## Mika lo ataca: le quita vida y, si sigue en pie, se gira contra Mika (furia).
+func recibir_dano(cantidad: int) -> void:
+	if derribado:
+		return
+	vida -= cantidad
+	if vida <= 0:
+		vida = 0
+		derribado = true
+		cono.visible = false
+		return
+	presa = mapa.mika
+	estado = Estado.CAZA
+	furia = Config.JINETE_FURIA
+
+
+## Es un monstruo: no se le derriba por la espalda.
+func admite_golpe_silencioso() -> bool:
+	return false
+
+
+func recibir_golpe_silencioso() -> void:
+	pass
+
+
 ## Oye un ruido: si no está cazando, va al origen.
 func oir(origen: Vector2) -> void:
 	if estado == Estado.CAZA:
@@ -96,7 +132,8 @@ func oir(origen: Vector2) -> void:
 
 
 func _cazar(delta: float) -> void:
-	if presa == null or not is_instance_valid(presa) or presa.derribado:
+	var caida: bool = presa != null and is_instance_valid(presa) and (presa.caida if presa == mapa.mika else presa.derribado)
+	if presa == null or not is_instance_valid(presa) or caida:
 		presa = null
 		estado = Estado.VAGA
 		_volviendo = true
@@ -104,6 +141,9 @@ func _cazar(delta: float) -> void:
 	_ir_hacia(presa.pos, Config.JINETE_VELOCIDAD_CAZA, delta)
 	if pos.distance_to(presa.pos) <= Config.JINETE_ALCANCE and _hasta_golpe <= 0.0:
 		_hasta_golpe = Config.JINETE_GOLPE_INTERVALO
+		if presa == mapa.mika:
+			mapa.mika.recibir_golpe(Config.JINETE_DANO)
+			return
 		# Su golpe (JINETE_DANO) siempre derriba a un soldado (SOLDADO_VIDA): sin alarma, solo un cuerpo.
 		presa.derribar()
 		derribados += 1
@@ -171,6 +211,11 @@ func _ir_hacia(destino: Vector2, velocidad: float, delta: float) -> bool:
 
 
 func _draw() -> void:
+	if derribado:
+		draw_set_transform(Vector2.ZERO, PI / 2.0, Vector2(0.6, 1.0))
+		Formas.capsula(self, ALTO_CAPSULA * 0.5, ANCHO_CAPSULA, Color(COLOR_CUERPO, 0.6), COLOR_CONTORNO)
+		draw_set_transform(Vector2.ZERO, 0.0, Vector2.ONE)
+		return
 	if animador:
 		animador.poner(estado_animacion(animador.se_mueve()), Formas.direccion_8(mirada))
 	if not (animador and animador.activo):
@@ -182,6 +227,8 @@ func _draw() -> void:
 
 ## Estado para el arte: cazar, andar o quieto.
 func estado_animacion(se_mueve: bool) -> String:
+	if derribado:
+		return "derribado"
 	if estado == Estado.CAZA:
 		return "cazar"
 	return "andar" if se_mueve else "quieto"

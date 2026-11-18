@@ -565,3 +565,32 @@ func huir_de_ferid(escena: String, rampa: Vector2, esquivar: bool) -> Array:
 	m.queue_free()
 	paused = false
 	return resultado
+
+
+## Un jugador que va derecho hacia Yuu rodeando a los ecos. Devuelve [resultado, segundos, sed al salir].
+func prueba_de_la_sed_con_bot(escena: String, sed_inicial: int) -> Array:
+	var m: Mapa = await cargar_mapa(escena)
+	var mika := m.mika
+	mika.sed = sed_inicial
+	var t := 0.0
+	while not m.terminado and t < 90.0:
+		var ocupadas := []
+		for eco in m.ecos():
+			var c := Vector2i(floori(eco.pos.x), floori(eco.pos.y))
+			if c != mika.celda() and not m._rejilla.is_point_solid(c):
+				m._rejilla.set_point_solid(c, true)
+				ocupadas.append(c)
+		var camino := m.camino(mika.pos, Vector2(m.celda_salida) + Vector2(0.5, 0.5))
+		for c in ocupadas:
+			m._rejilla.set_point_solid(c, false)
+		if not camino.is_empty():
+			var hacia := camino[0] - mika.pos
+			if hacia.length() > 0.001:
+				mika.mover(hacia.normalized() * minf(mika.velocidad() * DT, hacia.length()))
+		paso(m)
+		t += DT
+	var resultado := "superada" if m.terminado and m.motivo == "" else (m.motivo if m.motivo != "" else "sin terminar")
+	var final := [resultado, t, mika.sed]
+	m.queue_free()
+	paused = false
+	return final

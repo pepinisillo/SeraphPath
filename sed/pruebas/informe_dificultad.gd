@@ -64,10 +64,12 @@ func _initialize():
 			jefe[0], "gana" if sin[0] else "pierde", sin[1], sin[2], sin[3], "gana" if con[0] else "pierde", con[1], con[2], con[3]])
 	print("    jefes hechos")
 
-	lineas.append_array(["", "## Prueba de la sed", "", "Un jugador que va derecho hacia Yuu rodeando a los ecos.", "", "| Sed al entrar | Resultado | Tiempo (s) | Sed al salir |", "| --- | --- | --- | --- |"])
-	for sed_inicial in [30, 55, 70, 80]:
-		var r := await _prueba_de_la_sed(sed_inicial)
-		lineas.append("| %d | %s | %.1f | %d |" % [sed_inicial, r[0], r[1], r[2]])
+	lineas.append_array(["", "## Prueba de la sed", "", "Un jugador que va derecho hacia Yuu rodeando a los ecos.", "", "| Mapa | Sed al entrar | Resultado | Tiempo (s) | Sed al salir |", "| --- | --- | --- | --- | --- |"])
+	for zona in [1, 2, 3]:
+		var escena: String = EstadoExpedicion.ZONAS[zona].prueba
+		for sed_inicial in [30, 55, 70]:
+			var r := await prueba_de_la_sed_con_bot(escena, sed_inicial)
+			lineas.append("| %s | %d | %s | %.1f | %d |" % [escena.get_file(), sed_inicial, r[0], r[1], r[2]])
 	lineas.append("")
 	var ruta_docs := ProjectSettings.globalize_path("res://").path_join("../docs/dificultad.md").simplify_path()
 	var f := FileAccess.open(ruta_docs, FileAccess.WRITE)
@@ -75,31 +77,3 @@ func _initialize():
 	f.close()
 	print("INFORME escrito en %s" % ruta_docs)
 	terminar()
-
-
-func _prueba_de_la_sed(sed_inicial: int) -> Array:
-	var m: Mapa = await cargar_mapa("res://escenas/mapa_prueba_sed.tscn")
-	var mika := m.mika
-	mika.sed = sed_inicial
-	var t := 0.0
-	while not m.terminado and t < 90.0:
-		var ocupadas := []
-		for eco in m.ecos():
-			var c := Vector2i(floori(eco.pos.x), floori(eco.pos.y))
-			if c != mika.celda() and not m._rejilla.is_point_solid(c):
-				m._rejilla.set_point_solid(c, true)
-				ocupadas.append(c)
-		var camino := m.camino(mika.pos, Vector2(m.celda_salida) + Vector2(0.5, 0.5))
-		for c in ocupadas:
-			m._rejilla.set_point_solid(c, false)
-		if not camino.is_empty():
-			var hacia := camino[0] - mika.pos
-			if hacia.length() > 0.001:
-				mika.mover(hacia.normalized() * minf(mika.velocidad() * DT, hacia.length()))
-		paso(m)
-		t += DT
-	var resultado := "superada" if m.terminado and m.motivo == "" else (m.motivo if m.motivo != "" else "sin terminar")
-	var final := [resultado, t, mika.sed]
-	m.queue_free()
-	paused = false
-	return final

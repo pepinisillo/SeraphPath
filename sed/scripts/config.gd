@@ -151,7 +151,8 @@ const PORTADOR_ATURDIDO := 4.0 # s aturdido por un Golpe silencioso (no lo derri
 const HECHICERO_DANO := 1
 
 # --- Jinete del Apocalipsis (caza humanos, ignora a los vampiros y a Mika) ---
-const JINETE_VIDA := 14 # (aún no se le puede atacar)
+const JINETE_VIDA := 14
+const JINETE_FURIA := 8.0 # s que va a por Mika después de que Mika lo ataque
 const JINETE_DANO := 5 # derriba a un soldado de un golpe
 const JINETE_VELOCIDAD := 1.6 # casillas/s vagando
 const JINETE_VELOCIDAD_ACUDE := 3.0 # casillas/s yendo a un ruido

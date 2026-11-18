@@ -412,11 +412,12 @@ func vampiros() -> Array[Vampiro]:
 	return lista
 
 
-## Lo que Mika puede atacar: soldados, vampiros y el jefe con el que se pelea (Crowley, Guren).
+## Lo que Mika puede atacar: soldados, vampiros, Jinetes y el jefe con el que se pelea (Crowley, Guren).
 func atacables() -> Array:
 	var lista: Array = [] # sin tipo: soldados y vampiros juntos
 	lista.append_array(soldados())
 	lista.append_array(vampiros())
+	lista.append_array(jinetes())
 	if jefe_combate:
 		lista.append(jefe_combate)
 	return lista

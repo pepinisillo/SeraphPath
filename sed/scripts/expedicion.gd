@@ -31,6 +31,7 @@ const ZONAS := {
 	1: {
 		"nombre": "Sanguinem", "jefe": "Ferid Bathory",
 		"infiltracion": ESCENA_INFILTRACION, "arriesgada": ESCENA_TUNELES, "mapa_jefe": ESCENA_JEFE,
+		"prueba": ESCENA_PRUEBA, # el orfanato
 		"texto_infiltracion": "Cruza el puesto de control hasta la salida.",
 		"texto_arriesgada": "Cruza los túneles de abastecimiento hasta la salida.",
 		"texto_jefe": "No se le vence: se le escapa. Llega a la rampa del avión mientras te persigue.",
@@ -39,6 +40,7 @@ const ZONAS := {
 		"nombre": "Ruinas de Shinjuku", "jefe": "Crowley Eusford",
 		"infiltracion": "res://escenas/mapa_shinjuku.tscn", "arriesgada": "res://escenas/mapa_estacion.tscn",
 		"mapa_jefe": "res://escenas/mapa_cruce.tscn",
+		"prueba": "res://escenas/mapa_prueba_calle.tscn", # la calle intacta, con las ventanas encendidas
 		"texto_infiltracion": "Cruza las ruinas de Shinjuku, entre soldados y Jinetes.",
 		"texto_arriesgada": "Cruza la estación hundida hasta la salida.",
 		"texto_jefe": "Combate abierto. Aguanta hasta que se rinda.",
@@ -47,6 +49,7 @@ const ZONAS := {
 		"nombre": "Shibuya", "jefe": "Guren Ichinose",
 		"infiltracion": "res://escenas/mapa_shibuya.tscn", "arriesgada": "res://escenas/mapa_rio.tscn",
 		"mapa_jefe": "res://escenas/mapa_patio.tscn",
+		"prueba": "res://escenas/mapa_prueba_cuarto.tscn", # el cuarto blanco, sin puertas
 		"texto_infiltracion": "Cruza la base del ejército dentro de la muralla. Cuidado con los talismanes.",
 		"texto_arriesgada": "Entra por el hueco de la muralla, del lado del río.",
 		"texto_jefe": "Combate contra un arma maldita. Al final está Yuu.",
@@ -277,7 +280,7 @@ func entrar() -> void:
 				recuerdo_nuevo = 0
 				mostrar_escena("Sin voz", Guion.prueba_sin_voz(), completar_parada)
 			else:
-				mostrar_escena("Prueba de la sed", Guion.prueba_entrada(zona), _cambiar.bind(ESCENA_PRUEBA))
+				mostrar_escena("Prueba de la sed", Guion.prueba_entrada(zona), _cambiar.bind(datos_zona().prueba))
 		"jefe":
 			_cambiar(datos_zona().mapa_jefe)
 

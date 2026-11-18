@@ -129,7 +129,8 @@ Los ecos lo siguen a 2,6 casillas/s y le ofrecen sangre.
 
 Cómo está construida (escena `mapa_prueba_sed.tscn`; para jugarla sola, abrirla en Godot y pulsar F6):
 
-- **Mapa:** un orfanato que se deforma, de 24 × 16: cuartos unidos por pasillos torcidos, muebles que estorban, once ecos (`e`) y Yuu en la salida, al fondo. El de 12 × 12 del paso 8 sigue en `mapa_prueba_pasos.tscn` para las pruebas.
+- **Un mapa por zona** (`prueba` en `ZONAS`), cada uno más duro que el anterior: el orfanato (zona 1), «La calle encendida» (zona 2: manzanas intactas con calles de dos casillas, muchas esquinas por donde salen los ecos) y «El cuarto blanco» (zona 3: una sala abierta, casi sin cobertura, en blanco). Entrando con sed 30 la sed sube 28, 29 y 31; en el cuarto blanco, quien entra con 70 falla. Prueba: `prueba_pruebas_sed.gd`.
+- **Mapa de la zona 1:** un orfanato que se deforma, de 24 × 16: cuartos unidos por pasillos torcidos, muebles que estorban, once ecos (`e`) y Yuu en la salida, al fondo. El de 12 × 12 del paso 8 sigue en `mapa_prueba_pasos.tscn` para las pruebas.
 - **Ajuste:** al principio (1 cada 1,5 s, ecos a 1,5 casillas y 1,9 casillas/s, mapa de 12 × 12) un jugador automático la superaba en 10 s con la sed casi igual. Ahora tarda unos 11 s y la sed le sube unos 28: quien entra con 55 llega con 83, y quien entra muy sediento puede fallarla. Por eso conviene llegar con la sed baja (dentro no hay viales).
 - **Lo que cambia en la mente:**
   - Mika no puede usar el Tajo, el Golpe silencioso ni los viales, y no hay Frenesí.
@@ -394,7 +395,7 @@ Al verlo se queda quieto mirándolo, con un «!» y una barra roja. Si en 1,5 s 
 - **Vaga** despacio (1,6 casillas/s) por su ruta, mirando con un cono de 120° y 6 casillas.
 - **Acude a los ruidos** (a 3 casillas/s) desde 8 casillas, el doble que un soldado. El Tajo, el Impulso o cualquier ruido de Mika sirven de cebo.
 - **Caza** al soldado que vea (a 4 casillas/s) y lo derriba de un golpe, sin alarma: queda un cuerpo que otra patrulla puede descubrir y del que Mika puede beber.
-- Los ataques de Mika aún no le hacen nada (vida 14, para cuando se pueda).
+- **Si Mika lo ataca** (no admite Golpe silencioso), le quita vida (14) y el Jinete entra en furia 8 s: va a por Mika y le pega 5 por golpe. Pasada la furia, vuelve a lo suyo. A 0 de vida cae. Atacarlo es una apuesta: mejor usarlo.
 - **Evento «El Jinete dormido»** (atraerlo al puesto humano): el siguiente mapa tiene 2 soldados menos y un Jinete suelto, en su `ruta_jinete_suelto`.
 - **Prueba:** `prueba_jinete.gd`.
 
@@ -674,7 +675,7 @@ Mientras no hay arte, los personajes son cápsulas. Cada uno tiene un `Animador`
 | `mika.tres` | quieto, correr, tajo, impulso, beber, vial, frenesi, derribado |
 | `soldado.tres`, `portador.tres`, `hechicero.tres` | quieto, andar, correr (en Alarma), atacar, derribado; el portador, también aturdido |
 | `vampiro.tres` | quieto, andar, testigo, derribado |
-| `jinete.tres` | quieto, andar, cazar |
+| `jinete.tres` | quieto, andar, cazar, derribado |
 | `ferid.tres` | quieto, correr, avisar, embestir |
 | `crowley.tres`, `guren.tres` | quieto, andar, avisar_tajo, avisar_carga, avisar_torbellino (Crowley), avisar_sombras (Guren), atacar_… (los mismos), recuperar, rendido |
 | `eco.tres` | flotar, bebido |
