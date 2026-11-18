@@ -91,7 +91,7 @@ func nueva() -> void:
 	vida_max = Config.VIDA_MIKA
 	sed = Config.SED_INICIAL
 	humanidad = Config.HUMANIDAD_INICIAL
-	viales = 2 if tiene_recuerdo(1) else 0
+	viales = Config.VIALES_INICIALES + (Config.VIALES_RECUERDO_1 if tiene_recuerdo(1) else 0)
 	mejoras = []
 	salvacion_usada = false
 	siguiente_empieza = ""

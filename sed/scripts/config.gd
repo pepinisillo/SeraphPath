@@ -31,6 +31,8 @@ const GOLPE_SILENCIOSO_ENFRIAMIENTO := 0.5
 # --- Sangre ---
 const BEBER_DURACION := 2.0
 const VIAL_SED := -40
+const VIALES_INICIALES := 2 # la caja de Krul al salir de Sanguinem
+const VIALES_RECUERDO_1 := 2 # viales de más con el recuerdo 1
 const VIAL_DURACION := 0.5
 const BEBER_DISTANCIA := 1.0 # casillas hasta el cuerpo
 const VIAL_RADIO_RECOGER := 0.5 # casillas para recoger un vial del suelo

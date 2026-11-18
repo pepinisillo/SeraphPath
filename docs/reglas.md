@@ -167,6 +167,7 @@ Infiltración ───┤                               ├── Prueba de la 
                 └─ Emboscada ── Infiltración ───┘
 ```
 
+- **Viales:** cada expedición empieza con 2, los de la caja de Krul (4 con el recuerdo 1).
 - **Estado entre paradas:** Mika arrastra vida, sed, Humanidad, viales y mejoras de una parada a la siguiente. Si cae, la expedición termina y solo se conservan los recuerdos.
 - **Mapa de paradas:** muestra lo hecho, la parada actual y los avisos para el siguiente mapa (empieza en Sospecha o Alarma, la sed no sube, patrullas visibles). Sin el recuerdo 3, «El mapa», las dos rutas se ven como «? → ?».
 - **Infiltración:** el puesto de control.
@@ -190,7 +191,7 @@ Infiltración ───┤                               ├── Prueba de la 
 - **Escenas con diálogo** (`scripts/dialogo.gd`): el texto aparece poco a poco, párrafo a párrafo, y los ya leídos quedan arriba más apagados. Avanzar completa el párrafo o pasa al siguiente; saltar enseña todo de golpe. La acotación «Pantalla en negro» funde a negro 2,5 s. Narración en gris, diálogo en blanco hueso, «Mika, ahora» en turquesa y el otro Yuu en rojo. Los retratos llegarán con el arte.
 - **Guion:** es provisional y **no está en git**. `scripts/guion.gd` lee los `.md` de `historia/guion/` (junto a `sed/`) o, si algún día se copia dentro del juego, de `sed/datos/guion/`. Los párrafos se separan con una línea en blanco; las líneas `*(…)*` son notas para el juego y no se enseñan. Si no hay guion, el inicio no aparece y los recuerdos solo dicen su mejora. Cambiar los diálogos no exige tocar código.
 - **Mejoras permanentes de los recuerdos:**
-  1. Empieza con 2 viales.
+  1. Empieza con 4 viales en vez de 2.
   2. La sed sube 2 por golpe, no 3.
   3. Ves qué hay en cada ruta.
   4. Una vez por expedición sobrevive con 1 de vida.

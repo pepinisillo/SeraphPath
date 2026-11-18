@@ -8,7 +8,7 @@ Los recuerdos de la infancia muestran familia, cuidado y una promesa. Lo románt
 
 | N.º | Recuerdo | Cuándo | Qué muestra | Mejora permanente |
 | --- | --- | --- | --- | --- |
-| 1 | El recién llegado | Orfanato Hyakuya, a los 8 años | Yuu llega sin querer hablar con nadie; Mika le dice que desde hoy son familia | Empieza con 2 viales |
+| 1 | El recién llegado | Orfanato Hyakuya, a los 8 años | Yuu llega sin querer hablar con nadie; Mika le dice que desde hoy son familia | Empieza con 4 viales en vez de 2 |
 | 2 | La cena | Sanguinem | Mika vuelve tarde con comida para todos; Yuu es el único que nota a qué precio la consigue | La sed sube 2 por golpe recibido, no 3 |
 | 3 | El mapa | Sanguinem, a los 12 años | Mika enseña el mapa robado y los dos prometen ver juntos el mundo de arriba | El mapa de paradas muestra qué hay en las dos rutas |
 | 4 | La puerta | La noche de la fuga | La huida fracasa; Mika se queda atrás para que Yuu corra | Una vez por expedición, sobrevive con 1 de vida a un golpe mortal |

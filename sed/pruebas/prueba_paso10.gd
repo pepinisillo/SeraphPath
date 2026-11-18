@@ -62,7 +62,7 @@ func _initialize():
 	print("B) Efectos de los eventos")
 	expe.nueva()
 	expe.aplicar_efectos(Eventos.por_id("doncella").opciones[0].efectos)
-	comprobar("doncella: +1 vial", expe.viales, 1)
+	comprobar("doncella: +1 vial", expe.viales, Config.VIALES_INICIALES + 1)
 	expe.sed = 50
 	expe.aplicar_efectos(Eventos.por_id("copa_ferid").opciones[0].efectos)
 	comprobar("copa: sed a 0", expe.sed, 0)
@@ -74,7 +74,7 @@ func _initialize():
 	expe.aplicar_efectos(Eventos.por_id("carta").opciones[0].efectos)
 	expe.aplicar_efectos(Eventos.por_id("lacus_rene").opciones[1].efectos)
 	var m: Mapa = await mapa_en_expedicion()
-	comprobar("el mapa recibe el estado (viales)", m.mika.viales, 1)
+	comprobar("el mapa recibe el estado (viales)", m.mika.viales, Config.VIALES_INICIALES + 1)
 	comprobar("y la Humanidad", m.mika.humanidad, 2)
 	comprobar("Lacus y René, negarse: empieza en Sospecha", m.soldados().all(func(s): return s.estado == Soldado.Estado.SOSPECHA), true)
 	paso(m, 0.1)
@@ -120,7 +120,7 @@ func _initialize():
 	comprobar("el recuerdo queda guardado en disco", expe.recuerdos, [1])
 	for n in [2, 3, 4, 5, 6]: expe.ganar_recuerdo()
 	expe.nueva()
-	comprobar("recuerdo 1: empieza con 2 viales", expe.viales, 2)
+	comprobar("recuerdo 1: empieza con 4 viales", expe.viales, 4)
 	m = await mapa_en_expedicion()
 	var mika := m.mika
 	comprobar("recuerdo 2: sed 2 por golpe", mika.sed_por_golpe, 2)
