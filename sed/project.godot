@@ -23,6 +23,7 @@ Expedicion="*res://scripts/expedicion.gd"
 
 window/stretch/mode="canvas_items"
 window/stretch/aspect="expand"
+window/handheld/orientation=4
 
 [input]
 
@@ -111,5 +112,7 @@ pausa={
 
 [rendering]
 
+renderer/rendering_method.mobile="mobile"
+textures/vram_compression/import_etc2_astc=true
 rendering_device/driver.windows="d3d12"
 environment/defaults/default_clear_color=Color(0.043, 0.051, 0.075, 1)

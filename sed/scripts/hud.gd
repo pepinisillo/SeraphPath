@@ -120,10 +120,10 @@ func _dibujar() -> void:
 	_texto(fuente, Vector2(MARGEN, y + 14), "Viales de Krul: %d" % mika.viales, COLOR_TEXTO)
 	if con_habilidades:
 		y += 22
-		_texto(fuente, Vector2(MARGEN, y + 14), "Sentidos (R): %s" % _estado_sentidos(), COLOR_TEXTO if mika.revelando() or mika.sentidos_listos() else COLOR_TENUE)
+		_texto(fuente, Vector2(MARGEN, y + 14), "Sentidos (%s): %s" % [Opciones.nombre_tecla("sentidos"), _estado_sentidos()], COLOR_TEXTO if mika.revelando() or mika.sentidos_listos() else COLOR_TENUE)
 		y += 20
 		var espada := "activa %.0f s" % mika._espada_restante if mika.espada_activa() else "%d de vida" % mika.coste_espada()
-		_texto(fuente, Vector2(MARGEN, y + 14), "Espada, bebe (F): %s" % espada, COLOR_SED if mika.espada_activa() else COLOR_TEXTO)
+		_texto(fuente, Vector2(MARGEN, y + 14), "Espada, bebe (%s): %s" % [Opciones.nombre_tecla("espada"), espada], COLOR_SED if mika.espada_activa() else COLOR_TEXTO)
 
 	# Filos de la espada, abajo a la izquierda, encima de las mejoras de sangre.
 	if not mika.filos.is_empty():
@@ -194,11 +194,12 @@ func _dibujar_avisos(fuente: Font, tam: Vector2) -> void:
 		return
 	if mapa.estadisticas.tiempo > Config.AVISOS_DURACION or mapa.prueba_de_la_sed:
 		return
+	var t := func(accion: String) -> String: return Opciones.nombre_tecla(accion)
 	var lineas := [
-		"Moverse: WASD o flechas · Impulso: Espacio",
-		"Por la espalda, sin que te vean: K (Golpe silencioso) · Tajo: J (hace ruido)",
-		"Junto a un humano derribado, mantén E para beber (cuesta Humanidad) · Vial: Q",
-		"Sentidos: R · Esc: pausa y controles · Llega a la salida (turquesa)",
+		"Moverse: %s · Impulso: %s" % [MenuPausa.teclas_de(MenuPausa.CONTROLES[0]), t.call("impulso")],
+		"Por la espalda, sin que te vean: %s (Golpe silencioso) · Tajo: %s (hace ruido)" % [t.call("golpe_silencioso"), t.call("tajo")],
+		"Junto a un humano derribado, mantén %s para beber (cuesta Humanidad) · Vial: %s" % [t.call("beber"), t.call("vial")],
+		"Sentidos: %s · %s: pausa y controles · Llega a la salida (turquesa)" % [t.call("sentidos"), t.call("pausa")],
 	]
 	var ancho := 640.0
 	var caja := Rect2((tam.x - ancho) / 2.0, tam.y - MARGEN - 24 * lineas.size() - 20, ancho, 24 * lineas.size() + 12)

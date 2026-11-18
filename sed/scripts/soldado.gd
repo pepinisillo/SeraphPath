@@ -421,7 +421,7 @@ func _draw() -> void:
 			color = color.lerp(Paleta.ROJO, _destello / Config.DESTELLO_DURACION)
 		Formas.caido(self, ALTO_CAPSULA * 0.8, ANCHO_CAPSULA * 0.8, color, COLOR_CONTORNO.darkened(0.3))
 		if mapa and mapa.mika and mapa.mika.objetivo_beber == self and not mapa.mika.esta_bebiendo():
-			draw_string(ThemeDB.fallback_font, Vector2(-60.0, -46.0), "Beber (E)", HORIZONTAL_ALIGNMENT_CENTER, 120.0, 18, COLOR_SANGRE)
+			draw_string(ThemeDB.fallback_font, Vector2(-60.0, -46.0), "Beber (%s)" % Opciones.nombre_tecla("beber"), HORIZONTAL_ALIGNMENT_CENTER, 120.0, 18, COLOR_SANGRE)
 		return
 	Formas.mirada(self, mirada, COLOR_MIRADA)
 	if not (animador and animador.activo):

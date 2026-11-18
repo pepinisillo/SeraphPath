@@ -4,17 +4,29 @@ extends CanvasLayer
 ## expedición, abandonar en mitad de una parada cuenta como caída (como cerrar el juego).
 ## No se abre si el juego ya está en pausa por otra cosa (resultado, mejora, una escena).
 
+## Cada fila: nombre, acción (su tecla sale de Opciones, por si se cambió), extra y mando.
 const CONTROLES := [
-	["Moverse", "WASD o flechas", "Stick izquierdo"],
-	["Tajo", "J o clic izquierdo", "X"],
-	["Golpe silencioso", "K o clic derecho", "Y"],
-	["Impulso", "Espacio", "A"],
-	["Beber (mantener)", "E", "B"],
-	["Vial de Krul", "Q", "LB"],
-	["Sentidos", "R", "RB"],
-	["Espada, bebe mi sangre", "F", "Gatillo derecho"],
-	["Pausa", "Esc", "Start"],
+	["Moverse", "mover", "o flechas", "Stick izquierdo"],
+	["Tajo", "tajo", "o clic izquierdo", "X"],
+	["Golpe silencioso", "golpe_silencioso", "o clic derecho", "Y"],
+	["Impulso", "impulso", "", "A"],
+	["Beber (mantener)", "beber", "", "B"],
+	["Vial de Krul", "vial", "", "LB"],
+	["Sentidos", "sentidos", "", "RB"],
+	["Espada, bebe mi sangre", "espada", "", "Gatillo derecho"],
+	["Pausa", "pausa", "", "Start"],
 ]
+
+
+## La tecla de una fila de CONTROLES («WASD o flechas», «J o clic izquierdo»).
+static func teclas_de(fila: Array) -> String:
+	var teclas := ""
+	if fila[1] == "mover":
+		for accion in ["mover_arriba", "mover_izquierda", "mover_abajo", "mover_derecha"]:
+			teclas += Opciones.nombre_tecla(accion)
+	else:
+		teclas = Opciones.nombre_tecla(fila[1])
+	return (teclas + " " + fila[2]).strip_edges()
 
 var mapa: Mapa
 var abierto := false
@@ -59,7 +71,7 @@ func abrir(con_controles := false) -> void:
 	_etiqueta("Pausa", 34, Paleta.BLANCO_HUESO)
 	if con_controles:
 		for fila in CONTROLES:
-			_etiqueta("%s: %s · %s" % fila, 16, Paleta.DETALLES)
+			_etiqueta("%s: %s · %s" % [fila[0], teclas_de(fila), fila[3]], 16, Paleta.DETALLES)
 	_boton("Seguir", cerrar)
 	if not con_controles:
 		_boton("Controles", abrir.bind(true))

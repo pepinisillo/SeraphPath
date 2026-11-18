@@ -15,7 +15,7 @@ Lo que falta por construir, de lo más difícil a lo más sencillo. Lo que ya ex
 6. **Romance repartido por la partida.** Que la palabra «familia» cambie solo en el final con Humanidad 3, y que los eventos de Yuu conecten con las Pruebas de la sed. Es delicado sobre todo por el tono.
 7. **Filos y habilidades.** Ya existen los diez filos, Sentidos y «Espada, bebe mi sangre». Falta probar el equilibrio jugando.
 8. **Ajustar la dificultad con jugadores automáticos.** Ya hay informe (`docs/dificultad.md`). Ya mide también un jugador menos exacto. Falta medir con más semillas.
-9. **Controles táctiles para Android.** Ya hay joystick y botones en pantalla. Falta exportar para Android, probarlo en un teléfono y medir el rendimiento.
+9. **Android.** Ya hay controles táctiles y configuración de exportación. Falta instalar las plantillas y el SDK, probarlo en un teléfono y medir el rendimiento.
 
 ## Medio
 

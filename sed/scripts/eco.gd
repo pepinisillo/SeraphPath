@@ -108,7 +108,7 @@ func _dibujar_voz() -> void:
 		voz.draw_string(fuente, Vector2(-ancho / 2.0, -ALTO_CAPSULA - 40), frase, HORIZONTAL_ALIGNMENT_CENTER, ancho, 16, Paleta.BLANCO_HUESO)
 	var mika := mapa.mika
 	if mika.objetivo_eco == self and not mika.esta_bebiendo():
-		voz.draw_string(fuente, Vector2(-60, -ALTO_CAPSULA - 12), "Beber (E)", HORIZONTAL_ALIGNMENT_CENTER, 120, 16, Paleta.ROJO)
+		voz.draw_string(fuente, Vector2(-60, -ALTO_CAPSULA - 12), "Beber (%s)" % Opciones.nombre_tecla("beber"), HORIZONTAL_ALIGNMENT_CENTER, 120, 16, Paleta.ROJO)
 
 
 ## Estado para el arte: flotar (o bebido, si ya bebió de él).

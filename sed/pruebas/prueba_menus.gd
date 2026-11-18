@@ -22,6 +22,27 @@ func _initialize():
 	DirAccess.remove_absolute(ProjectSettings.globalize_path(Opciones.archivo))
 	Opciones.archivo = Opciones.ARCHIVO
 
+	print("A2) Teclas")
+	Opciones.archivo = "user://prueba_opciones.cfg"
+	comprobar("Tajo es J, Golpe silencioso es K", [Opciones.tecla("tajo"), Opciones.tecla("golpe_silencioso")], [KEY_J, KEY_K])
+	Opciones.cambiar_tecla("tajo", KEY_U)
+	comprobar("Tajo pasa a U", [Opciones.tecla("tajo"), Opciones.nombre_tecla("tajo")], [KEY_U, "U"])
+	var u := InputEventKey.new()
+	u.physical_keycode = KEY_U
+	u.pressed = true
+	comprobar("y la U dispara el Tajo", InputMap.event_is_action(u, "tajo"), true)
+	comprobar("el clic izquierdo y el mando siguen en el Tajo", InputMap.action_get_events("tajo").size(), 3)
+	Opciones.cambiar_tecla("tajo", KEY_K)
+	comprobar("si la usaba otra acción, se intercambian", [Opciones.tecla("tajo"), Opciones.tecla("golpe_silencioso")], [KEY_K, KEY_U])
+	InputMap.load_from_project_settings()
+	Opciones.cargar()
+	comprobar("se guardan y se recuperan", [Opciones.tecla("tajo"), Opciones.tecla("golpe_silencioso")], [KEY_K, KEY_U])
+	comprobar("la pausa enseña la tecla puesta", MenuPausa.teclas_de(MenuPausa.CONTROLES[1]), "K o clic izquierdo")
+	Opciones.restaurar_teclas()
+	comprobar("volver a las de siempre", [Opciones.tecla("tajo"), Opciones.tecla("golpe_silencioso")], [KEY_J, KEY_K])
+	DirAccess.remove_absolute(ProjectSettings.globalize_path(Opciones.archivo))
+	Opciones.archivo = Opciones.ARCHIVO
+
 	print("B) Título, galería y opciones")
 	var e := EstadoExpedicion.actual()
 	e.recuerdos = []
@@ -40,7 +61,7 @@ func _initialize():
 	change_scene_to_file("res://escenas/menu_opciones.tscn")
 	for i in 3:
 		await process_frame
-	comprobar("la pantalla de opciones", current_scene.find_children("*", "Button", true, false).size() >= 4, true)
+	comprobar("la pantalla de opciones, con una tecla por acción", current_scene.find_children("*", "Button", true, false).size() >= 4 + Opciones.ACCIONES.size(), true)
 
 	print("C) Avisos de controles la primera vez")
 	e.finales_vistos.assign([])

@@ -156,7 +156,9 @@ func empezar(p_golpes: Array[Dictionary]) -> void:
 func _process(delta: float) -> void:
 	if esperando_beber:
 		bebido = bebido + delta if Input.is_action_pressed("beber") else maxf(0.0, bebido - delta)
-		_pista.text = "Mantén E (B) para beber  %d%%" % roundi(100.0 * bebido / Config.BEBER_DURACION) if beber_obligatorio else "Mantén E (B) para beber · Intro: seguir  %d%%" % roundi(100.0 * bebido / Config.BEBER_DURACION)
+		var tecla := Opciones.nombre_tecla("beber")
+		var hecho := roundi(100.0 * bebido / Config.BEBER_DURACION)
+		_pista.text = ("Mantén %s (B) para beber  %d%%" % [tecla, hecho]) if beber_obligatorio else ("Mantén %s (B) para beber · Intro: seguir  %d%%" % [tecla, hecho])
 		if bebido >= Config.BEBER_DURACION:
 			beber_ya()
 		return

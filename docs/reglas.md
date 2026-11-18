@@ -173,7 +173,8 @@ Infiltración ───┤                               ├── Prueba de la 
 ```
 
 - **Viales:** cada expedición empieza con 2, los de la caja de Krul (4 con el recuerdo 1).
-- **Título:** continuar, nueva expedición, recuerdos, **finales** (galería de los vistos, que se pueden volver a ver; los demás, «???») y **opciones** (volumen y pantalla completa, guardados en `user://opciones.cfg`).
+- **Título:** continuar, nueva expedición, recuerdos, **finales** (galería de los vistos, que se pueden volver a ver; los demás, «???») y **opciones** (volumen, pantalla completa y teclas, guardados en `user://opciones.cfg`).
+- **Teclas:** en opciones se cambia la tecla principal de cada acción (pulsar su botón y luego la tecla nueva). Las flechas, el ratón y el mando no cambian. Si la tecla ya la usaba otra acción, se intercambian. La pausa, los avisos y el HUD enseñan la tecla que haya puesta.
 - **Primera partida:** mientras no haya recuerdos, caídas ni finales, en el primer mapa se ven los controles básicos durante 25 s.
 - **Pausa** (`menu_pausa.gd`, en todos los mapas): seguir, ver los controles o abandonar. En una expedición, abandonar en mitad de una parada cuenta como caída, igual que cerrar el juego. No se abre sobre el resultado ni sobre una escena.
 - **Guardar:** la expedición se guarda sola en `user://expedicion.cfg` al llegar al mapa de paradas y al terminar cada parada. En el título aparece «Continuar la expedición». Si el juego se cerró dentro de una parada (un mapa, un evento…), al continuar la expedición cuenta como caída: así no se puede deshacer un mal mapa cerrando el juego. Abandonar, caer o terminar borra la partida. Las pruebas automáticas usan sus propios archivos.
@@ -662,6 +663,15 @@ Combate contra un arma maldita. Escena `mapa_patio.tscn` (22 × 16), script `scr
 ## Controles táctiles (móvil)
 
 `scripts/controles_tactiles.gd`. Solo aparecen en pantallas táctiles: un joystick a la izquierda (donde se apoye el pulgar) y, a la derecha, Tajo, Golpe, Impulso, Beber (se mantiene), Vial, Sentidos, Espada y Pausa. Pulsan las mismas acciones que el teclado y el mando, con la fuerza del joystick, así que el juego no distingue de dónde vienen. En los menús y escenas, Godot convierte los toques en clics. Falta probarlos en un teléfono y exportar para Android. Prueba: `prueba_tactil.gd`.
+
+## Exportar
+
+`sed/export_presets.cfg` tiene tres configuraciones: **Android** (APK de 64 bits, pantalla completa y en horizontal), **Windows** y **Linux**. Dejan fuera la carpeta de pruebas y no guardan ninguna clave de firma; los archivos van a `exportar/`, que no se sube.
+
+- **Para exportar:** en el editor, Editor → Administrar plantillas de exportación → descargar las de esta versión de Godot; después Proyecto → Exportar.
+- **Para Android,** además: el SDK de Android y Java (Editor → Configuración del editor → Exportar → Android) y una clave de firma (para pruebas vale la de depuración que crea Godot).
+- **Ajustes de móvil:** en Android se usa el renderizador *Mobile* (en escritorio sigue Forward+), la pantalla se queda en horizontal y las texturas se importan también con compresión ETC2/ASTC.
+- **El guion** (`historia/guion/`) no entra en la exportación, porque está fuera del proyecto: un juego exportado sale sin diálogos hasta que el guion se copie a `sed/datos/guion/`.
 
 ## Arte: cómo conectar las animaciones
 
