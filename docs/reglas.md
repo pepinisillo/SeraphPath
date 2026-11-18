@@ -682,6 +682,15 @@ Mientras no hay arte, los personajes son cápsulas. Cada uno tiene un `Animador`
 
 Los retratos de las escenas con diálogo se dibujan en `Dialogo._dibujar_retrato` (una silueta por personaje): al tener arte, ese es el único sitio que cambia.
 
+## Mapas generados
+
+Además de los mapas hechos a mano, hay mapas de infiltración generados al azar y validados. Se usan en la **emboscada** de cada zona: cada vez sale uno al azar entre los de esa zona (si no hay ninguno, la primera infiltración de la zona).
+
+- **Generador** (`scripts/generador.gd`): de 4 a 5 salas de izquierda a derecha (la de inicio abajo, la de la salida arriba), unidas por pasillos en L de dos casillas; pilares y cajas dentro de las salas; sombra en algunas casillas junto a las paredes; una patrulla que va y viene por cada sala menos la de inicio, y el enemigo de la zona: un vampiro con su rincón prohibido y un vial (Sanguinem), un Jinete (Shinjuku) o un portador de arma maldita (Shibuya).
+- **Validación** (`pruebas/generar_mapas.gd`, a mano, tarda varios minutos): genera candidatos y solo guarda los que tienen camino, un inicio seguro, ruta sin ser visto que tarda al menos 1,4 veces lo directo y se reproduce en el juego, ruta también con dos semillas de patrullas al azar, y en los que correr directo te delata. Los buenos van a `escenas/generados/` y su lista a `datos/mapas_generados.json`.
+- **Para tener más:** subir `POR_ZONA` en la herramienta y volver a lanzarla. Los mapas generados son escenas normales: se pueden abrir y retocar a mano.
+- **Prueba:** `prueba_generador.gd` (mapas bien formados con muchas semillas y que la emboscada los use).
+
 ## Informe de dificultad
 
 `sed/pruebas/informe_dificultad.gd` juega con bots todos los mapas de infiltración (con patrullas al azar), los tres jefes y la Prueba de la sed, y escribe los números en `docs/dificultad.md`. No forma parte de las pruebas (tarda varios minutos): se lanza a mano con `godot --headless --path . -s res://pruebas/informe_dificultad.gd`.

@@ -1,0 +1,50 @@
+{
+	"1": [
+		{
+			"directo": 9.8,
+			"escena": "res://escenas/generados/mapa_gen_z1_1001.tscn",
+			"nombre": "Pasillos de Sanguinem 1",
+			"ruta": 16.0,
+			"semilla": 1001
+		},
+		{
+			"directo": 11.3,
+			"escena": "res://escenas/generados/mapa_gen_z1_1002.tscn",
+			"nombre": "Pasillos de Sanguinem 2",
+			"ruta": 17.7,
+			"semilla": 1002
+		}
+	],
+	"2": [
+		{
+			"directo": 8.0,
+			"escena": "res://escenas/generados/mapa_gen_z2_2001.tscn",
+			"nombre": "Ruinas sin nombre 1",
+			"ruta": 13.2,
+			"semilla": 2001
+		},
+		{
+			"directo": 8.9,
+			"escena": "res://escenas/generados/mapa_gen_z2_2010.tscn",
+			"nombre": "Ruinas sin nombre 2",
+			"ruta": 16.7,
+			"semilla": 2010
+		}
+	],
+	"3": [
+		{
+			"directo": 8.6,
+			"escena": "res://escenas/generados/mapa_gen_z3_3003.tscn",
+			"nombre": "Barracones de Shibuya 1",
+			"ruta": 13.3,
+			"semilla": 3003
+		},
+		{
+			"directo": 7.6,
+			"escena": "res://escenas/generados/mapa_gen_z3_3005.tscn",
+			"nombre": "Barracones de Shibuya 2",
+			"ruta": 16.5,
+			"semilla": 3005
+		}
+	]
+}

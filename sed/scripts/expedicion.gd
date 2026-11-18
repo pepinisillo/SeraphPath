@@ -76,6 +76,8 @@ var archivo_recuerdos := "user://recuerdos.cfg"
 ## si el juego se cierra dentro de una parada, al volver la expedición cuenta como caída (así
 ## no se puede deshacer un mal mapa cerrando el juego).
 var archivo_partida := "user://expedicion.cfg"
+## Índice de los mapas generados que pasaron la validación (lo escribe pruebas/generar_mapas.gd).
+var archivo_generados := "res://datos/mapas_generados.json"
 ## Lo que se guarda de la expedición.
 const GUARDADO := ["zona", "ruta", "indice", "vida", "vida_max", "sed", "humanidad", "viales", "mejoras",
 	"filos", "salvacion_usada", "siguiente_empieza", "sed_congelada", "patrullas_visibles", "eventos_vistos",
@@ -263,7 +265,7 @@ func entrar() -> void:
 			_cambiar(escena_infiltracion())
 		"emboscada":
 			siguiente_empieza = "alarma" # una emboscada empieza en Alarma
-			_cambiar(datos_zona().infiltracion)
+			_cambiar(escena_emboscada())
 		"evento":
 			evento_actual = elegir_evento()
 			_cambiar(ESCENA_EVENTO)
@@ -278,6 +280,25 @@ func entrar() -> void:
 				mostrar_escena("Prueba de la sed", Guion.prueba_entrada(zona), _cambiar.bind(ESCENA_PRUEBA))
 		"jefe":
 			_cambiar(datos_zona().mapa_jefe)
+
+
+## La emboscada: uno de los mapas generados de la zona, al azar (siempre distinto de una
+## expedición a otra); si no hay ninguno, la primera infiltración de la zona.
+func escena_emboscada() -> String:
+	var generados := mapas_generados(zona)
+	if generados.is_empty():
+		return datos_zona().infiltracion
+	return generados[rng.randi_range(0, generados.size() - 1)]
+
+
+## Las escenas de los mapas generados y validados para una zona.
+func mapas_generados(de_zona: int) -> Array:
+	if not FileAccess.file_exists(archivo_generados):
+		return []
+	var indice = JSON.parse_string(FileAccess.get_file_as_string(archivo_generados))
+	if not indice is Dictionary:
+		return []
+	return indice.get(str(de_zona), []).map(func(m): return m.escena).filter(func(e): return ResourceLoader.exists(e))
 
 
 ## La primera infiltración de la zona y la de la ruta arriesgada (en la zona 1, el puesto de
