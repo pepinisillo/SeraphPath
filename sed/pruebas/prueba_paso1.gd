@@ -2,7 +2,7 @@ extends SceneTree
 ## Paso 1: conversión isométrica, diagonales del teclado y choque con muros.
 
 func _initialize():
-	var mapa: Mapa = load("res://escenas/mapa_puesto_control.tscn").instantiate()
+	var mapa: Mapa = load("res://escenas/mapa_pasos.tscn").instantiate()
 	root.add_child(mapa)
 	await process_frame
 	mapa.process_mode = Node.PROCESS_MODE_DISABLED

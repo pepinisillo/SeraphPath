@@ -3,7 +3,7 @@ extends SceneTree
 
 func _initialize():
 	Soldado.patrullas_al_azar = false # la prueba coloca a S1 en el primer punto de su ruta
-	var mapa: Mapa = load("res://escenas/mapa_puesto_control.tscn").instantiate()
+	var mapa: Mapa = load("res://escenas/mapa_pasos.tscn").instantiate()
 	root.add_child(mapa)
 	await process_frame
 	mapa.process_mode = Node.PROCESS_MODE_DISABLED

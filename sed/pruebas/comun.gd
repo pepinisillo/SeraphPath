@@ -29,7 +29,7 @@ func aparecer_todos(m: Mapa) -> void:
 ## Solo deja a los soldados nombrados (por defecto S1, con el que se escribieron las pruebas
 ## de los pasos 2 a 6); con `todos` deja a los cuatro.
 func nuevo_mapa(todos := false) -> Mapa:
-	var mapa: Mapa = load("res://escenas/mapa_puesto_control.tscn").instantiate()
+	var mapa: Mapa = load("res://escenas/mapa_pasos.tscn").instantiate()
 	if not todos:
 		for nombre in ["S2", "S3", "S4"]:
 			mapa.get_node(nombre).free()

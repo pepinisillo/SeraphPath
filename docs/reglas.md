@@ -170,7 +170,7 @@ Infiltración ───┤                               ├── Prueba de la 
 - **Viales:** cada expedición empieza con 2, los de la caja de Krul (4 con el recuerdo 1).
 - **Estado entre paradas:** Mika arrastra vida, sed, Humanidad, viales y mejoras de una parada a la siguiente. Si cae, la expedición termina y solo se conservan los recuerdos.
 - **Mapa de paradas:** muestra lo hecho, la parada actual y los avisos para el siguiente mapa (empieza en Sospecha o Alarma, la sed no sube, patrullas visibles). Sin el recuerdo 3, «El mapa», las dos rutas se ven como «? → ?».
-- **Infiltración:** el puesto de control.
+- **Infiltración:** el puesto de control (mapa grande).
 - **Emboscada:** el mismo puesto, empezando en Alarma. Su recompensa, un filo, llegará con los filos.
 - **Refugio:**
   - Muestra la línea de Mika según su Humanidad (de `historia.md`).
@@ -204,6 +204,53 @@ Infiltración ───┤                               ├── Prueba de la 
 Cada carácter es una casilla: `#` muro · `.` suelo · `s` sombra · `M` inicio de Mika · `E` salida · `V` vial de Krul (opcional).
 La columna 0 está a la izquierda y la fila 0 arriba, en coordenadas de casilla; en pantalla el mapa aparece girado en diagonal.
 
+Es un mapa grande, de 30 × 20 casillas, como los Túneles. El puesto original de 10 × 10 es ahora el **patio central**, con sus cuatro soldados, y alrededor hay salas nuevas:
+
+```
+#########............###.....E
+#########........#s...........
+#########...##...#s...........
+#########...ss.......###..##..
+#########............###..s...
+###############..#######......
+###############.s#######......
+###############..########..###
+######...#......#########..###
+######.#.#.##s#.#########s.###
+######.#.s.##s#.#########..###
+######...#......#########..###
+########s###.##.#####.......##
+.....#.......#V.#####..#....##
+...s.#s##.##.##.#####.......##
+.....#s##.##......s.........##
+.....#s......##.#####....#..##
+.......s##s#...s#####....s..##
+.M..#.###############.......##
+.....#########################
+```
+
+Recorrido: afueras (inicio, vacías) → patio central → por el norte, barracones y la puerta; o por el este, el almacén y un pasillo que sube a la puerta.
+
+| Soldado | Ruta |
+| --- | --- |
+| S1 | Bucle (9,13) → (12,13) → (12,16) → (9,16), alrededor del bloque central del patio |
+| S2 | Vaivén por la fila 11, entre (15,11) y (10,11) |
+| S3 | Vaivén por la columna 15, de (15,12) a (15,16) |
+| S4 | Vaivén por la fila 8, entre (14,8) y (11,8), junto a la salida del patio hacia los barracones |
+| F1 | Vaivén por la fila 2 de la puerta, de (29,2) a (24,2) |
+| B1, B2 | Grupo de los barracones. Sale al acercarse Mika a la esquina noreste del patio. B1 va y viene por la columna 10 y B2 por la 20 |
+| P1 | Grupo de la puerta, la mitad de las partidas. Sale al entrar en el pasillo norte o en el del almacén. Vigila la entrada oeste por la columna 24 |
+| A1 | Grupo del almacén, la mitad de las partidas. Sale al entrar en el pasillo del almacén. Va y viene por la fila 14 |
+
+- **El vial** sigue donde estaba en el puesto original, ahora en (14,13).
+- **Refuerzos:** entran por (24,0), junto a la puerta.
+- **Ruta sin ser visto:** `prueba_puesto.gd` la busca con los grupos saliendo al pisar su zona y la reproduce. La que encuentra tarda unos 20 s (frente a 8,4 s yendo directo). Cruza el patio por la fila de abajo, espera en el pasillo del almacén y sube por el este. Ir directo a la salida te delata.
+- **Cómo se ajustó:** P1 iba por la fila 6 y, con F1, tapaba del todo la boca del pasillo del almacén. Ahora vigila la entrada oeste.
+
+### El puesto original (pruebas de los pasos)
+
+El plano de 10 × 10, tal como estaba, sigue en `mapa_pasos.tscn`. Las pruebas de los pasos 1 a 7 lo usan, porque están escritas con sus coordenadas:
+
 ```
 ...#.....E
 .#.#.##s#.
@@ -226,13 +273,11 @@ Patrullas, en (columna, fila):
 | S3 | Vaivén por la columna 9, de (9,4) a (9,8) |
 | S4 | Vaivén por la fila 0, entre (8,0) y (5,0), vigilando la salida; empieza en (8,0) |
 
-**Patrullas al azar** (en todos los mapas): para que no baste con memorizar los tiempos, en cada partida cada soldado empieza en un punto al azar de su ruta (en vaivén, también en cualquier sentido) y se detiene en cada punto entre 0,4 y 1 s. Los puntos de partida de las tablas solo se usan en las pruebas de los pasos, que tienen el azar apagado. `pruebas/prueba_patrullas.gd` prueba seis semillas en cada mapa: todas empiezan seguras y todas tienen una ruta sin ser visto.
+Cada soldado empieza en el primer punto de su ruta, mirando hacia el segundo. La prueba del paso 7 busca una ruta de la `M` a la `E` en la que nadie vea nunca a Mika, la reproduce en el juego y comprueba que **no basta con correr**: la ruta debe tardar al menos 1,4 veces lo que se tarda yendo directo. Tarda unos 8 s (frente a 3,5 s yendo directo) y exige esperar al principio y esconderse en el pasillo de sombra de la columna 7 hasta que S4 se dé la vuelta.
+
+**Patrullas al azar** (en todos los mapas que se juegan): para que no baste con memorizar los tiempos, en cada partida cada soldado empieza en un punto al azar de su ruta (en vaivén, también en cualquier sentido) y se detiene en cada punto entre 0,4 y 1 s. Los soldados de los grupos empiezan siempre en el primer punto de su ruta. Las pruebas de los pasos tienen el azar apagado. `pruebas/prueba_patrullas.gd` prueba seis semillas en el Puesto de control y en los Túneles: todas empiezan seguras y todas tienen una ruta sin ser visto.
 
 En la vista isométrica un muro tapa lo que tiene detrás, así que los muros que quedan entre la cámara y Mika se vuelven semitransparentes.
-
-Cada soldado empieza en el primer punto de su ruta, mirando hacia el segundo. La prueba automática del paso 7 busca una ruta de la `M` a la `E` en la que nadie vea nunca a Mika, la reproduce en el juego y comprueba que **no basta con correr**: la ruta debe tardar al menos 1,4 veces lo que se tarda yendo directo.
-
-Al principio S2 y S4 empezaban en (4,3) y (5,0), alejándose del camino de Mika, y se podía cruzar el mapa en unos 5 s corriendo a la espalda de las patrullas. Ahora empiezan en el otro extremo. La ruta sin ser visto tarda unos 8 s (frente a 3,5 s yendo directo) y exige esperar al principio y esconderse en el pasillo de sombra de la columna 7 hasta que S4 se dé la vuelta.
 
 ## Segundo mapa: «Túneles de abastecimiento»
 
@@ -308,7 +353,7 @@ El proyecto de Godot vive en `sed/`.
 
 | Carpeta | Contenido |
 | --- | --- |
-| `escenas/` | Una escena por entidad: `mika.tscn`, `soldado.tscn`, `eco.tscn`, `mapa_*.tscn`, `hud.tscn` |
+| `escenas/` | Una escena por entidad: `mika.tscn`, `soldado.tscn`, `eco.tscn`, `mapa_*.tscn`, `hud.tscn`. `mapa_pasos.tscn` es el puesto original de 10 × 10, solo para las pruebas |
 | `scripts/` | Un script por entidad, más `config.gd` (todos los números), `paleta.gd` (los colores de la paleta) e `iso.gd` (conversión entre casillas y pantalla) |
 | `recursos/` | TileSet y otros recursos |
 | `arte/` | Gráficos provisionales |

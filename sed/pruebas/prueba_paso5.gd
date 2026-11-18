@@ -5,7 +5,7 @@ var ofrecidas := []
 var derrotas := 0
 
 func nuevo_mapa() -> Mapa:
-	var mapa: Mapa = load("res://escenas/mapa_puesto_control.tscn").instantiate()
+	var mapa: Mapa = load("res://escenas/mapa_pasos.tscn").instantiate()
 	for nombre in ["S2", "S3", "S4"]: # las pruebas de este paso usan solo a S1
 		mapa.get_node(nombre).free()
 	root.add_child(mapa)

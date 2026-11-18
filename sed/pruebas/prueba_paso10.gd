@@ -153,7 +153,7 @@ func _initialize():
 	pulsar(s, "Entrar: Infiltración")
 	s = await escena()
 	comprobar("infiltración", s.name, "MapaPuestoControl")
-	s.mika.pos = Vector2(9.5, 0.6)
+	s.mika.pos = Vector2(29.5, 0.6) # en la salida
 	await physics_frame
 	await physics_frame
 	var res: Resultado = s.get_node_or_null("Resultado")
