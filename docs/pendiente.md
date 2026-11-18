@@ -22,7 +22,7 @@ Lo que falta por construir, de lo más difícil a lo más sencillo. Lo que ya ex
 
 ## Medio
 
-10. **Sistema de escenas con diálogo.** Retratos, texto que aparece poco a poco, pausas, acotaciones y avanzar o saltar con mando. Lo necesitan los recuerdos y los finales.
+10. **Sistema de escenas con diálogo.** Hecho para el inicio y los recuerdos (texto poco a poco, pantalla en negro, avanzar y saltar). Falta: retratos, y usarlo en las Pruebas de la sed, eventos, refugios, jefes y finales del guion nuevo.
 11. **Los otros tres finales.** «En el límite», «Vampiro completo» y «Caído», como escenas cortas.
 12. **Guardar a mitad de expedición.** Que cerrar el juego no pierda la partida, sin permitir trampas con la muerte permanente.
 13. **Animaciones en 8 direcciones.** Conectar los estados de cada personaje (quieto, correr, Tajo, beber, derribado…) con sus animaciones, listo para el arte final.

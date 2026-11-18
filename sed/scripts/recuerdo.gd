@@ -1,8 +1,10 @@
 extends Pantalla
 ## Recuerdo: el que se acaba de ganar en la expedición o, desde el título, la galería
-## de los ganados para releerlos. Los guiones vienen de docs/historia.md (copiados a datos/recuerdos.json).
+## de los ganados para releerlos. El texto viene del guion (ver `guion.gd`) y se enseña como
+## escena con diálogo; el comentario del otro Yuu depende de la Humanidad.
 
 var mostrando := 0 # número del recuerdo que se lee (0 = galería)
+var dialogo: Dialogo
 
 
 func _init() -> void:
@@ -13,11 +15,11 @@ func _init() -> void:
 func construir() -> void:
 	var datos := EstadoExpedicion.datos_recuerdos()
 	if mostrando == 0:
+		dialogo = null
 		titulo("Recuerdos")
 		for n in range(1, EstadoExpedicion.TOTAL_RECUERDOS + 1):
-			var r: Dictionary = datos[n - 1]
 			if expedicion.tiene_recuerdo(n):
-				boton("%d. %s" % [n, r.titulo], _leer.bind(n))
+				boton("%d. %s" % [n, _titulo(n, datos)], _leer.bind(n))
 			else:
 				boton("%d. ???" % n, func() -> void: pass, false)
 		espacio()
@@ -25,28 +27,33 @@ func construir() -> void:
 		return
 
 	var r: Dictionary = datos[mostrando - 1]
-	titulo("Recuerdo %d · %s" % [mostrando, r.titulo], Paleta.TURQUESA)
+	titulo("Recuerdo %d · %s" % [mostrando, _titulo(mostrando, datos)], Paleta.TURQUESA)
 	texto(r.cuando, Paleta.DETALLES, 16)
 	espacio()
-	for linea in r.lineas:
-		_linea(linea)
+	# Fuera de una expedición (galería) se lee como con Humanidad completa.
+	var humanidad: int = expedicion.humanidad if expedicion.activa else Config.HUMANIDAD_INICIAL
+	dialogo = Dialogo.new()
+	columna.add_child(dialogo)
+	dialogo.terminado.connect(_al_terminar.bind(r))
+	dialogo.empezar(Guion.segun_humanidad(Guion.recuerdo(mostrando), humanidad))
+
+
+func _al_terminar(r: Dictionary) -> void:
 	espacio()
 	texto("Para siempre: " + r.mejora, Paleta.TURQUESA, 16)
 	espacio()
+	var b: Button
 	if expedicion.activa:
-		boton("Continuar", _seguir)
+		b = boton("Continuar", _seguir)
 	else:
-		boton("Volver a los recuerdos", _leer.bind(0))
+		b = boton("Volver a los recuerdos", _leer.bind(0))
+	b.call_deferred("grab_focus")
 
 
-## Acotaciones en gris, diálogo en blanco hueso y la línea de «Mika, ahora» en turquesa.
-func _linea(linea: String) -> void:
-	if linea.begins_with("*") and linea.ends_with("*") and not linea.begins_with("**"):
-		texto(linea.trim_prefix("*").trim_suffix("*"), Paleta.DETALLES, 17)
-	elif linea.begins_with("**Mika, ahora:**"):
-		texto("Mika, ahora: " + linea.trim_prefix("**Mika, ahora:**").strip_edges(), Paleta.TURQUESA, 19)
-	else:
-		texto(linea.replace("**", ""), Paleta.BLANCO_HUESO, 18)
+## El título del guion si existe; si no, el de recuerdos.json.
+func _titulo(n: int, datos: Array) -> String:
+	var t := Guion.titulo_recuerdo(n)
+	return t if t != "" else datos[n - 1].titulo
 
 
 func _leer(n: int) -> void:

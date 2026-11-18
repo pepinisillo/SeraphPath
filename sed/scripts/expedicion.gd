@@ -15,6 +15,7 @@ const ESCENA_RUTA := "res://escenas/ruta.tscn"
 const ESCENA_EVENTO := "res://escenas/evento.tscn"
 const ESCENA_REFUGIO := "res://escenas/refugio.tscn"
 const ESCENA_RECUERDO := "res://escenas/recuerdo.tscn"
+const ESCENA_INICIO := "res://escenas/inicio.tscn"
 const ESCENA_FINAL := "res://escenas/final.tscn"
 const ESCENA_INFILTRACION := "res://escenas/mapa_puesto_control.tscn"
 const ESCENA_TUNELES := "res://escenas/mapa_tuneles.tscn"
@@ -30,8 +31,9 @@ const NOMBRES := {
 	"refugio": "Refugio", "prueba": "Prueba de la sed", "jefe": "Jefe: Ferid Bathory",
 }
 const TOTAL_RECUERDOS := 7
+const RECUERDO_CONFESION := 7 # solo se gana con Humanidad 1 o más (Mika necesita a quién decírselo)
 
-## Archivo de los recuerdos ganados. Las pruebas automáticas lo cambian para no tocar el real.
+## Archivo de los recuerdos ganados (y de si ya se vio el inicio). Las pruebas automáticas lo cambian para no tocar el real.
 var archivo_recuerdos := "user://recuerdos.cfg"
 
 var activa := false
@@ -58,6 +60,7 @@ var eventos_vistos: Array[String] = []
 var evento_actual := ""
 var recuerdo_nuevo := 0 # recuerdo ganado en la última parada (0 si ninguno)
 var recuerdos: Array[int] = []
+var inicio_visto := false
 var rng := RandomNumberGenerator.new()
 
 
@@ -113,6 +116,20 @@ func parada_actual() -> String:
 ## Hay que elegir ruta antes de seguir.
 func toca_elegir_ruta() -> bool:
 	return indice == 1 and ruta == ""
+
+
+## Empieza una expedición nueva. La primera vez, antes, la escena del inicio (si hay guion).
+func empezar() -> void:
+	nueva()
+	if not inicio_visto and not Guion.inicio().is_empty():
+		_cambiar(ESCENA_INICIO)
+	else:
+		ir_a_ruta()
+
+
+func marcar_inicio_visto() -> void:
+	inicio_visto = true
+	guardar_recuerdos()
 
 
 func elegir_ruta(p_ruta: String) -> void:
@@ -291,8 +308,11 @@ func tiene_recuerdo(numero: int) -> bool:
 
 
 ## Desbloquea el siguiente recuerdo, en orden. Devuelve su número (0 si ya estaban todos).
+## El de la confesión no se gana con Humanidad 0.
 func ganar_recuerdo() -> int:
 	for n in range(1, TOTAL_RECUERDOS + 1):
+		if n == RECUERDO_CONFESION and humanidad <= 0:
+			return 0
 		if not tiene_recuerdo(n):
 			recuerdos.append(n)
 			guardar_recuerdos()
@@ -303,14 +323,17 @@ func ganar_recuerdo() -> int:
 func guardar_recuerdos() -> void:
 	var cfg := ConfigFile.new()
 	cfg.set_value("recuerdos", "ganados", recuerdos)
+	cfg.set_value("recuerdos", "inicio_visto", inicio_visto)
 	cfg.save(archivo_recuerdos)
 
 
 func cargar_recuerdos() -> void:
 	var cfg := ConfigFile.new()
 	recuerdos = []
+	inicio_visto = false
 	if cfg.load(archivo_recuerdos) == OK:
 		recuerdos.assign(cfg.get_value("recuerdos", "ganados", []))
+		inicio_visto = cfg.get_value("recuerdos", "inicio_visto", false)
 
 
 static func datos_recuerdos() -> Array:

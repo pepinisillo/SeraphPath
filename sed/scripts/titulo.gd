@@ -14,8 +14,7 @@ func construir() -> void:
 
 
 func _empezar() -> void:
-	expedicion.nueva()
-	expedicion.ir_a_ruta()
+	expedicion.empezar()
 
 
 func _recuerdos() -> void:

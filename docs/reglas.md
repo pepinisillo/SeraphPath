@@ -40,6 +40,8 @@ El pilar central es que **todo poder tiene precio**: la sangre humana hace fuert
 | Beber sangre (mantener) | E | B |
 | Tomar un vial | Q | LB |
 | Elegir mejora | Flechas e Intro, o clic | Cruceta y A |
+| Avanzar el diálogo | Intro, Espacio o clic | A |
+| Saltar el diálogo | Esc | B |
 
 Los ataques salen hacia donde mira Mika; el Impulso, hacia donde se mueve (o hacia donde mira, si está quieto).
 
@@ -181,7 +183,12 @@ Infiltración ───┤                               ├── Prueba de la 
   - Superada: desbloquea el siguiente recuerdo y lo enseña.
   - Fallida: el siguiente mapa empieza en Alarma.
 - **Jefe:** Ferid Bathory aún no existe. Llegar a él termina, por ahora, la expedición.
-- **Recuerdos:** se guardan en disco (`user://recuerdos.cfg`) y se pueden releer desde el título. Los guiones se copiaron de `historia.md` a `sed/datos/recuerdos.json`; si cambias un guion, actualiza los dos.
+- **Inicio:** antes de la primera expedición se ve la escena con Krul, una sola vez (queda apuntado en `user://recuerdos.cfg`).
+- **Recuerdos:** se guardan en disco (`user://recuerdos.cfg`) y se pueden releer desde el título.
+  - Se ganan en orden. El 7, «Lo que nunca dije», no se gana con Humanidad 0.
+  - El comentario del otro Yuu depende de la Humanidad: «hambriento» con 3, «lleno» con 2 o 1, y con 0 un silencio de 3 s. En la galería del título se leen como con Humanidad 3.
+- **Escenas con diálogo** (`scripts/dialogo.gd`): el texto aparece poco a poco, párrafo a párrafo, y los ya leídos quedan arriba más apagados. Avanzar completa el párrafo o pasa al siguiente; saltar enseña todo de golpe. La acotación «Pantalla en negro» funde a negro 2,5 s. Narración en gris, diálogo en blanco hueso, «Mika, ahora» en turquesa y el otro Yuu en rojo. Los retratos llegarán con el arte.
+- **Guion:** es provisional y **no está en git**. `scripts/guion.gd` lee los `.md` de `historia/guion/` (junto a `sed/`) o, si algún día se copia dentro del juego, de `sed/datos/guion/`. Los párrafos se separan con una línea en blanco; las líneas `*(…)*` son notas para el juego y no se enseñan. Si no hay guion, el inicio no aparece y los recuerdos solo dicen su mejora. Cambiar los diálogos no exige tocar código.
 - **Mejoras permanentes de los recuerdos:**
   1. Empieza con 2 viales.
   2. La sed sube 2 por golpe, no 3.
@@ -280,7 +287,7 @@ El proyecto de Godot vive en `sed/`.
 | `recursos/` | TileSet y otros recursos |
 | `arte/` | Gráficos provisionales |
 | `pruebas/` | Pruebas automáticas de cada paso, sin ventana |
-| `datos/` | Textos del juego copiados de `docs/` (guiones de los recuerdos) |
+| `datos/` | Datos de los recuerdos (momento y mejora); el texto viene del guion, que no está en git |
 
 - **Expedición:** vive en el autoload `Expedicion` (`scripts/expedicion.gd`). Los scripts la piden con `EstadoExpedicion.actual()`. Si se abre un mapa suelto con F6, no hay expedición y el mapa funciona solo.
 - **Números en un solo sitio:** todos los valores de la tabla de reglas están en `scripts/config.gd`. Para ajustar el juego basta con tocar ese archivo.
