@@ -22,7 +22,6 @@ plano = "....#......E
 .#.#...#....
 M......#.##."
 prueba_de_la_sed = true
-frases_ecos = PackedStringArray("Mika, bebe. Yo no voy a mirar.", "Llevas cuatro años con sed. ¿Para qué?", "Un trago y llegas antes. ¿No quieres verme?", "Ya no eres humano. Deja de fingir.", "Si caes aquí, ¿quién me va a encontrar?")
 nombre = "Prueba de la sed"
 
 [node name="Suelo" type="TileMapLayer" parent="."]

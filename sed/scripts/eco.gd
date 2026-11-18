@@ -10,7 +10,14 @@ const ANCHO_CAPSULA := 40.0
 
 var mapa: Mapa
 var pos := Vector2.ZERO # casillas
-var frase := ""
+var numero := 0 # cada eco empieza por una frase distinta
+## Lo que dice ahora: las frases del guion según la Humanidad de Mika, que van cambiando.
+var frase: String:
+	get:
+		var frases := mapa.frases_ecos() if mapa else PackedStringArray()
+		if frases.is_empty():
+			return ""
+		return frases[(numero + int(_tiempo / Config.ECO_CAMBIO_FRASE)) % frases.size()]
 var bebido := false
 var _tiempo := 0.0
 
@@ -21,10 +28,10 @@ func _ready() -> void:
 	voz.draw.connect(_dibujar_voz)
 
 
-func iniciar(p_mapa: Mapa, celda: Vector2i, p_frase: String) -> void:
+func iniciar(p_mapa: Mapa, celda: Vector2i, p_numero: int) -> void:
 	mapa = p_mapa
 	pos = Vector2(celda) + Vector2(0.5, 0.5)
-	frase = p_frase
+	numero = p_numero
 	position = Iso.a_pantalla(pos)
 
 
@@ -87,7 +94,7 @@ func _dibujar_voz() -> void:
 	if mapa == null or mapa.mika == null or bebido:
 		return
 	var fuente := ThemeDB.fallback_font
-	if habla():
+	if habla() and frase != "":
 		var ancho := fuente.get_string_size(frase, HORIZONTAL_ALIGNMENT_LEFT, -1, 16).x + 20
 		var caja := Rect2(-ancho / 2.0, -ALTO_CAPSULA - 58, ancho, 26)
 		voz.draw_rect(caja, Color(0.04, 0.05, 0.08, 0.85))

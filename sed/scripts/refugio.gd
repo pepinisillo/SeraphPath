@@ -1,20 +1,25 @@
 extends Pantalla
-## Refugio: una línea de Mika sobre Yuu, distinta según su Humanidad, y un descanso.
-## Las líneas vienen de docs/historia.md («El romance durante la partida»).
+## Refugio: al entrar, una línea del guion según la Humanidad (y la sed) de Mika, como escena
+## con diálogo; después, el descanso.
 
-const LINEAS := {
-	3: "«Cuando te encuentre, voy a seguir siendo alguien a quien puedas mirar.»",
-	2: "«Fue solo una vez. Tú lo entenderías. Creo.»",
-	1: "«Ya no recuerdo a qué sabía la comida del orfanato. A ti sí te recuerdo.»",
-	0: "«Te voy a encontrar. Lo que quede de mí te va a encontrar.»",
-}
-
+var dialogo: Dialogo
 var descansado := false
+var _escena_vista := false
 
 
 func construir() -> void:
 	titulo("Refugio")
-	texto(LINEAS[expedicion.humanidad], Paleta.BLANCO_HUESO, 20)
+	if not _escena_vista:
+		_escena_vista = true
+		var golpes := Guion.refugio(expedicion.humanidad, expedicion.sed, expedicion.rng)
+		if not golpes.is_empty():
+			dialogo = Dialogo.new()
+			add_child(dialogo)
+			dialogo.terminado.connect(rehacer)
+			dialogo.empezar(golpes)
+			return
+	if dialogo != null and not dialogo.acabado:
+		return
 	espacio()
 	estado_expedicion()
 	espacio()

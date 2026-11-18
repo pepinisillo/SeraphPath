@@ -94,6 +94,11 @@ func en_frenesi() -> bool:
 	return _frenesi_restante > 0.0
 
 
+## El Frenesí pasó sin que bebiera: un respiro antes de poder volver a perderse.
+func en_respiro() -> bool:
+	return _respiro > 0.0
+
+
 ## El jugador no la controla: Frenesí o el trago que lo cierra.
 func sin_control() -> bool:
 	return en_frenesi() or (esta_bebiendo() and _beber_forzado)

@@ -1,64 +1,147 @@
 class_name Dialogo
-extends VBoxContainer
-## Escena con diálogo: enseña los golpes del guion uno a uno, con el texto apareciendo poco a
-## poco. Los párrafos ya leídos quedan arriba, más apagados, como en un libro.
+extends CanvasLayer
+## Escena con diálogo al estilo de Hades (novela visual): un fondo (un paisaje o, si se juega
+## encima de un mapa, el propio mapa oscurecido), los retratos de los personajes delante y abajo
+## un cuadro con el nombre de quien habla y el texto, que aparece poco a poco.
 ##
 ## Avanzar (Intro, Espacio, clic o A): si el texto aún está apareciendo, lo completa; si no,
-## pasa al siguiente. Saltar (Esc o B): enseña todo lo que falta de golpe.
-## Al enseñar el último golpe completo emite `terminado`, y la pantalla pone sus botones.
-## Retratos: pendientes del arte final.
+## pasa al siguiente. Saltar (Esc o B): termina la escena.
+## Termina al avanzar tras la última línea (o al saltar): emite `terminado` y se oculta.
+##
+## Quién habla lo dice cada golpe (`habla`, ver Guion.asignar_hablantes). Arte provisional: los
+## retratos son siluetas de color con el nombre; el arte final solo cambia _dibujar_retrato.
 
 signal terminado
 
-const OPACIDAD_LEIDO := 0.6
+const ALTO_CUADRO := 190.0
+const MARGEN := 32.0
+const ANCHO_RETRATO := 220.0
+const ALTO_RETRATO := 420.0
+const COLOR_CUADRO := Color(0.03, 0.04, 0.07, 0.92)
+const COLOR_FONDO_ARRIBA := Color("1a2233")
+const COLOR_FONDO_ABAJO := Color("07090e")
+const OPACIDAD_CALLADO := 0.35
+
+## Colores provisionales de cada personaje (los del retrato y su nombre).
+const COLORES := {
+	"Mika": Paleta.BLANCO_HUESO, "Mika, ahora": Paleta.TURQUESA, "Yuu": Paleta.CALMA,
+	"El otro Yuu": Paleta.ROJO, "Krul": Paleta.VAMPIROS, "Ferid": Paleta.VAMPIROS,
+	"Crowley": Paleta.VAMPIROS, "Lacus": Paleta.VAMPIROS, "René": Paleta.VAMPIROS,
+	"La doncella": Paleta.VAMPIROS, "Akane": Paleta.CALMA, "Guren": Paleta.SOLDADOS,
+	"Shinoa": Paleta.SOLDADOS, "Mahiru": Paleta.AMBAR,
+}
+
+## Sobre un mapa: el fondo es el propio mapa, oscurecido.
+var sobre_mapa := false
 
 var golpes: Array[Dictionary] = []
 var indice := -1 # golpe que se está enseñando
 var acabado := false
-var _etiqueta: Label # la del golpe actual
+var _etiqueta: Label # texto del golpe actual
+var _nombre: Label
 var _letras := 0.0
 var _esperando := false # negro o silencio en curso: no se avanza a mano
 var _negro: ColorRect
 var _tween: Tween
 var _pista: Label
+var _retratos := {} # nombre -> Control
+var _raiz: Control
 
 
 func _ready() -> void:
-	add_theme_constant_override("separation", 14)
-	size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	# Pantalla en negro por encima de todo.
-	var capa := CanvasLayer.new()
-	capa.layer = 10
-	add_child(capa)
+	layer = 5
+	_raiz = Control.new()
+	_raiz.set_anchors_preset(Control.PRESET_FULL_RECT)
+	_raiz.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	add_child(_raiz)
+	_poner_fondo()
+	var cuadro := Panel.new()
+	var estilo := StyleBoxFlat.new()
+	estilo.bg_color = COLOR_CUADRO
+	estilo.border_color = Paleta.DETALLES
+	estilo.set_border_width_all(2)
+	estilo.set_corner_radius_all(6)
+	cuadro.add_theme_stylebox_override("panel", estilo)
+	cuadro.anchor_left = 0.0
+	cuadro.anchor_right = 1.0
+	cuadro.anchor_top = 1.0
+	cuadro.anchor_bottom = 1.0
+	cuadro.offset_left = MARGEN
+	cuadro.offset_right = -MARGEN
+	cuadro.offset_top = -ALTO_CUADRO - MARGEN
+	cuadro.offset_bottom = -MARGEN
+	_raiz.add_child(cuadro)
+	_nombre = Label.new()
+	_nombre.position = Vector2(24, -18)
+	_nombre.add_theme_font_size_override("font_size", 22)
+	cuadro.add_child(_nombre)
+	_etiqueta = Label.new()
+	_etiqueta.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	_etiqueta.set_anchors_preset(Control.PRESET_FULL_RECT)
+	_etiqueta.offset_left = 28
+	_etiqueta.offset_right = -28
+	_etiqueta.offset_top = 26
+	_etiqueta.offset_bottom = -20
+	cuadro.add_child(_etiqueta)
+	_pista = Label.new()
+	_pista.text = "Intro / clic: avanzar · Esc: saltar"
+	_pista.add_theme_font_size_override("font_size", 13)
+	_pista.add_theme_color_override("font_color", Paleta.DETALLES)
+	_pista.anchor_left = 1.0
+	_pista.anchor_right = 1.0
+	_pista.anchor_top = 1.0
+	_pista.anchor_bottom = 1.0
+	_pista.offset_left = -300
+	_pista.offset_top = -26
+	_pista.offset_right = -16
+	_pista.horizontal_alignment = HORIZONTAL_ALIGNMENT_RIGHT
+	cuadro.add_child(_pista)
 	_negro = ColorRect.new()
 	_negro.color = Color.BLACK
 	_negro.modulate.a = 0.0
 	_negro.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	_negro.set_anchors_preset(Control.PRESET_FULL_RECT)
-	capa.add_child(_negro)
-	_pista = Label.new()
-	_pista.text = "Intro / clic: avanzar · Esc: saltar"
-	_pista.add_theme_font_size_override("font_size", 13)
-	_pista.add_theme_color_override("font_color", Paleta.DETALLES)
-	_pista.modulate.a = 0.6
-	add_child(_pista)
+	_raiz.add_child(_negro)
+
+
+func _poner_fondo() -> void:
+	if sobre_mapa:
+		var velo := ColorRect.new()
+		velo.color = Color(0.0, 0.0, 0.02, 0.55)
+		velo.set_anchors_preset(Control.PRESET_FULL_RECT)
+		velo.mouse_filter = Control.MOUSE_FILTER_IGNORE
+		_raiz.add_child(velo)
+		return
+	# Paisaje provisional: un degradado frío de arriba abajo.
+	var degradado := Gradient.new()
+	degradado.set_color(0, COLOR_FONDO_ARRIBA)
+	degradado.set_color(1, COLOR_FONDO_ABAJO)
+	var textura := GradientTexture2D.new()
+	textura.gradient = degradado
+	textura.fill_from = Vector2(0, 0)
+	textura.fill_to = Vector2(0, 1)
+	var fondo := TextureRect.new()
+	fondo.texture = textura
+	fondo.stretch_mode = TextureRect.STRETCH_SCALE
+	fondo.set_anchors_preset(Control.PRESET_FULL_RECT)
+	fondo.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	_raiz.add_child(fondo)
 
 
 ## Empieza la escena. Si no hay golpes, termina enseguida.
 func empezar(p_golpes: Array[Dictionary]) -> void:
-	golpes = p_golpes
+	golpes = Guion.asignar_hablantes(p_golpes.filter(func(g): return g.tipo in Guion.TIPOS_VISIBLES))
 	indice = -1
 	acabado = false
+	_crear_retratos()
 	_siguiente()
 
 
 func _process(delta: float) -> void:
-	if _etiqueta == null or _etiqueta.visible_ratio >= 1.0:
+	if acabado or _esperando or _etiqueta.visible_ratio >= 1.0:
 		return
 	_letras += delta * Config.DIALOGO_LETRAS_POR_S
 	_etiqueta.visible_characters = int(_letras)
-	if _etiqueta.visible_ratio >= 1.0:
-		_texto_completo()
 
 
 func _input(evento: InputEvent) -> void:
@@ -77,14 +160,13 @@ func _input(evento: InputEvent) -> void:
 func avanzar() -> void:
 	if acabado or _esperando:
 		return
-	if _etiqueta != null and _etiqueta.visible_ratio < 1.0:
+	if _etiqueta.visible_ratio < 1.0:
 		_etiqueta.visible_ratio = 1.0
-		_texto_completo()
 	else:
 		_siguiente()
 
 
-## Enseña de golpe todo lo que falta (sin negros ni silencios) y termina.
+## Termina la escena de golpe.
 func saltar() -> void:
 	if acabado:
 		return
@@ -92,12 +174,6 @@ func saltar() -> void:
 		_tween.kill()
 	_negro.modulate.a = 0.0
 	_esperando = false
-	if _etiqueta != null:
-		_etiqueta.visible_ratio = 1.0
-	for i in range(indice + 1, golpes.size()):
-		var e := _poner(golpes[i])
-		if e:
-			e.visible_ratio = 1.0
 	indice = golpes.size() - 1
 	_terminar()
 
@@ -112,12 +188,12 @@ func _siguiente() -> void:
 		"negro":
 			_esperar(Config.DIALOGO_NEGRO, true)
 		"silencio":
+			_etiqueta.text = ""
+			_nombre.text = ""
+			_destacar("")
 			_esperar(Config.DIALOGO_SILENCIO, false)
 		_:
-			_etiqueta = _poner(g)
-			_letras = 0.0
-			_etiqueta.visible_characters = 0
-			_bajar()
+			_mostrar(g)
 
 
 ## Pausa que avanza sola. Con `negro`, la pantalla se funde a negro y vuelve.
@@ -134,65 +210,95 @@ func _esperar(segundos: float, negro: bool) -> void:
 		_siguiente())
 
 
-## Añade la etiqueta de un golpe con su color y apaga las anteriores.
-func _poner(g: Dictionary) -> Label:
-	if not g.tipo in ["narracion", "dialogo", "ahora", "otro_yuu"]:
-		return null
-	if _etiqueta != null:
-		_etiqueta.modulate.a = OPACIDAD_LEIDO
-	var e := Label.new()
-	e.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
-	e.custom_minimum_size = Vector2(Pantalla.ANCHO_COLUMNA, 0)
+func _mostrar(g: Dictionary) -> void:
+	var habla: String = g.get("habla", "")
+	var color: Color = COLORES.get(habla, Paleta.BLANCO_HUESO)
+	_nombre.text = habla
+	_nombre.add_theme_color_override("font_color", color)
+	_etiqueta.text = g.texto
+	var tamano := 21
 	match g.tipo:
 		"narracion":
-			e.text = g.texto
-			_estilo(e, Paleta.DETALLES, 18)
-		"dialogo":
-			e.text = g.texto
-			_estilo(e, Paleta.BLANCO_HUESO, 19)
+			_etiqueta.add_theme_color_override("font_color", Paleta.DETALLES)
+			tamano = 19
 		"ahora":
-			e.text = "Mika, ahora: " + g.texto
-			_estilo(e, Paleta.TURQUESA, 19)
+			_etiqueta.add_theme_color_override("font_color", Paleta.TURQUESA)
 		"otro_yuu":
-			e.text = "El otro Yuu: " + g.texto
-			_estilo(e, Paleta.ROJO, 19)
-	add_child(e)
-	move_child(_pista, -1)
-	_etiqueta = e
-	return e
-
-
-func _estilo(e: Label, color: Color, tamano: int) -> void:
-	e.add_theme_color_override("font_color", color)
-	e.add_theme_font_size_override("font_size", tamano)
-
-
-func _texto_completo() -> void:
-	if indice >= golpes.size() - 1:
-		_terminar()
+			_etiqueta.add_theme_color_override("font_color", Paleta.ROJO)
+		_:
+			_etiqueta.add_theme_color_override("font_color", Paleta.BLANCO_HUESO)
+	_etiqueta.add_theme_font_size_override("font_size", tamano)
+	_letras = 0.0
+	_etiqueta.visible_characters = 0
+	_destacar(habla)
 
 
 func _terminar() -> void:
 	if acabado:
 		return
 	acabado = true
-	_pista.visible = false
+	_etiqueta.visible_ratio = 1.0
 	set_process(false)
+	visible = false
 	terminado.emit()
 
 
-## Lleva el desplazamiento de la pantalla hasta abajo, para que se vea el párrafo nuevo.
-func _bajar() -> void:
-	var desplazable := _desplazable()
-	if desplazable == null:
-		return
-	await get_tree().process_frame
-	if is_instance_valid(desplazable):
-		desplazable.scroll_vertical = int(desplazable.get_v_scroll_bar().max_value)
+# --- Retratos ---
+
+## Un retrato por personaje que habla en la escena: Mika a la izquierda, los demás a la derecha.
+func _crear_retratos() -> void:
+	for r in _retratos.values():
+		r.queue_free()
+	_retratos.clear()
+	var nombres: Array[String] = []
+	for g in golpes:
+		var n: String = g.get("habla", "")
+		if n == "Mika, ahora":
+			n = "Mika"
+		if n != "" and not n in nombres:
+			nombres.append(n)
+	var derecha := 0
+	for n in nombres:
+		var r := Control.new()
+		r.mouse_filter = Control.MOUSE_FILTER_IGNORE
+		r.size = Vector2(ANCHO_RETRATO, ALTO_RETRATO)
+		var a_la_izquierda := n == "Mika"
+		r.anchor_left = 0.0 if a_la_izquierda else 1.0
+		r.anchor_right = r.anchor_left
+		r.anchor_top = 1.0
+		r.anchor_bottom = 1.0
+		var x := MARGEN + 40.0 if a_la_izquierda else -MARGEN - 40.0 - ANCHO_RETRATO * (derecha + 1) - 30.0 * derecha
+		if not a_la_izquierda:
+			derecha += 1
+		r.offset_left = x
+		r.offset_right = x + ANCHO_RETRATO
+		r.offset_top = -ALTO_CUADRO - MARGEN - ALTO_RETRATO + 40.0
+		r.offset_bottom = -ALTO_CUADRO - MARGEN + 40.0
+		r.draw.connect(_dibujar_retrato.bind(r, n))
+		_raiz.add_child(r)
+		_raiz.move_child(r, 1) # delante del fondo, detrás del cuadro
+		_retratos[n] = r
 
 
-func _desplazable() -> ScrollContainer:
-	var nodo := get_parent()
-	while nodo != null and not nodo is ScrollContainer:
-		nodo = nodo.get_parent()
-	return nodo
+## Quien habla, a plena luz y un poco más arriba; los demás, apagados.
+func _destacar(habla: String) -> void:
+	if habla == "Mika, ahora":
+		habla = "Mika"
+	for n in _retratos:
+		var r: Control = _retratos[n]
+		var activo: bool = n == habla
+		r.modulate.a = 1.0 if activo else OPACIDAD_CALLADO
+		r.offset_top = -ALTO_CUADRO - MARGEN - ALTO_RETRATO + (20.0 if activo else 40.0)
+		r.offset_bottom = r.offset_top + ALTO_RETRATO
+
+
+## Arte provisional: una cápsula de color con el nombre encima.
+func _dibujar_retrato(r: Control, nombre: String) -> void:
+	var color: Color = COLORES.get(nombre, Paleta.DETALLES)
+	var ancho := ANCHO_RETRATO * 0.62
+	var x := (ANCHO_RETRATO - ancho) / 2.0
+	var cabeza := ancho * 0.5
+	r.draw_circle(Vector2(ANCHO_RETRATO / 2.0, cabeza + 10.0), cabeza * 0.75, Color(color, 0.9))
+	var cuerpo := Rect2(x, cabeza * 2.0 + 10.0, ancho, ALTO_RETRATO - cabeza * 2.0 - 10.0)
+	r.draw_rect(cuerpo, Color(color, 0.75))
+	r.draw_rect(cuerpo, Paleta.DETALLES, false, 2.0)

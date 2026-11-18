@@ -14,6 +14,24 @@ func escena() -> Node:
 	return current_scene
 
 
+## Si hay guion en disco salen escenas con diálogo: las salta (y las pantallas de escena sueltas).
+func saltar_dialogos(s: Node) -> Node:
+	for i in 20:
+		if not is_instance_valid(s):
+			s = await escena()
+			continue
+		var d = s.get("dialogo")
+		if d != null and is_instance_valid(d) and not d.acabado:
+			d.saltar()
+			s = await escena()
+			continue
+		if s.name == "Escena":
+			s = await escena()
+			continue
+		return s
+	return s
+
+
 func botones(nodo: Node) -> Array:
 	return nodo.find_children("*", "Button", true, false).filter(func(b): return not b.disabled)
 
@@ -145,7 +163,7 @@ func _initialize():
 	pulsar(s, "Nueva expedición")
 	s = await escena()
 	if s.name == "Inicio": # solo si hay guion en disco
-		s.dialogo.saltar()
+		s = await saltar_dialogos(s)
 		pulsar(s, "Empezar la expedición")
 		s = await escena()
 		comprobar("el inicio queda visto", expe.inicio_visto, true)
@@ -165,28 +183,31 @@ func _initialize():
 	pulsar(s, "Entrar: Refugio")
 	s = await escena()
 	comprobar("refugio", s.name, "Refugio")
+	s = await saltar_dialogos(s)
 	pulsar(s, "Curar")
 	pulsar(s, "Continuar")
 	s = await escena()
 	pulsar(s, "Entrar: Evento")
 	s = await escena()
 	comprobar("evento", s.name, "Evento")
+	s = await saltar_dialogos(s)
 	s.elegir(0)
+	s = await saltar_dialogos(s)
 	if not s.mejoras_ofrecidas.is_empty():
 		pulsar(s, Mejoras.nombre(s.mejoras_ofrecidas[0]))
 	pulsar(s, "Continuar")
 	s = await escena()
 	pulsar(s, "Entrar: Prueba de la sed")
-	s = await escena()
+	s = await saltar_dialogos(await escena())
 	comprobar("prueba de la sed", s.name, "MapaPruebaSed")
 	s.mika.pos = Vector2(11.5, 0.6)
 	await physics_frame
 	await physics_frame
 	res = s.get_node_or_null("Resultado")
 	pulsar(res, "Continuar")
-	s = await escena()
+	s = await saltar_dialogos(await escena())
 	comprobar("enseña el recuerdo ganado", [str(s.name), s.mostrando], ["Recuerdo", 1])
-	s.dialogo.saltar()
+	s = await saltar_dialogos(s)
 	pulsar(s, "Continuar")
 	s = await escena()
 	pulsar(s, "Entrar: Jefe")

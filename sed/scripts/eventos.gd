@@ -1,5 +1,6 @@
 class_name Eventos
-## Los diez eventos de docs/contenido.md, como datos. Cada opción lleva sus efectos:
+## Los diez eventos de docs/contenido.md, como datos (el texto de cada uno está en el guion,
+## ver Guion.evento). Cada opción lleva sus efectos:
 ##   viales, sed (suma), sed_a (fija), vida (cura), vida_max (suma), humanidad (suma), mejora (elige una),
 ##   siguiente_empieza ("sospecha" o "alarma"), sed_congelada, patrullas_visibles,
 ##   pendiente (texto de un efecto que depende de un sistema que aún no existe).
@@ -8,7 +9,6 @@ class_name Eventos
 const TODOS := [
 	{
 		"id": "doncella", "titulo": "La doncella de Krul", "zona": 1,
-		"situacion": "Una sirvienta de la reina te ofrece un vial de su reserva a cambio de un favor.",
 		"opciones": [
 			{"texto": "Aceptar", "efectos": {"viales": 1, "pendiente": "el siguiente mapa tendrá un vampiro más"}},
 			{"texto": "Rechazar", "efectos": {}},
@@ -16,7 +16,6 @@ const TODOS := [
 	},
 	{
 		"id": "lacus_rene", "titulo": "Lacus y René", "zona": 1,
-		"situacion": "Tus compañeros de escuadrón te invitan a cazar humanos con ellos.",
 		"opciones": [
 			{"texto": "Ir y fingir", "efectos": {"sed": 15, "pendiente": "los vampiros del siguiente mapa no te delatarán"}},
 			{"texto": "Negarse", "efectos": {"siguiente_empieza": "sospecha"}},
@@ -24,7 +23,6 @@ const TODOS := [
 	},
 	{
 		"id": "copa_ferid", "titulo": "La copa de Ferid", "zona": 1,
-		"situacion": "Ferid te espera con una copa de sangre humana y las rutas de todas las patrullas de la zona.",
 		"opciones": [
 			{"texto": "Beber", "efectos": {"sed_a": 0, "humanidad": -1, "patrullas_visibles": true}},
 			{"texto": "Rechazar", "efectos": {}},
@@ -32,7 +30,6 @@ const TODOS := [
 	},
 	{
 		"id": "soldado_atrapado", "titulo": "El soldado atrapado", "zona": 2,
-		"situacion": "Un soldado solo, con la pierna atrapada bajo los escombros.",
 		"opciones": [
 			{"texto": "Beber", "efectos": {"sed_a": 0, "mejora": true, "humanidad": -1}},
 			{"texto": "Liberarlo", "efectos": {"siguiente_empieza": "sospecha"}},
@@ -41,7 +38,6 @@ const TODOS := [
 	},
 	{
 		"id": "jinete_dormido", "titulo": "El Jinete dormido", "zona": 2, "requiere": "jinetes",
-		"situacion": "Un Jinete del Apocalipsis duerme bloqueando el camino corto.",
 		"opciones": [
 			{"texto": "Rodearlo", "efectos": {"sed": 10}},
 			{"texto": "Atraerlo al puesto humano", "efectos": {"pendiente": "el siguiente mapa tendrá 2 soldados menos y un Jinete suelto"}},
@@ -49,7 +45,6 @@ const TODOS := [
 	},
 	{
 		"id": "clinica", "titulo": "La clínica", "zona": 2,
-		"situacion": "Bolsas de sangre de transfusión, intactas, en una clínica en ruinas.",
 		"opciones": [
 			{"texto": "Beber", "efectos": {"sed": -60, "humanidad": -1}},
 			{"texto": "Dejarlas", "efectos": {}},
@@ -57,7 +52,6 @@ const TODOS := [
 	},
 	{
 		"id": "carta", "titulo": "La carta sin enviar", "zona": 0,
-		"situacion": "Papel y lápiz en una escuela vacía.",
 		"opciones": [
 			{"texto": "Escribirle a Yuu", "efectos": {"sed_congelada": true}},
 			{"texto": "Descansar", "efectos": {"vida": 3}},
@@ -65,7 +59,6 @@ const TODOS := [
 	},
 	{
 		"id": "filo_exigente", "titulo": "El filo exigente", "zona": 0, "requiere": "filos",
-		"situacion": "La espada pide más sangre de la habitual.",
 		"opciones": [
 			{"texto": "Dársela", "efectos": {"vida_max": -3, "pendiente": "elegir un filo entre dos"}},
 			{"texto": "Negarse", "efectos": {}},
@@ -73,7 +66,6 @@ const TODOS := [
 	},
 	{
 		"id": "desertor", "titulo": "El desertor", "zona": 3,
-		"situacion": "Un soldado joven, harto del ejército, se ofrece a guiarte por las alcantarillas.",
 		"opciones": [
 			{"texto": "Confiar", "efectos": {"pendiente": "saltar la siguiente parada y perder su recompensa"}},
 			{"texto": "Beber de él", "efectos": {"sed_a": 0, "mejora": true, "humanidad": -1}},
@@ -82,7 +74,6 @@ const TODOS := [
 	},
 	{
 		"id": "escuadron_yuu", "titulo": "El escuadrón de Yuu", "zona": 3,
-		"situacion": "Desde una azotea ves a Yuu reír con su escuadrón.",
 		"opciones": [
 			{"texto": "Quedarse mirando", "efectos": {"sed": 10, "pendiente": "la siguiente prueba de la sed empezará más cerca de la salida"}},
 			{"texto": "Seguir", "efectos": {}},

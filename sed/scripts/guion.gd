@@ -1,24 +1,40 @@
 class_name Guion
-## Lee el guion de la historia, escrito en Markdown, y lo convierte en «golpes»: los párrafos
-## que una escena con diálogo enseña uno a uno.
+## Lee el guion de la historia, escrito en Markdown, y lo convierte en «golpes»: las líneas que
+## una escena con diálogo enseña una a una.
 ##
 ## El guion es provisional y no se sube a git: vive en `historia/guion/`, junto a `sed/`, o en
 ## `res://datos/guion/` si algún día se copia dentro del juego. Si no está en ninguno de los dos,
-## las escenas salen vacías: el inicio no se enseña y los recuerdos solo dicen su mejora.
-## `datos/recuerdos.json` guarda solo lo que no es texto: momento y mejora de cada recuerdo.
+## las escenas salen vacías: el inicio no se enseña, los recuerdos solo dicen su mejora, etc.
 ##
-## Cada golpe es un diccionario con `tipo` y `texto`:
-## - "narracion": párrafo sin raya.
-## - "dialogo": párrafo que empieza con raya (—).
+## Formato: cada línea no vacía es un golpe (la línea en blanco entre párrafos no hace falta,
+## pero se puede poner). Cada golpe es un diccionario con `tipo` y `texto`:
+## - "narracion": línea sin raya.
+## - "dialogo": línea que empieza con raya (—).
 ## - "ahora": la línea de «Mika, ahora».
-## - "otro_yuu": comentario del otro Yuu; lleva además `variante` ("hambriento" o "lleno").
+## - "otro_yuu": comentario del otro Yuu; lleva `variante` ("hambriento", "lleno" o "rombo",
+##   el ◆ de los eventos, que solo sale con Humanidad 1 o más).
+## - "opcion": «**Aceptar** *(…)*» en un evento; lleva `nombre`.
 ## - "negro": pantalla en negro (sale de una acotación que lo pide).
 ## - "silencio": pausa sin texto (Humanidad 0, donde el otro Yuu ya no comenta).
-## Las demás acotaciones *(…)* son notas para el juego y no se enseñan.
+## - "nota": las demás acotaciones *(…)*, notas para el juego que no se enseñan.
+## Quién habla lo deduce asignar_hablantes(); se puede forzar con «[Krul]» al principio de la línea.
 
 const CARPETA_INTERNA := "res://datos/guion"
 const CARPETA_EXTERNA := "../historia/guion" # relativa a la carpeta del proyecto (sed/)
 const ARCHIVO_INICIO := "0_inicio_y_recuerdos.md"
+const ARCHIVO_PRUEBAS := "1_pruebas_de_la_sed.md"
+const ARCHIVO_EVENTOS := "2_eventos_y_refugios.md"
+const TIPOS_VISIBLES := ["narracion", "dialogo", "ahora", "otro_yuu", "negro", "silencio"]
+
+## Personajes que se reconocen al deducir quién habla, con los nombres con que aparecen en el texto.
+const PERSONAJES := {
+	"El otro Yuu": ["el otro Yuu", "El otro Yuu", "el otro", "El otro"],
+	"Mika": ["Mika"], "Yuu": ["Yuu"], "Krul": ["Krul"], "Ferid": ["Ferid"],
+	"Crowley": ["Crowley"], "Lacus": ["Lacus"], "René": ["René"], "Akane": ["Akane"],
+	"Guren": ["Guren"], "Shinoa": ["Shinoa"], "Mahiru": ["Mahiru"],
+	"La doncella": ["la doncella", "La doncella"],
+}
+const VERBOS := ["dijo", "preguntó", "contestó", "respondió", "murmuró", "gritó", "susurró", "añadió", "insistió", "repitió"]
 
 static var _cache := {}
 ## Las pruebas automáticas ponen aquí una carpeta con un guion de muestra.
@@ -43,37 +59,93 @@ static func hay_guion() -> bool:
 	return carpeta() != ""
 
 
-## Golpes de la sección cuyo encabezado empieza por `encabezado` (sin las #), hasta el siguiente
-## encabezado del mismo nivel o superior, o hasta una línea «---». Vacío si no existe.
-static func seccion(archivo: String, encabezado: String) -> Array[Dictionary]:
-	var lineas := _lineas(archivo)
-	var golpes: Array[Dictionary] = []
+## Líneas de la sección cuyo encabezado empieza por `encabezado` (sin las #), hasta el siguiente
+## encabezado del mismo nivel o superior, o hasta una línea «---». Con `dentro`, la busca solo
+## después del encabezado `dentro` (por ejemplo, «Entrada» dentro de «Zona 1»). Vacío si no existe.
+static func lineas_de(archivo: String, encabezado: String, dentro := "") -> PackedStringArray:
+	var resultado := PackedStringArray()
 	var nivel := 0
-	var parrafo := PackedStringArray()
-	for linea in lineas:
+	var buscando := dentro == ""
+	for linea in _lineas(archivo):
 		var es_encabezado := linea.begins_with("#")
 		var n := linea.length() - linea.lstrip("#").length() if es_encabezado else 0
+		var titulo := linea.lstrip("#").strip_edges()
+		if not buscando:
+			buscando = es_encabezado and titulo.begins_with(dentro)
+			continue
 		if nivel == 0:
-			if es_encabezado and linea.lstrip("#").strip_edges().begins_with(encabezado):
+			if es_encabezado and titulo.begins_with(encabezado):
 				nivel = n
 			continue
 		if (es_encabezado and n <= nivel) or linea.strip_edges() == "---":
 			break
-		if linea.strip_edges() == "" or es_encabezado:
-			_cerrar_parrafo(parrafo, golpes)
-		else:
-			parrafo.append(linea.strip_edges())
-	_cerrar_parrafo(parrafo, golpes)
+		if not es_encabezado:
+			resultado.append(linea)
+	return resultado
+
+
+## Golpes de una sección (con las notas; ver sin_notas).
+static func seccion(archivo: String, encabezado: String, dentro := "") -> Array[Dictionary]:
+	var golpes: Array[Dictionary] = []
+	for linea in lineas_de(archivo, encabezado, dentro):
+		var g := _golpe(linea.strip_edges())
+		if not g.is_empty():
+			golpes.append(g)
 	return golpes
 
 
+static func sin_notas(golpes: Array[Dictionary]) -> Array[Dictionary]:
+	return golpes.filter(func(g): return g.tipo != "nota")
+
+
+## Elementos de una lista numerada («1. …»), cada uno con sus líneas de continuación (las que
+## van sangradas debajo). Cada elemento: {condicion, golpes}. `condicion` es el texto de una
+## acotación al principio, como «Sed 60 o más.», o "".
+static func lista(archivo: String, encabezado: String, dentro := "") -> Array[Dictionary]:
+	var elementos: Array[Dictionary] = []
+	var numero := RegEx.create_from_string("^\\d+\\.\\s+")
+	for linea in lineas_de(archivo, encabezado, dentro):
+		var limpia := linea.strip_edges()
+		if limpia == "":
+			continue
+		var m := numero.search(linea)
+		if m != null:
+			limpia = linea.substr(m.get_end()).strip_edges()
+			var condicion := ""
+			if limpia.begins_with("*(") and limpia.contains(")*"):
+				condicion = limpia.substr(2, limpia.find(")*") - 2).strip_edges()
+				limpia = limpia.substr(limpia.find(")*") + 2).strip_edges()
+			var nuevos: Array[Dictionary] = []
+			elementos.append({"condicion": condicion, "golpes": nuevos})
+		elif elementos.is_empty() or not linea.begins_with(" "):
+			continue
+		var g := _golpe(limpia)
+		if not g.is_empty() and g.tipo != "nota":
+			elementos[-1].golpes.append(g)
+	return elementos
+
+
+## Los textos sueltos de una lista (para frases cortas, como las de los ecos), sin las comillas «».
+## Deja fuera los elementos con condición.
+static func frases(archivo: String, encabezado: String, dentro := "") -> PackedStringArray:
+	var resultado := PackedStringArray()
+	for e in lista(archivo, encabezado, dentro):
+		if e.condicion == "" and not e.golpes.is_empty():
+			resultado.append(sin_comillas(e.golpes[0].texto))
+	return resultado
+
+
+static func sin_comillas(texto: String) -> String:
+	return texto.trim_prefix("«").trim_suffix("»")
+
+
 static func inicio() -> Array[Dictionary]:
-	return seccion(ARCHIVO_INICIO, "Inicio")
+	return sin_notas(seccion(ARCHIVO_INICIO, "Inicio"))
 
 
 ## La línea corta del inicio de las demás expediciones, con {viales} cambiado por el número en letra.
 static func cada_expedicion(viales: int) -> Array[Dictionary]:
-	var golpes := seccion(ARCHIVO_INICIO, "Cada expedición")
+	var golpes := sin_notas(seccion(ARCHIVO_INICIO, "Cada expedición"))
 	for g in golpes:
 		g.texto = g.texto.replace("{viales}", en_letra(viales))
 	return golpes
@@ -94,11 +166,124 @@ static func titulo_recuerdo(n: int) -> String:
 
 ## Golpes del recuerdo `n` (vacío si no hay guion).
 static func recuerdo(n: int) -> Array[Dictionary]:
-	return seccion(ARCHIVO_INICIO, "%d. " % n)
+	return sin_notas(seccion(ARCHIVO_INICIO, "%d. " % n))
+
+
+# --- Prueba de la sed ---
+
+const ESTADO_ECOS := {3: "Hambriento", 2: "Satisfecho", 1: "Cariñoso"}
+
+
+static func prueba_entrada(zona: int) -> Array[Dictionary]:
+	return sin_notas(seccion(ARCHIVO_PRUEBAS, "Entrada", "Zona %d" % zona))
+
+
+## La escena del fondo de la zona: la completa (`larga`) o la versión corta.
+static func prueba_fondo(zona: int, larga: bool) -> Array[Dictionary]:
+	return sin_notas(seccion(ARCHIVO_PRUEBAS, "Escena del fondo" if larga else "Versión corta", "Zona %d" % zona))
+
+
+## Texto de salida según el resultado ("superada", "cedida" o "fallida").
+static func prueba_salida(zona: int, resultado: String) -> Array[Dictionary]:
+	var golpes: Array[Dictionary] = []
+	match resultado:
+		"superada":
+			var marca := "**Zona %d.**" % zona
+			for linea in lineas_de(ARCHIVO_PRUEBAS, "Superada", "Salidas"):
+				if linea.strip_edges().begins_with(marca):
+					golpes.append(_golpe(linea.strip_edges().trim_prefix(marca).strip_edges()))
+			return golpes
+		"cedida":
+			# Hasta la acotación de la variante; en la zona 3, lo que va después de ella.
+			var despues: Array[Dictionary] = []
+			var en_variante := false
+			for g in seccion(ARCHIVO_PRUEBAS, "Cedida", "Salidas"):
+				if g.tipo == "nota" and g.texto.begins_with("Variante"):
+					en_variante = true
+				elif g.tipo != "nota":
+					if en_variante:
+						despues.append(g)
+					else:
+						golpes.append(g)
+			return despues if zona == 3 and not despues.is_empty() else golpes
+		_:
+			return sin_notas(seccion(ARCHIVO_PRUEBAS, "Fallida", "Salidas"))
+
+
+## «Sin voz»: sustituye a la prueba con Humanidad 0.
+static func prueba_sin_voz() -> Array[Dictionary]:
+	return sin_notas(seccion(ARCHIVO_PRUEBAS, "«Sin voz»"))
+
+
+static func frases_ecos(humanidad: int) -> PackedStringArray:
+	if not ESTADO_ECOS.has(humanidad):
+		return PackedStringArray()
+	return frases(ARCHIVO_PRUEBAS, ESTADO_ECOS[humanidad], "Frases de los ecos")
+
+
+## Frases de la voz en el Frenesí: las de siempre y la de cuando pasa sin que beba.
+static func voz_frenesi() -> Dictionary:
+	var normales := PackedStringArray()
+	var sin_beber := PackedStringArray()
+	for e in lista(ARCHIVO_PRUEBAS, "Voz en el Frenesí"):
+		if e.golpes.is_empty():
+			continue
+		var t := sin_comillas(e.golpes[0].texto)
+		if e.condicion.contains("sin que beba"):
+			sin_beber.append(t)
+		else:
+			normales.append(t)
+	return {"normales": normales, "sin_beber": sin_beber}
+
+
+# --- Eventos y refugios ---
+
+## Texto de un evento por su título: {intro, opciones: {nombre de la opción: golpes}}.
+## La intro llega hasta la primera opción; cada opción, hasta la siguiente.
+static func evento(titulo: String) -> Dictionary:
+	var encabezado := ""
+	for linea in _lineas(ARCHIVO_EVENTOS):
+		if linea.begins_with("### ") and linea.contains(titulo):
+			encabezado = linea.lstrip("#").strip_edges()
+			break
+	var intro: Array[Dictionary] = []
+	var opciones := {}
+	if encabezado == "":
+		return {"intro": intro, "opciones": opciones}
+	var actual := ""
+	for g in seccion(ARCHIVO_EVENTOS, encabezado, "Eventos"):
+		if g.tipo == "opcion":
+			actual = g.nombre
+			var golpes: Array[Dictionary] = []
+			opciones[actual] = golpes
+		elif g.tipo != "nota":
+			if actual == "":
+				intro.append(g)
+			else:
+				opciones[actual].append(g)
+	return {"intro": intro, "opciones": opciones}
+
+
+## Una línea de refugio al azar para esa Humanidad, entre las que se cumplen (algunas piden
+## «Sed 60 o más»). Vacío si no hay guion.
+static func refugio(humanidad: int, sed: int, rng: RandomNumberGenerator) -> Array[Dictionary]:
+	var posibles: Array = []
+	for e in lista(ARCHIVO_EVENTOS, "Humanidad %d" % humanidad, "Refugios"):
+		var condicion: String = e.condicion
+		if condicion == "" or (condicion.begins_with("Sed 60") and sed >= 60):
+			posibles.append(e.golpes)
+	var golpes: Array[Dictionary] = []
+	if not posibles.is_empty():
+		for g: Dictionary in posibles[rng.randi_range(0, posibles.size() - 1)]:
+			var copia := g.duplicate()
+			if copia.texto.begins_with("«"): # pensamiento de Mika
+				copia.habla_forzada = "Mika"
+			golpes.append(copia)
+	return golpes
 
 
 ## Deja solo lo que corresponde a la Humanidad: el comentario «hambriento» con 3, «lleno» con
-## 2 o 1, y con 0 un silencio en su lugar.
+## 2 o 1, y con 0 un silencio en su lugar. Las líneas ◆ («rombo») solo con 1 o más.
 static func segun_humanidad(golpes: Array[Dictionary], humanidad: int) -> Array[Dictionary]:
 	var variante := "hambriento" if humanidad >= Config.HUMANIDAD_INICIAL else "lleno"
 	var resultado: Array[Dictionary] = []
@@ -106,6 +291,9 @@ static func segun_humanidad(golpes: Array[Dictionary], humanidad: int) -> Array[
 	for g in golpes:
 		if g.tipo != "otro_yuu":
 			resultado.append(g)
+		elif g.variante == "rombo":
+			if humanidad >= 1:
+				resultado.append(g)
 		elif humanidad <= 0:
 			if not silencio_puesto:
 				resultado.append({"tipo": "silencio", "texto": ""})
@@ -113,6 +301,70 @@ static func segun_humanidad(golpes: Array[Dictionary], humanidad: int) -> Array[
 		elif g.variante == variante:
 			resultado.append(g)
 	return resultado
+
+
+## Pone en cada golpe `habla`, el personaje que dice la línea ("" si es narración o no se sabe):
+## 1. «[Nombre]» al principio de la línea (y se quita del texto).
+## 2. La línea lo dice: «—dijo Krul», «preguntó el otro Yuu».
+## 3. La narración justo anterior empieza por un personaje: «Krul levantó una ceja.»
+## 4. Si no, se alternan los dos últimos que hablaron, como en una novela.
+static func asignar_hablantes(golpes: Array) -> Array[Dictionary]:
+	var resultado: Array[Dictionary] = []
+	var ultimos: Array[String] = [] # los dos últimos que hablaron, el más reciente al final
+	var sujeto := "" # personaje con que empieza la narración anterior
+	for original in golpes:
+		var g: Dictionary = original.duplicate()
+		var forzado: String = g.get("habla_forzada", "")
+		var habla := forzado
+		match g.tipo:
+			"ahora":
+				habla = "Mika, ahora"
+			"otro_yuu":
+				habla = "El otro Yuu"
+			"dialogo":
+				if habla == "":
+					habla = _por_verbo(g.texto)
+				if habla == "" and sujeto != "":
+					habla = sujeto
+				if habla == "" and ultimos.size() == 2:
+					habla = ultimos[0]
+			"narracion":
+				if forzado == "":
+					sujeto = _sujeto(g.texto)
+		if g.tipo == "dialogo":
+			sujeto = ""
+			if habla != "":
+				ultimos.erase(habla)
+				ultimos.append(habla)
+				if ultimos.size() > 2:
+					ultimos.pop_front()
+		g.habla = habla
+		resultado.append(g)
+	return resultado
+
+
+## «—Tres —dijo una voz—.» → ""; «—Sí —dijo Krul.» → "Krul"; «preguntó el otro» → "El otro Yuu".
+static func _por_verbo(texto: String) -> String:
+	for verbo in VERBOS:
+		var i := texto.find(verbo + " ")
+		while i >= 0:
+			var nombre := _empieza_por_personaje(texto.substr(i + verbo.length() + 1))
+			if nombre != "":
+				return nombre
+			i = texto.find(verbo + " ", i + 1)
+	return ""
+
+
+static func _sujeto(texto: String) -> String:
+	return _empieza_por_personaje(texto)
+
+
+static func _empieza_por_personaje(texto: String) -> String:
+	for nombre in PERSONAJES:
+		for alias in PERSONAJES[nombre]:
+			if texto.begins_with(alias) and (texto.length() == alias.length() or not (texto[alias.length()].is_valid_identifier() or texto[alias.length()] in "áéíóúñ")):
+				return nombre
+	return ""
 
 
 ## Vuelve a leer el guion del disco (por si se cambió con el juego abierto).
@@ -135,27 +387,34 @@ static func _lineas(archivo: String) -> PackedStringArray:
 	return lineas
 
 
-static func _cerrar_parrafo(parrafo: PackedStringArray, golpes: Array[Dictionary]) -> void:
-	if parrafo.is_empty():
-		return
-	var g := _golpe(" ".join(parrafo))
-	parrafo.clear()
-	if not g.is_empty():
-		golpes.append(g)
-
-
 static func _golpe(texto: String) -> Dictionary:
+	if texto == "":
+		return {}
+	# «[Krul] —…»: quién habla, forzado a mano.
+	if texto.begins_with("[") and texto.contains("]"):
+		var forzado := texto.substr(1, texto.find("]") - 1).strip_edges()
+		var g := _golpe(texto.substr(texto.find("]") + 1).strip_edges())
+		if not g.is_empty():
+			g.habla_forzada = forzado
+		return g
 	# Acotación para el juego: *(…)*
 	if texto.begins_with("*(") and texto.ends_with(")*"):
 		if texto.to_lower().contains("pantalla en negro"):
 			return {"tipo": "negro", "texto": ""}
-		return {}
+		return {"tipo": "nota", "texto": texto.substr(2, texto.length() - 4)}
 	if texto.begins_with("**Mika, ahora:**"):
 		return {"tipo": "ahora", "texto": texto.trim_prefix("**Mika, ahora:**").strip_edges()}
+	if texto.begins_with("**◆ El otro Yuu:**"):
+		return {"tipo": "otro_yuu", "variante": "rombo", "texto": texto.trim_prefix("**◆ El otro Yuu:**").strip_edges()}
 	if texto.begins_with("**El otro Yuu, "):
 		var resto := texto.trim_prefix("**El otro Yuu, ")
 		var variante := resto.get_slice(":", 0)
 		return {"tipo": "otro_yuu", "variante": variante, "texto": resto.trim_prefix(variante + ":**").strip_edges()}
+	# Opción de un evento: «**Aceptar** *(efectos).*»
+	if texto.begins_with("**") and texto.find("**", 2) > 2:
+		var cierre := texto.find("**", 2)
+		var resto := texto.substr(cierre + 2).strip_edges()
+		if resto == "" or resto.begins_with("*("):
+			return {"tipo": "opcion", "nombre": texto.substr(2, cierre - 2), "texto": resto}
 	var limpio := texto.replace("**", "")
 	return {"tipo": "dialogo" if limpio.begins_with("—") else "narracion", "texto": limpio}
-

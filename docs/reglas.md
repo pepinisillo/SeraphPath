@@ -173,23 +173,33 @@ Infiltración ───┤                               ├── Prueba de la 
 - **Infiltración:** el puesto de control (mapa grande).
 - **Emboscada:** el mismo puesto, empezando en Alarma. Su recompensa, un filo, llegará con los filos.
 - **Refugio:**
-  - Muestra la línea de Mika según su Humanidad (de `historia.md`).
+  - Al entrar, una línea del guion al azar según la Humanidad; las marcadas «Sed 60 o más» solo con esa sed. Las que van entre «» las dice Mika.
   - Permite curar toda la vida.
   - «Mejorar la espada» aparece desactivado hasta que existan los filos.
 - **Evento:** sale uno al azar de los de la zona 1 que no hayan salido en la expedición: «La doncella de Krul», «Lacus y René», «La copa de Ferid» y «La carta sin enviar».
   - «El filo exigente» queda fuera hasta que existan los filos.
   - Los efectos que dependen de vampiros aún no existen y la opción lo dice: «aún sin efecto».
-  - Los datos de los diez eventos están en `scripts/eventos.gd`.
+  - Las opciones y sus efectos de los diez eventos están en `scripts/eventos.gd`; el texto, en el guion. Se ve la escena del evento, se elige y luego se ve lo que pasa con esa opción. Las líneas ◆ del otro Yuu solo salen con Humanidad 1 o más.
 - **Prueba de la sed:**
-  - Superada: desbloquea el siguiente recuerdo y lo enseña.
-  - Fallida: el siguiente mapa empieza en Alarma.
+  - Antes del mapa, la entrada de la zona.
+  - Los ecos dicen las frases del guion según la Humanidad (hambriento con 3, satisfecho con 2, cariñoso con 1). Cada eco empieza por una frase distinta y la cambia cada 5 s.
+  - Superada: la escena del fondo (entera la primera vez en cada zona, queda apuntado en `user://recuerdos.cfg`; después la versión corta), la salida y el siguiente recuerdo.
+  - Cedida: el texto de cedida. Fallida: el de fallida, y el siguiente mapa empieza en Alarma.
+  - **Sin voz:** con Humanidad 0 no hay prueba ni recuerdo; se ve el texto «Sin voz» y se sigue a la siguiente parada (regla del guion).
+- **Voz en el Frenesí:** al perder el control sale arriba una frase del guion al azar durante 3 s; si el Frenesí pasa sin que beba, la de devolver el control.
 - **Jefe:** Ferid Bathory aún no existe. Llegar a él termina, por ahora, la expedición.
 - **Inicio:** antes de la primera expedición se ve la escena con Krul, una sola vez (queda apuntado en `user://recuerdos.cfg`). En las siguientes sale solo la línea de la caja de Krul (sección «Cada expedición» del guion), donde `{viales}` se cambia por el número de viales en letra: «dos», o «cuatro» con el recuerdo 1.
 - **Recuerdos:** se guardan en disco (`user://recuerdos.cfg`) y se pueden releer desde el título.
   - Se ganan en orden. El 7, «Lo que nunca dije», no se gana con Humanidad 0.
   - El comentario del otro Yuu depende de la Humanidad: «hambriento» con 3, «lleno» con 2 o 1, y con 0 un silencio de 3 s. En la galería del título se leen como con Humanidad 3.
-- **Escenas con diálogo** (`scripts/dialogo.gd`): el texto aparece poco a poco, párrafo a párrafo, y los ya leídos quedan arriba más apagados. Avanzar completa el párrafo o pasa al siguiente; saltar enseña todo de golpe. La acotación «Pantalla en negro» funde a negro 2,5 s. Narración en gris, diálogo en blanco hueso, «Mika, ahora» en turquesa y el otro Yuu en rojo. Los retratos llegarán con el arte.
-- **Guion:** es provisional y **no está en git**. `scripts/guion.gd` lee los `.md` de `historia/guion/` (junto a `sed/`) o, si algún día se copia dentro del juego, de `sed/datos/guion/`. Los párrafos se separan con una línea en blanco; las líneas `*(…)*` son notas para el juego y no se enseñan. Si no hay guion, el inicio no aparece y los recuerdos solo dicen su mejora. Cambiar los diálogos no exige tocar código.
+- **Escenas con diálogo** (`scripts/dialogo.gd`), como en Hades (novela visual):
+  - Detrás, un fondo: un paisaje (por ahora, un degradado frío) o, si la escena ocurre jugando, el propio mapa oscurecido (`sobre_mapa`).
+  - Delante, los retratos de quienes hablan en la escena: Mika a la izquierda y los demás a la derecha. Quien habla está a plena luz y un poco más arriba; los demás, apagados. Por ahora son siluetas de color con forma de cápsula; el arte final solo cambia `_dibujar_retrato`.
+  - Abajo, un cuadro con el nombre de quien habla y el texto, que aparece poco a poco, una línea del guion cada vez.
+  - Avanzar completa la línea o pasa a la siguiente; tras la última, termina. Saltar termina la escena.
+  - La acotación «Pantalla en negro» funde a negro 2,5 s. Narración en gris, diálogo en blanco hueso, «Mika, ahora» en turquesa y el otro Yuu en rojo.
+- **Quién habla:** el guion no lo marca, así que `Guion.asignar_hablantes` lo deduce. Primero mira si la línea lo dice («—dijo Krul»). Si no, si la narración anterior empieza por un personaje («Krul levantó una ceja.»). Si tampoco, alterna entre los dos últimos que hablaron. Para corregirlo a mano, se pone `[Nombre]` al principio de la línea en el guion: `[Krul] —Bebe.`
+- **Guion:** es provisional y **no está en git**. `scripts/guion.gd` lee los `.md` de `historia/guion/` (junto a `sed/`) o, si algún día se copia dentro del juego, de `sed/datos/guion/`. Cada línea no vacía es un golpe del diálogo; las líneas `*(…)*` son notas para el juego y no se enseñan. Las listas numeradas (frases de los ecos, refugios) admiten líneas sangradas debajo de cada número. Si no hay guion, el inicio no aparece y los recuerdos solo dicen su mejora. Cambiar los diálogos no exige tocar código.
 - **Mejoras permanentes de los recuerdos:**
   1. Empieza con 4 viales en vez de 2.
   2. La sed sube 2 por golpe, no 3.

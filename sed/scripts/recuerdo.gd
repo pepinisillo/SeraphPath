@@ -14,8 +14,10 @@ func _init() -> void:
 
 func construir() -> void:
 	var datos := EstadoExpedicion.datos_recuerdos()
-	if mostrando == 0:
+	if dialogo != null:
+		dialogo.queue_free()
 		dialogo = null
+	if mostrando == 0:
 		titulo("Recuerdos")
 		for n in range(1, EstadoExpedicion.TOTAL_RECUERDOS + 1):
 			if expedicion.tiene_recuerdo(n):
@@ -33,7 +35,7 @@ func construir() -> void:
 	# Fuera de una expedición (galería) se lee como con Humanidad completa.
 	var humanidad: int = expedicion.humanidad if expedicion.activa else Config.HUMANIDAD_INICIAL
 	dialogo = Dialogo.new()
-	columna.add_child(dialogo)
+	add_child(dialogo)
 	dialogo.terminado.connect(_al_terminar.bind(r))
 	dialogo.empezar(Guion.segun_humanidad(Guion.recuerdo(mostrando), humanidad))
 

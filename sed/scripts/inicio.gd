@@ -10,7 +10,7 @@ func construir() -> void:
 	titulo("Sanguinem", Paleta.BLANCO_HUESO, 30)
 	espacio()
 	dialogo = Dialogo.new()
-	columna.add_child(dialogo)
+	add_child(dialogo)
 	dialogo.terminado.connect(_al_terminar)
 	dialogo.empezar(expedicion.escena_de_inicio())
 

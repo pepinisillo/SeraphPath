@@ -19,6 +19,11 @@ var mika: Mika
 var _tiempo := 0.0
 var _caida := -1.0 # s desde que cayó Mika; < 0 si sigue en pie
 var _eleccion: Control = null
+## Voz del otro Yuu en el Frenesí (del guion): la frase y los segundos que le quedan.
+var voz_frenesi := ""
+var _voz_restante := 0.0
+var _sin_control_antes := false
+var _respiro_antes := false
 
 @onready var lienzo: Control = $Lienzo
 
@@ -33,6 +38,7 @@ func iniciar(p_mapa: Mapa) -> void:
 
 func _process(delta: float) -> void:
 	_tiempo += delta
+	_actualizar_voz(delta)
 	if _caida >= 0.0:
 		_caida += delta
 	lienzo.queue_redraw()
@@ -90,6 +96,7 @@ func _dibujar() -> void:
 
 	if mika.sin_control():
 		_dibujar_frenesi(fuente, tam)
+	_dibujar_voz(fuente, tam)
 
 	# Panel de estado, arriba a la izquierda.
 	lienzo.draw_rect(Rect2(MARGEN - 12, MARGEN - 12, ANCHO_BARRA + 24, 150), COLOR_FONDO)
@@ -135,6 +142,38 @@ func _dibujar_frenesi(fuente: Font, tam: Vector2) -> void:
 	var pulso := 0.35 + 0.2 * sin(_tiempo * 8.0)
 	lienzo.draw_rect(Rect2(Vector2.ZERO, tam), Color(COLOR_SED, pulso), false, 24.0)
 	lienzo.draw_string(fuente, Vector2(0, MARGEN + 30), "FRENESÍ", HORIZONTAL_ALIGNMENT_CENTER, tam.x, 30, COLOR_SED)
+
+
+## Al empezar el Frenesí, una frase al azar; si se le pasa sin beber, la de devolver el control.
+func _actualizar_voz(delta: float) -> void:
+	if mika == null:
+		return
+	var sin_control := mika.en_frenesi()
+	var respiro := mika.en_respiro()
+	var voces := Guion.voz_frenesi()
+	if sin_control and not _sin_control_antes and not voces.normales.is_empty():
+		_decir(voces.normales[randi() % voces.normales.size()])
+	elif respiro and not _respiro_antes and not voces.sin_beber.is_empty():
+		_decir(voces.sin_beber[0])
+	_sin_control_antes = sin_control
+	_respiro_antes = respiro
+	_voz_restante -= delta
+	if _voz_restante <= 0.0:
+		voz_frenesi = ""
+
+
+func _decir(frase: String) -> void:
+	voz_frenesi = frase
+	_voz_restante = Config.VOZ_FRENESI_DURACION
+
+
+func _dibujar_voz(fuente: Font, tam: Vector2) -> void:
+	if voz_frenesi == "":
+		return
+	var ancho := fuente.get_string_size(voz_frenesi, HORIZONTAL_ALIGNMENT_LEFT, -1, 22).x + 40
+	var caja := Rect2((tam.x - ancho) / 2.0, MARGEN + 46, ancho, 38)
+	lienzo.draw_rect(caja, COLOR_FONDO)
+	lienzo.draw_string(fuente, Vector2(caja.position.x, caja.position.y + 26), voz_frenesi, HORIZONTAL_ALIGNMENT_CENTER, ancho, 22, COLOR_SED)
 
 
 func _tramo_sed() -> String:

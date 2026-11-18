@@ -115,9 +115,11 @@ const PRUEBA_ECO_VELOCIDAD := 1.9
 const PRUEBA_ECO_RADIO := 0.35 # casillas: los ecos cortan el paso a Mika
 const PRUEBA_ECO_VOZ := 3.0 # casillas a las que se oye lo que dice un eco
 const PRUEBA_SED_FALLIDA := 90 # sed con la que despierta si la prueba falla
+const ECO_CAMBIO_FRASE := 5.0 # s que un eco dice la misma frase
 
 # --- Escenas con diálogo ---
 const DIALOGO_LETRAS_POR_S := 55.0 # velocidad del texto que aparece poco a poco
 const DIALOGO_NEGRO := 2.5 # s de pantalla en negro (sin contar los fundidos)
 const DIALOGO_FUNDIDO := 0.6 # s de cada fundido a negro
+const VOZ_FRENESI_DURACION := 3.0 # s que se ve cada frase de la voz en el Frenesí
 const DIALOGO_SILENCIO := 3.0 # s de silencio donde el otro Yuu ya no comenta (Humanidad 0)

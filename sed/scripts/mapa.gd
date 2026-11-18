@@ -20,7 +20,6 @@ const ATLAS_SALIDA := Vector2i(3, 0)
 ## Mapa dentro de la mente de Mika: sin ataques, con ecos, y la salida es Yuu.
 @export var prueba_de_la_sed := false
 ## Lo que dicen los ecos, uno por eco y en orden. Si faltan, se repiten.
-@export var frases_ecos: PackedStringArray = []
 ## Nombre que aparece en la pantalla de resultado.
 @export var nombre := "Puesto de control"
 ## Casilla por la que llegan los refuerzos durante la alarma.
@@ -43,6 +42,7 @@ var terminado := false
 var motivo := ""
 
 var _rejilla := AStarGrid2D.new()
+var _frases_ecos := {} # Humanidad -> frases
 
 @onready var suelo: TileMapLayer = $Suelo
 @onready var muros: Muros = $Muros
@@ -68,8 +68,7 @@ func _ready() -> void:
 	for i in celdas_eco.size():
 		var eco: Eco = load("res://escenas/eco.tscn").instantiate()
 		add_child(eco)
-		var frase := frases_ecos[i % frases_ecos.size()] if not frases_ecos.is_empty() else ""
-		eco.iniciar(self, celdas_eco[i], frase)
+		eco.iniciar(self, celdas_eco[i], i)
 	if prueba_de_la_sed and celda_salida.x >= 0:
 		var yuu: Yuu = load("res://escenas/yuu.tscn").instantiate()
 		add_child(yuu)
@@ -226,6 +225,14 @@ func soldados() -> Array[Soldado]:
 		if hijo is Soldado:
 			lista.append(hijo)
 	return lista
+
+
+## Lo que dicen los ecos, del guion, según la Humanidad de Mika (con 0 no hay voz).
+func frases_ecos() -> PackedStringArray:
+	var humanidad := mika.humanidad if mika else Config.HUMANIDAD_INICIAL
+	if not _frases_ecos.has(humanidad):
+		_frases_ecos[humanidad] = Guion.frases_ecos(humanidad)
+	return _frases_ecos[humanidad]
 
 
 ## Grupos de soldados que aparecen cuando Mika entra en su zona.

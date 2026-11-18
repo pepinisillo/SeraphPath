@@ -16,6 +16,7 @@ const ESCENA_EVENTO := "res://escenas/evento.tscn"
 const ESCENA_REFUGIO := "res://escenas/refugio.tscn"
 const ESCENA_RECUERDO := "res://escenas/recuerdo.tscn"
 const ESCENA_INICIO := "res://escenas/inicio.tscn"
+const ESCENA_ESCENA := "res://escenas/escena.tscn"
 const ESCENA_FINAL := "res://escenas/final.tscn"
 const ESCENA_INFILTRACION := "res://escenas/mapa_puesto_control.tscn"
 const ESCENA_TUNELES := "res://escenas/mapa_tuneles.tscn"
@@ -61,6 +62,12 @@ var evento_actual := ""
 var recuerdo_nuevo := 0 # recuerdo ganado en la última parada (0 si ninguno)
 var recuerdos: Array[int] = []
 var inicio_visto := false
+var fondos_vistos: Array[int] = [] # zonas cuya escena del fondo de la Prueba de la sed ya se vio entera
+## Escena del guion en curso (ver mostrar_escena) y la que toca al salir de la parada actual.
+var escena_titulo := ""
+var escena_golpes: Array[Dictionary] = []
+var escena_tras_parada: Array[Dictionary] = []
+var _tras_escena: Callable
 var rng := RandomNumberGenerator.new()
 
 
@@ -100,6 +107,7 @@ func nueva() -> void:
 	eventos_vistos = []
 	evento_actual = ""
 	recuerdo_nuevo = 0
+	escena_tras_parada = []
 	rng.randomize()
 
 
@@ -159,7 +167,12 @@ func entrar() -> void:
 		"refugio":
 			_cambiar(ESCENA_REFUGIO)
 		"prueba":
-			_cambiar(ESCENA_PRUEBA)
+			if humanidad <= 0:
+				# «Sin voz»: con Humanidad 0 el otro Yuu ya no existe y no hay prueba ni recuerdo.
+				recuerdo_nuevo = 0
+				mostrar_escena("Sin voz", Guion.prueba_sin_voz(), completar_parada)
+			else:
+				mostrar_escena("Prueba de la sed", Guion.prueba_entrada(zona), _cambiar.bind(ESCENA_PRUEBA))
 		"jefe":
 			_cambiar(ESCENA_FINAL)
 
@@ -172,10 +185,33 @@ func escena_infiltracion() -> String:
 ## Pasa a la siguiente parada y vuelve al mapa de paradas (o enseña antes el recuerdo ganado).
 func completar_parada() -> void:
 	indice += 1
+	var golpes := escena_tras_parada
+	escena_tras_parada = []
+	mostrar_escena("", golpes, _tras_parada)
+
+
+func _tras_parada() -> void:
 	if recuerdo_nuevo > 0:
 		_cambiar(ESCENA_RECUERDO)
 	else:
 		ir_a_ruta()
+
+
+## Enseña una escena del guion y después llama a `despues`. Sin texto (no hay guion), sigue directo.
+func mostrar_escena(titulo: String, golpes: Array[Dictionary], despues: Callable) -> void:
+	if golpes.is_empty():
+		despues.call()
+		return
+	escena_titulo = titulo
+	escena_golpes = golpes
+	_tras_escena = despues
+	_cambiar(ESCENA_ESCENA)
+
+
+func terminar_escena() -> void:
+	var despues := _tras_escena
+	_tras_escena = Callable()
+	despues.call()
 
 
 ## Mika cayó: la expedición termina. Los recuerdos ganados se conservan.
@@ -300,10 +336,29 @@ func al_terminar_mapa(mapa: Mapa, exito: bool, motivo: String) -> void:
 		salvacion_usada = true
 	recuerdo_nuevo = 0
 	if mapa.prueba_de_la_sed:
+		var resultado := "superada" if exito else motivo
 		if exito:
 			recuerdo_nuevo = ganar_recuerdo()
 		elif motivo == "fallida":
 			siguiente_empieza = "alarma"
+		escena_tras_parada = escena_salida_prueba(resultado)
+
+
+## Lo que se ve al salir de la Prueba de la sed: si se superó, la escena del fondo (entera la
+## primera vez en la zona, la versión corta después) y luego el texto de salida.
+func escena_salida_prueba(resultado: String) -> Array[Dictionary]:
+	var golpes: Array[Dictionary] = []
+	if resultado == "superada":
+		var larga := not zona in fondos_vistos
+		var fondo := Guion.prueba_fondo(zona, larga)
+		if larga and not fondo.is_empty():
+			fondos_vistos.append(zona)
+			guardar_recuerdos()
+		golpes.append_array(fondo)
+		if not fondo.is_empty():
+			golpes.append({"tipo": "negro", "texto": ""})
+	golpes.append_array(Guion.prueba_salida(zona, resultado))
+	return golpes
 
 
 # --- Recuerdos ---
@@ -329,6 +384,7 @@ func guardar_recuerdos() -> void:
 	var cfg := ConfigFile.new()
 	cfg.set_value("recuerdos", "ganados", recuerdos)
 	cfg.set_value("recuerdos", "inicio_visto", inicio_visto)
+	cfg.set_value("recuerdos", "fondos_vistos", fondos_vistos)
 	cfg.save(archivo_recuerdos)
 
 
@@ -336,7 +392,9 @@ func cargar_recuerdos() -> void:
 	var cfg := ConfigFile.new()
 	recuerdos = []
 	inicio_visto = false
+	fondos_vistos = []
 	if cfg.load(archivo_recuerdos) == OK:
+		fondos_vistos.assign(cfg.get_value("recuerdos", "fondos_vistos", []))
 		recuerdos.assign(cfg.get_value("recuerdos", "ganados", []))
 		inicio_visto = cfg.get_value("recuerdos", "inicio_visto", false)
 
