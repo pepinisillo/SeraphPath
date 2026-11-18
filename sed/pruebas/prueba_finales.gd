@@ -21,7 +21,8 @@ func _initialize():
 	e.indice = 1
 	e.elegir_ruta("arriesgada")
 	e.indice = 2
-	comprobar("la ruta arriesgada entra por el río", e.escena_infiltracion(), "res://escenas/mapa_rio.tscn")
+	comprobar("la ruta arriesgada: el río (o un mapa generado)", e.escena_infiltracion() in ["res://escenas/mapa_rio.tscn"] + e.mapas_generados(3), true)
+	comprobar("el mapa hecho a mano de la ruta arriesgada es el río", e.datos_zona().arriesgada, "res://escenas/mapa_rio.tscn")
 	comprobar("el jefe pelea en el patio", e.datos_zona().mapa_jefe, "res://escenas/mapa_patio.tscn")
 	comprobar("los eventos de la zona 3", Eventos.de_zona(3).map(func(ev): return ev.id), ["carta", "filo_exigente", "desertor", "escuadron_yuu"])
 	e.indice = 5

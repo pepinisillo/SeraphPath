@@ -76,7 +76,8 @@ func _initialize():
 	e.indice = 1
 	e.elegir_ruta("arriesgada")
 	e.indice = 2
-	comprobar("la ruta arriesgada pasa por la estación", e.escena_infiltracion(), "res://escenas/mapa_estacion.tscn")
+	comprobar("la ruta arriesgada: la estación (o un mapa generado)", e.escena_infiltracion() in ["res://escenas/mapa_estacion.tscn"] + e.mapas_generados(2), true)
+	comprobar("el mapa hecho a mano de la ruta arriesgada es la estación", e.datos_zona().arriesgada, "res://escenas/mapa_estacion.tscn")
 	comprobar("el jefe es Crowley", [e.nombre_parada("jefe"), e.datos_zona().mapa_jefe], ["Jefe: Crowley Eusford", ESCENA])
 	comprobar("los eventos de la zona 2", Eventos.de_zona(2).map(func(ev): return ev.id), ["soldado_atrapado", "jinete_dormido", "clinica", "carta", "filo_exigente"])
 	e.indice = 5

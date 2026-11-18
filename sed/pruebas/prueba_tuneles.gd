@@ -103,7 +103,7 @@ func _initialize():
 	e.indice = 1
 	e.elegir_ruta("arriesgada")
 	e.indice = 2
-	comprobar("la de la ruta arriesgada son los túneles", [e.parada_actual(), e.escena_infiltracion()], ["infiltracion", ESCENA])
+	comprobar("la de la ruta arriesgada: los túneles (o un mapa generado)", [e.parada_actual(), e.escena_infiltracion() in [ESCENA] + e.mapas_generados(1)], ["infiltracion", true])
 	e.activa = false
 	terminar()
 
