@@ -12,7 +12,6 @@ func construir() -> void:
 	else:
 		titulo("Caído", Paleta.ROJO)
 		texto("Mika cae antes de llegar. Krul lo recoge, y despierta en Sanguinem con los recuerdos ganados.", Paleta.BLANCO_HUESO)
-		texto("«Yuu sigue ahí arriba.»", Paleta.TURQUESA, 22)
 	espacio()
 	texto("Recuerdos: %d/%d" % [e.recuerdos.size(), e.TOTAL_RECUERDOS], Paleta.TURQUESA, 16)
 	boton("Volver al título", e.volver_al_titulo)

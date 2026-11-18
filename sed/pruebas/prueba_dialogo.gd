@@ -12,8 +12,8 @@ const INICIO := """# Bloque de muestra
 
 *(Se ve una sola vez.)*
 
-Mika despertó en el suelo.
-—Tres —dijo una voz—. Tres días.
+Mika miró el reloj.
+—Uno —dijo una voz—. Uno solo.
 
 ---
 
@@ -21,7 +21,7 @@ Mika despertó en el suelo.
 
 *(Nota.)*
 
-Dentro había {viales} viales.
+Hay {viales} viales en la mesa.
 
 ---
 
@@ -29,9 +29,9 @@ Dentro había {viales} viales.
 
 ### 1. El primero
 
-Krul puso dos cosas en la mesa.
+Krul abrió la ventana.
 
-—Bebe —dijo Krul.
+—Pasa —dijo Krul.
 
 *(Pantalla en negro. Pasos.)*
 
@@ -105,25 +105,25 @@ Entrada dos.
 
 *(Bebe.)*
 
-Cedió.
+Texto de cedida.
 
 *(Variante de la zona 3.)*
 
-Mordió.
+Texto de la variante.
 
 ### Fallida
 
 *(Sed 100.)*
 
-Falló.
+Texto de fallida.
 
 ---
 
 ## Voz en el Frenesí
 
-1. «Suelta.»
-2. «Camina.»
-3. *(Si el Frenesí pasa sin que beba.)* «Te lo regreso.»
+1. «Uno.»
+2. «Dos.»
+3. *(Si el Frenesí pasa sin que beba.)* «Tres.»
 
 ---
 
@@ -131,7 +131,7 @@ Falló.
 
 *(Sustituye a la prueba.)*
 
-Silencio.
+Texto sin voz.
 """
 
 const EVENTOS := """# Eventos
@@ -140,17 +140,17 @@ const EVENTOS := """# Eventos
 
 ### 1. La doncella de Krul (zona 1)
 
-La doncella llegó.
-—Toma —dijo ella.
+La doncella saludó.
+—Hola —dijo ella.
 
-**◆ El otro Yuu:** «Tómalo.»
+**◆ El otro Yuu:** «Mira.»
 
 **Aceptar** *(1 vial).*
-Lo guardó.
+Lo apuntó.
 
 **Rechazar** *(nada).*
 —No.
-—Como quieras.
+—Bueno.
 
 ---
 
@@ -158,8 +158,8 @@ Lo guardó.
 
 ### Humanidad 3
 
-1. «Pienso en él.»
-2. *(Sed 60 o más.)* —Ven —dijo el otro Yuu.
+1. «Hace frío.»
+2. *(Sed 60 o más.)* —Mira —dijo el otro Yuu.
    —No.
 """
 
@@ -177,9 +177,9 @@ func _initialize():
 	print("A) Lectura del guion")
 	var inicio := Guion.inicio()
 	comprobar("inicio: una línea, un golpe; acotación fuera; corta en ---", inicio.map(func(g): return [g.tipo, g.texto]),
-		[["narracion", "Mika despertó en el suelo."], ["dialogo", "—Tres —dijo una voz—. Tres días."]])
+		[["narracion", "Mika miró el reloj."], ["dialogo", "—Uno —dijo una voz—. Uno solo."]])
 	comprobar("cada expedición: viales en letra", [Guion.cada_expedicion(2)[0].texto, Guion.cada_expedicion(4)[0].texto],
-		["Dentro había dos viales.", "Dentro había cuatro viales."])
+		["Hay dos viales en la mesa.", "Hay cuatro viales en la mesa."])
 	var r1 := Guion.recuerdo(1)
 	comprobar("recuerdo 1: tipos", r1.map(func(g): return g.tipo), ["narracion", "dialogo", "negro", "dialogo", "dialogo", "dialogo", "dialogo", "ahora", "otro_yuu", "otro_yuu"])
 	comprobar("negritas fuera", r1[3].texto, "—Hola —dijo Mika.")
@@ -207,19 +207,19 @@ func _initialize():
 	comprobar("entrada de cada zona", [Guion.prueba_entrada(1)[0].texto, Guion.prueba_entrada(2)[0].texto], ["Entrada uno.", "Entrada dos."])
 	comprobar("fondo largo y corto", [Guion.prueba_fondo(1, true)[0].texto, Guion.prueba_fondo(1, false)[0].texto], ["Fondo largo.", "Fondo corto."])
 	comprobar("salida superada por zona", [Guion.prueba_salida(1, "superada")[0].texto, Guion.prueba_salida(2, "superada")[0].texto], ["Salió uno.", "Salió dos."])
-	comprobar("cedida, y su variante en la zona 3", [Guion.prueba_salida(1, "cedida").map(func(g): return g.texto), Guion.prueba_salida(3, "cedida").map(func(g): return g.texto)], [["Cedió."], ["Mordió."]])
-	comprobar("fallida", Guion.prueba_salida(1, "fallida").map(func(g): return g.texto), ["Falló."])
-	comprobar("sin voz", Guion.prueba_sin_voz().map(func(g): return g.texto), ["Silencio."])
+	comprobar("cedida, y su variante en la zona 3", [Guion.prueba_salida(1, "cedida").map(func(g): return g.texto), Guion.prueba_salida(3, "cedida").map(func(g): return g.texto)], [["Texto de cedida."], ["Texto de la variante."]])
+	comprobar("fallida", Guion.prueba_salida(1, "fallida").map(func(g): return g.texto), ["Texto de fallida."])
+	comprobar("sin voz", Guion.prueba_sin_voz().map(func(g): return g.texto), ["Texto sin voz."])
 	comprobar("frases de los ecos por Humanidad", [Guion.frases_ecos(3), Guion.frases_ecos(2), Guion.frases_ecos(1), Guion.frases_ecos(0)],
 		[PackedStringArray(["Frase A.", "Frase B."]), PackedStringArray(["Frase C."]), PackedStringArray(), PackedStringArray()])
 	var voz := Guion.voz_frenesi()
-	comprobar("voz del Frenesí", [voz.normales, voz.sin_beber], [PackedStringArray(["Suelta.", "Camina."]), PackedStringArray(["Te lo regreso."])])
+	comprobar("voz del Frenesí", [voz.normales, voz.sin_beber], [PackedStringArray(["Uno.", "Dos."]), PackedStringArray(["Tres."])])
 
 	print("E) Eventos y refugios")
 	var ev := Guion.evento("La doncella de Krul")
 	comprobar("intro del evento, con la línea ◆", ev.intro.map(func(g): return g.tipo), ["narracion", "dialogo", "otro_yuu"])
 	comprobar("cada opción con su texto", [ev.opciones.keys(), ev.opciones["Aceptar"].map(func(g): return g.texto), ev.opciones["Rechazar"].size()],
-		[["Aceptar", "Rechazar"], ["Lo guardó."], 2])
+		[["Aceptar", "Rechazar"], ["Lo apuntó."], 2])
 	comprobar("la línea ◆ no sale con Humanidad 0", Guion.segun_humanidad(ev.intro, 0).size(), 2)
 	comprobar("evento sin texto", Guion.evento("No existe").intro.size(), 0)
 	var rng := RandomNumberGenerator.new()
@@ -230,7 +230,7 @@ func _initialize():
 	vistos = {}
 	for i in 40:
 		vistos[str(Guion.refugio(3, 20, rng).map(func(g): return g.texto))] = true
-	comprobar("refugio con sed baja: solo la que no pide sed", vistos.keys(), ['["«Pienso en él.»"]'])
+	comprobar("refugio con sed baja: solo la que no pide sed", vistos.keys(), ['["«Hace frío.»"]'])
 	comprobar("el elemento sangrado sigue al de su número", Guion.refugio(3, 70, rng).size() in [1, 2], true)
 
 	print("F) Avanzar, negro y saltar")
@@ -284,11 +284,11 @@ func _initialize():
 	expe.nueva()
 	comprobar("la primera vez, el inicio completo", expe.escena_de_inicio().size(), 2)
 	expe.inicio_visto = true
-	comprobar("después, la caja con 4 viales (tiene el recuerdo 1)", expe.escena_de_inicio()[0].texto, "Dentro había cuatro viales.")
+	comprobar("después, la caja con 4 viales (tiene el recuerdo 1)", expe.escena_de_inicio()[0].texto, "Hay cuatro viales en la mesa.")
 	expe.fondos_vistos = []
 	comprobar("superada la primera vez: fondo largo, negro y salida", expe.escena_salida_prueba("superada").map(func(g): return g.texto), ["Fondo largo.", "", "Salió uno."])
 	comprobar("la segunda, la versión corta", expe.escena_salida_prueba("superada").map(func(g): return g.texto), ["Fondo corto.", "", "Salió uno."])
-	comprobar("cedida, sin fondo", expe.escena_salida_prueba("cedida").map(func(g): return g.texto), ["Cedió."])
+	comprobar("cedida, sin fondo", expe.escena_salida_prueba("cedida").map(func(g): return g.texto), ["Texto de cedida."])
 	DirAccess.remove_absolute(ProjectSettings.globalize_path(expe.archivo_recuerdos))
 
 	for archivo in [Guion.ARCHIVO_INICIO, Guion.ARCHIVO_PRUEBAS, Guion.ARCHIVO_EVENTOS]:

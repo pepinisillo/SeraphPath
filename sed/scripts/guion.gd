@@ -306,7 +306,7 @@ static func segun_humanidad(golpes: Array[Dictionary], humanidad: int) -> Array[
 ## Pone en cada golpe `habla`, el personaje que dice la línea ("" si es narración o no se sabe):
 ## 1. «[Nombre]» al principio de la línea (y se quita del texto).
 ## 2. La línea lo dice: «—dijo Krul», «preguntó el otro Yuu».
-## 3. La narración justo anterior empieza por un personaje: «Krul levantó una ceja.»
+## 3. La narración justo anterior empieza por un personaje: «Krul se sentó.»
 ## 4. Si no, se alternan los dos últimos que hablaron, como en una novela.
 static func asignar_hablantes(golpes: Array) -> Array[Dictionary]:
 	var resultado: Array[Dictionary] = []
@@ -343,7 +343,7 @@ static func asignar_hablantes(golpes: Array) -> Array[Dictionary]:
 	return resultado
 
 
-## «—Tres —dijo una voz—.» → ""; «—Sí —dijo Krul.» → "Krul"; «preguntó el otro» → "El otro Yuu".
+## «—Sí —dijo una voz.» → ""; «—Sí —dijo Krul.» → "Krul"; «preguntó el otro» → "El otro Yuu".
 static func _por_verbo(texto: String) -> String:
 	for verbo in VERBOS:
 		var i := texto.find(verbo + " ")
