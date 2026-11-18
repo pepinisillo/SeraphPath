@@ -226,6 +226,8 @@ Patrullas, en (columna, fila):
 | S3 | Vaivén por la columna 9, de (9,4) a (9,8) |
 | S4 | Vaivén por la fila 0, entre (8,0) y (5,0), vigilando la salida; empieza en (8,0) |
 
+**Patrullas al azar** (en todos los mapas): para que no baste con memorizar los tiempos, en cada partida cada soldado empieza en un punto al azar de su ruta (en vaivén, también en cualquier sentido) y se detiene en cada punto entre 0,4 y 1 s. Los puntos de partida de las tablas solo se usan en las pruebas de los pasos, que tienen el azar apagado. `pruebas/prueba_patrullas.gd` prueba seis semillas en cada mapa: todas empiezan seguras y todas tienen una ruta sin ser visto.
+
 En la vista isométrica un muro tapa lo que tiene detrás, así que los muros que quedan entre la cámara y Mika se vuelven semitransparentes.
 
 Cada soldado empieza en el primer punto de su ruta, mirando hacia el segundo. La prueba automática del paso 7 busca una ruta de la `M` a la `E` en la que nadie vea nunca a Mika, la reproduce en el juego y comprueba que **no basta con correr**: la ruta debe tardar al menos 1,4 veces lo que se tarda yendo directo.

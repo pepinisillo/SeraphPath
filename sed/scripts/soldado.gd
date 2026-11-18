@@ -26,6 +26,13 @@ const LLEGADA := 0.05 # casillas: a esta distancia del destino ya ha llegado
 ## True: vuelve del último punto al primero. False: va y viene (vaivén).
 @export var en_bucle := true
 
+## Patrullas al azar: cada soldado empieza en un punto cualquiera de su ruta (y, en vaivén, en
+## cualquier sentido) y las pausas en los puntos duran entre SOLDADO_PAUSA_RUTA_MIN y _MAX.
+## Las pruebas antiguas lo apagan; las que lo prueban fijan la semilla para poder repetir.
+static var patrullas_al_azar := true
+static var semilla_fija := -1 # -1: una semilla nueva en cada mapa
+static var azar := RandomNumberGenerator.new()
+
 var mapa: Mapa
 var pos := Vector2.ZERO # casillas
 var mirada := Vector2(1, 0) # dirección en casillas, normalizada
@@ -64,9 +71,51 @@ func iniciar(p_mapa: Mapa) -> void:
 		return
 	pos = _centro(ruta[0])
 	_indice = 1 % ruta.size()
+	if patrullas_al_azar and ruta.size() > 1:
+		_empezar_al_azar()
 	if ruta.size() > 1:
 		mirada = (_centro(ruta[_indice]) - pos).normalized()
 	position = Iso.a_pantalla(pos)
+
+
+## Prepara el azar de las patrullas de un mapa. Lo llama el mapa antes de iniciar a los soldados.
+static func preparar_azar() -> void:
+	if semilla_fija >= 0:
+		azar.seed = semilla_fija
+	else:
+		azar.randomize()
+
+
+## Coloca al soldado en un punto al azar de su ruta, repartido según la longitud de cada tramo.
+func _empezar_al_azar() -> void:
+	var tramos := [] # [desde, hasta]
+	var n := ruta.size()
+	for i in (n if en_bucle else n - 1):
+		tramos.append([i, (i + 1) % n])
+	var total := 0.0
+	for t in tramos:
+		total += _centro(ruta[t[0]]).distance_to(_centro(ruta[t[1]]))
+	var x := azar.randf() * total
+	for t in tramos:
+		var a := _centro(ruta[t[0]])
+		var b := _centro(ruta[t[1]])
+		var largo := a.distance_to(b)
+		if x <= largo or t == tramos[-1]:
+			var f := clampf(x / maxf(largo, 0.001), 0.0, 1.0)
+			pos = a.lerp(b, f)
+			_indice = t[1]
+			_sentido = 1
+			if not en_bucle and azar.randf() < 0.5: # en vaivén, también al revés
+				_indice = t[0]
+				_sentido = -1
+			return
+		x -= largo
+
+
+func _pausa_en_punto() -> float:
+	if patrullas_al_azar:
+		return azar.randf_range(Config.SOLDADO_PAUSA_RUTA_MIN, Config.SOLDADO_PAUSA_RUTA_MAX)
+	return Config.SOLDADO_PAUSA_RUTA
 
 
 func _physics_process(delta: float) -> void:
@@ -259,7 +308,7 @@ func _patrullar(delta: float) -> void:
 	var avance := Config.SOLDADO_VELOCIDAD_PATRULLA * delta
 	if hacia.length() <= avance:
 		pos = destino
-		_pausa = Config.SOLDADO_PAUSA_RUTA
+		_pausa = _pausa_en_punto()
 		_siguiente_punto()
 	else:
 		pos += hacia.normalized() * avance

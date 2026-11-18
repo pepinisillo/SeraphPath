@@ -2,6 +2,7 @@ extends SceneTree
 ## Paso 2: ruta de patrulla de S1 y rayos de visión contra los muros.
 
 func _initialize():
+	Soldado.patrullas_al_azar = false # la prueba coloca a S1 en el primer punto de su ruta
 	var mapa: Mapa = load("res://escenas/mapa_puesto_control.tscn").instantiate()
 	root.add_child(mapa)
 	await process_frame

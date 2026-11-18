@@ -60,6 +60,7 @@ func _ready() -> void:
 	efectos.iniciar(self)
 	if mika:
 		mika.iniciar(self, Vector2(inicio_mika) + Vector2(0.5, 0.5))
+	Soldado.preparar_azar()
 	for soldado in soldados():
 		soldado.iniciar(self)
 	for i in celdas_eco.size():

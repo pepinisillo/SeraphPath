@@ -10,6 +10,11 @@ var linea := [] # [muestra] -> [[pos, mirada], ...] por soldado
 var _visible_cache := {}
 
 
+## Las pruebas de los pasos se escribieron con patrullas fijas; las que prueban el azar lo encienden.
+func _init() -> void:
+	Soldado.patrullas_al_azar = false
+
+
 ## Carga el puesto de control sin que avance solo: las pruebas lo hacen avanzar con paso().
 ## Solo deja a los soldados nombrados (por defecto S1, con el que se escribieron las pruebas
 ## de los pasos 2 a 6); con `todos` deja a los cuatro.

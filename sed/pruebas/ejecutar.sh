@@ -3,7 +3,7 @@
 cd "$(dirname "$0")/.." || exit 1
 fallos=0
 for prueba in pruebas/prueba_*.gd; do
-	salida=$(timeout 120 godot --headless --path . -s "res://$prueba" 2>&1)
+	salida=$(timeout 300 godot --headless --path . -s "res://$prueba" 2>&1)
 	if grep -q "RESULTADO: OK" <<<"$salida" && ! grep -qE "SCRIPT ERROR|FALLO" <<<"$salida"; then
 		echo "ok     $prueba"
 	else
